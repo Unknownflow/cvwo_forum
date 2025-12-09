@@ -1,0 +1,8 @@
+services:
+  react:
+    build:
+      context: /frontend
+      dockerfile: Dockerfile
+    container_name: react
+    ports:
+      - "3000:3000"
