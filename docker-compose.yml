@@ -6,3 +6,10 @@ services:
     container_name: react
     ports:
       - "3000:3000"
+  go:
+    build:
+      context: /backend
+      dockerfile: Dockerfile
+    container_name: go
+    ports:
+      - "8000:8000"
