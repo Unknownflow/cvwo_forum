@@ -1,3 +1,9 @@
+volumes:
+  pgdata:
+
+networks:
+  esnet:
+
 services:
   react:
     build:
@@ -13,3 +19,32 @@ services:
     container_name: go
     ports:
       - "8000:8000"
+  postgres:
+    image: postgres
+    hostname: postgres
+    container_name: postgres
+    user: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+  adminer:
+    image: adminer
+    hostname: adminer
+    container_name: adminer
+    restart: always
+    ports: 
+      - "8080:8080"
+

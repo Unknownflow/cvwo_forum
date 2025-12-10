@@ -18,4 +18,4 @@ RUN go build -o main cmd/server/main.go
 EXPOSE 8000
 
 # Run
-CMD ["./main"]
+CMD ["go", "run", "./cmd/server/main.go"]

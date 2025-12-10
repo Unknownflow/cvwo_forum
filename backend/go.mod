@@ -6,3 +6,8 @@ require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/pkg/errors v0.9.1
 )
+
+require (
+	github.com/jmoiron/sqlx v1.4.0 // indirect
+	github.com/lib/pq v1.10.9 // indirect
+)
