@@ -3,8 +3,10 @@ package database
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -37,17 +39,24 @@ CREATE TABLE IF NOT EXISTS comment
 `
 
 const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "password"
-	dbname   = "db"
+	port = 5432
 )
 
 type Database struct {
 }
 
 func GetDB() (*Database, error) {
+	err := godotenv.Load("../.env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	host := os.Getenv("DB_HOST")
+	user := os.Getenv("DB_USER")
+	dbname := os.Getenv("DB_NAME")
+	password := os.Getenv("DB_PASSWORD")
+
 	// Connect to PostgresSQL db
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sqlx.Connect("postgres", psqlInfo)
