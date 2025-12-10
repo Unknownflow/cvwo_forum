@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/CVWO/sample-go-app/internal/handlers/comments"
 	"github.com/CVWO/sample-go-app/internal/handlers/users"
 	"github.com/go-chi/chi/v5"
 )
@@ -17,4 +18,15 @@ func GetRoutes() func(r chi.Router) {
 			json.NewEncoder(w).Encode(response)
 		})
 	}
+}
+
+func CommentRoutes() chi.Router {
+	r := chi.NewRouter()
+	commentHandler := comments.CommentHandler{}
+	r.Get("/", commentHandler.ListComments)
+	r.Post("/", commentHandler.CreateComment)
+	r.Get("/{id}", commentHandler.GetComments)
+	r.Put("/{id}", commentHandler.UpdateComment)
+	r.Delete("/{id}", commentHandler.DeleteComment)
+	return r
 }
