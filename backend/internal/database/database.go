@@ -3,7 +3,6 @@ package database
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -44,26 +43,6 @@ const (
 	password = "password"
 	dbname   = "db"
 )
-
-type Topic struct {
-	ID    int    `db:"id"`
-	Title string `db:"title"`
-}
-
-type Post struct {
-	ID        int       `db:"id"`
-	Body      string    `db:"body"`
-	Author    string    `db:"author"`
-	CreatedAt time.Time `db:"created_at"`
-	TopicID   int       `db:"topic_id"`
-}
-type Comment struct {
-	ID        int       `db:"id"`
-	Body      string    `db:"body"`
-	Author    string    `db:"author"`
-	CreatedAt time.Time `db:"created_at"`
-	PostID    int       `db:"topic_id"`
-}
 
 type Database struct {
 }
