@@ -1,13 +1,11 @@
 import BasicThreadList from "../components/BasicThreadList";
+import { Typography } from "@mui/material";
 import React from "react";
 
 const Home: React.FC = () => {
     return (
         <>
-            <h3>
-                {"Welcome to CVWO's sample react app! Here's a basic list of forum threads for you to experiment with."}
-            </h3>
-            <br />
+            <Typography variant="h5">Web Forum</Typography>
             <BasicThreadList />
         </>
     );
