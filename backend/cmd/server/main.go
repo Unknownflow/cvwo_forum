@@ -12,30 +12,39 @@ import (
 )
 
 var schema = `
-CREATE TABLE IF NOT EXISTS topic
+CREATE TABLE IF NOT EXISTS users
+(
+	username TEXT PRIMARY KEY,
+	password TEXT NOT NULL,
+	role TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS topics
 (
 	id SERIAL PRIMARY KEY,
 	title TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS post
+CREATE TABLE IF NOT EXISTS posts
 (
 	id SERIAL PRIMARY KEY,
 	body TEXT NOT NULL, 
-	author TEXT, 
-	created_at TIMESTAMPTZ,
+	author TEXT NOT NULL, 
+	created_at TIMESTAMPTZ DEFAULT NOW(),
 	topic_id INT NOT NULL,
-	FOREIGN KEY (topic_id) REFERENCES topic(id)
+	FOREIGN KEY (author) REFERENCES users(username) ON DELETE SET NULL,
+	FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS comment
+CREATE TABLE IF NOT EXISTS comments
 (
 	id SERIAL PRIMARY KEY,
 	body TEXT NOT NULL,
-	author TEXT,
-	created_at TIMESTAMPTZ,
+	author TEXT NOT NULL,
+	created_at TIMESTAMPTZ DEFAULT NOW(),
 	post_id INT NOT NULL,
-	FOREIGN KEY (post_id) REFERENCES post(id)
+	FOREIGN KEY (author) REFERENCES users(username) ON DELETE SET NULL,
+	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 `
 
