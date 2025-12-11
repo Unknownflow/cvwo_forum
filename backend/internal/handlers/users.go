@@ -1,4 +1,4 @@
-package users
+package handlers
 
 import (
 	"database/sql"
@@ -18,7 +18,7 @@ type CreateUserRequest struct {
 	Password string `json:"password"`
 }
 
-func HandleCreate(w http.ResponseWriter, req *http.Request, userReq CreateUserRequest) (*models.User, error) {
+func HandleCreateUser(w http.ResponseWriter, req *http.Request, userReq CreateUserRequest) (*models.User, error) {
 	// Validate user input
 	if err := validateUser(userReq); err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func HandleCreate(w http.ResponseWriter, req *http.Request, userReq CreateUserRe
 	return newUser, nil
 }
 
-func HandleVerify(w http.ResponseWriter, req *http.Request, userReq CreateUserRequest) bool {
+func HandleVerifyUser(w http.ResponseWriter, req *http.Request, userReq CreateUserRequest) bool {
 	db, err := database.GetDB()
 	if err != nil {
 		return false

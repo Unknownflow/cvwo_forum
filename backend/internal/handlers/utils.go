@@ -1,8 +1,10 @@
-package utils
+package handlers
 
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/CVWO/sample-go-app/internal/database"
 )
 
 // respondJSON sends a JSON response with the given status code
@@ -15,4 +17,13 @@ func RespondJSON(w http.ResponseWriter, status int, data interface{}) {
 // respondError sends an error response
 func RespondError(w http.ResponseWriter, status int, message string) {
 	http.Error(w, message, status)
+}
+
+func GetDBConnection(w http.ResponseWriter) (*database.Database, bool) {
+	db, err := database.GetDB()
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, "Server down")
+		return nil, false
+	}
+	return db, true
 }
