@@ -2,14 +2,14 @@ import { Box, Button, Container, Link, Paper, TextField, Typography } from "@mui
 import React, { FormEvent, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
-const Home: React.FC = () => {
-    const [username, setUsername] = useState<string>("");
+const Register: React.FC = () => {
+    const [user, setUser] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!username || !password) {
+        if (!user || !password) {
             alert("Please enter both username and password");
             return;
         }
@@ -19,7 +19,7 @@ const Home: React.FC = () => {
         <Container maxWidth="xs">
             <Paper elevation={12} sx={{ marginTop: 8, padding: 2 }}>
                 <Typography variant="h5" sx={{ mb: 2 }}>
-                    Sign in
+                    Register for an account
                 </Typography>
                 <Box
                     component="form"
@@ -29,7 +29,7 @@ const Home: React.FC = () => {
                     <TextField
                         placeholder="Enter username"
                         required
-                        onChange={(event) => setUsername(event.target.value)}
+                        onChange={(event) => setUser(event.target.value)}
                     />
                     <TextField
                         placeholder="Enter password"
@@ -38,15 +38,12 @@ const Home: React.FC = () => {
                         onChange={(event) => setPassword(event.target.value)}
                     />
                     <Button type="submit" variant="contained">
-                        Sign in
+                        Sign up
                     </Button>
                 </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Link component={RouterLink} to="/forgot">
-                        Forgot password?
-                    </Link>
-                    <Link component={RouterLink} to="/register">
-                        Sign up
+                <Box>
+                    <Link component={RouterLink} to="/">
+                        Back to home
                     </Link>
                 </Box>
             </Paper>
@@ -54,4 +51,4 @@ const Home: React.FC = () => {
     );
 };
 
-export default Home;
+export default Register;
