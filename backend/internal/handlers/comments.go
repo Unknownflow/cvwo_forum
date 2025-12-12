@@ -18,7 +18,7 @@ func ReadComments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var comments []models.Comment
-	query := `SELECT * FROM comment`
+	query := `SELECT * FROM comments`
 
 	err := db.Conn.Select(&comments, query)
 	if err != nil {
@@ -38,7 +38,7 @@ func ReadComment(w http.ResponseWriter, r *http.Request) {
 
 	var comment models.Comment
 	commentID := chi.URLParam(r, "id")
-	query := "SELECT * FROM comment WHERE id = $1"
+	query := "SELECT * FROM comments WHERE id = $1"
 
 	err := db.Conn.QueryRowx(query, commentID).StructScan(&comment)
 	if err != nil {
@@ -71,7 +71,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newComment.CreatedAt = time.Now()
-	query := `INSERT INTO comment (body, author, created_at, post_id) 
+	query := `INSERT INTO comments (body, author, created_at, post_id) 
 			  VALUES (:body, :author, :created_at, :post_id) RETURNING id`
 	db, ok := GetDBConnection(w)
 	if !ok {
@@ -108,7 +108,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newComment.CreatedAt = time.Now()
-	query := `UPDATE comment
+	query := `UPDATE comments
 			  SET body = :body, author = :author, created_at = :created_at
 			  WHERE id = :id 
 			  RETURNING id`
@@ -119,7 +119,26 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 
 	// start transaction
 	tx := db.Conn.MustBegin()
-	tx.NamedQuery(query, newComment)
+	result, err := tx.NamedExec(query, newComment)
+
+	if err != nil {
+		tx.Rollback()
+		RespondError(w, http.StatusInternalServerError, "Failed to execute query")
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		RespondError(w, http.StatusInternalServerError, "Failed to get rows affected")
+		return
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		RespondError(w, http.StatusNotFound, "Record not found")
+		return
+	}
 
 	if err := tx.Commit(); err != nil {
 		RespondError(w, http.StatusInternalServerError, "Failed to commit transaction")
@@ -136,7 +155,7 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	commentID := chi.URLParam(r, "id")
-	query := "DELETE FROM comment WHERE id = $1"
+	query := "DELETE FROM comments WHERE id = $1"
 	result, err := db.Conn.Exec(query, commentID)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError,

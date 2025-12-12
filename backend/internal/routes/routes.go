@@ -31,3 +31,17 @@ func CommentRoutes() func(r chi.Router) {
 
 	}
 }
+
+func TopicsRoutes() func(r chi.Router) {
+	return func(r chi.Router) {
+		r.Route("/", func(r chi.Router) {
+			r.Get("/", handlers.ReadTopics)
+			r.Post("/", handlers.CreateTopic)
+		})
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", handlers.ReadTopic)
+			r.Put("/", handlers.UpdateTopic)
+			r.Delete("/", handlers.DeleteTopic)
+		})
+	}
+}

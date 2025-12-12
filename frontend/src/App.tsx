@@ -17,7 +17,7 @@ const theme = createTheme({
     },
 });
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 const App: React.FC = () => {
     return (

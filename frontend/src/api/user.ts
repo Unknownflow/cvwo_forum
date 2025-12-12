@@ -2,7 +2,7 @@
 import User from "../types/User";
 import axios from "axios";
 
-const addr = "http://localhost:8000";
+const addr = process.env.REACT_APP_API_BASE_URL;
 
 const createUser = async (newUserData: User) => {
     try {

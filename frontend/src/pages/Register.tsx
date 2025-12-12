@@ -1,6 +1,7 @@
 import { createUser } from "../api/user";
+import { queryClient } from "../App";
 import { Box, Button, Container, Link, Paper, Snackbar, TextField, Typography } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import React, { FormEvent, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
@@ -9,7 +10,6 @@ const Register: React.FC = () => {
     const [password, setPassword] = useState<string>("");
     const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
-    const queryClient = useQueryClient();
     const navigate = useNavigate();
 
     const mutation = useMutation({
