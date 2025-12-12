@@ -1,18 +1,46 @@
-import { Box, Button, Container, Link, Paper, TextField, Typography } from "@mui/material";
+import { createUser } from "../api/user";
+import { Box, Button, Container, Link, Paper, Snackbar, TextField, Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { FormEvent, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
-    const [user, setUser] = useState<string>("");
+    const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
+    const [message, setMessage] = useState<string>("");
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
+
+    const mutation = useMutation({
+        mutationFn: createUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["users"] });
+            setUsername("");
+            setPassword("");
+            navigate("/topics");
+        },
+        onError: (error) => {
+            showSnackBar(error.message);
+        },
+    });
+
+    const showSnackBar = (message: string) => {
+        setIsSnackBarOpen(true);
+        setMessage(message);
+    };
+
+    const handleSnackBarClose = () => setIsSnackBarOpen(false);
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!user || !password) {
-            alert("Please enter both username and password");
+        if (!username || !password) {
+            showSnackBar("please enter both username and password");
             return;
         }
+
+        mutation.mutate({ username, password });
     };
 
     return (
@@ -29,7 +57,7 @@ const Register: React.FC = () => {
                     <TextField
                         placeholder="Enter username"
                         required
-                        onChange={(event) => setUser(event.target.value)}
+                        onChange={(event) => setUsername(event.target.value)}
                     />
                     <TextField
                         placeholder="Enter password"
@@ -38,7 +66,7 @@ const Register: React.FC = () => {
                         onChange={(event) => setPassword(event.target.value)}
                     />
                     <Button type="submit" variant="contained">
-                        Sign up
+                        {mutation.isPending ? "Signing up..." : "Sign up"}
                     </Button>
                 </Box>
                 <Box>
@@ -47,6 +75,13 @@ const Register: React.FC = () => {
                     </Link>
                 </Box>
             </Paper>
+            <Snackbar
+                open={isSnackBarOpen}
+                autoHideDuration={2000}
+                message={message}
+                onClose={handleSnackBarClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            />
         </Container>
     );
 };

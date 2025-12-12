@@ -18,7 +18,7 @@ func HandleLogin(w http.ResponseWriter, req *http.Request) {
 	response := HandleVerifyUser(w, req, user)
 
 	if !response {
-		RespondError(w, http.StatusUnauthorized, "unauthorised access")
+		RespondError(w, http.StatusUnauthorized, "incorrect username or password")
 		return
 	}
 
@@ -39,7 +39,7 @@ func HandleSignUp(w http.ResponseWriter, req *http.Request) {
 	response, err := HandleCreateUser(w, req, newUser)
 
 	if err != nil {
-		RespondError(w, http.StatusInternalServerError, "internal server error")
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
