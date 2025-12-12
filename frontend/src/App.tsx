@@ -1,8 +1,7 @@
 import Home from "./pages/Home";
-import BasicThreadView from "./pages/BasicThreadView";
-import StyledThreadView from "./pages/StyledThreadView";
 import Register from "./pages/Register";
 import Topics from "./pages/Topics";
+import TopicPosts from "./pages/TopicPosts";
 import React from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -26,11 +25,10 @@ const App: React.FC = () => {
                 <BrowserRouter>
                     <QueryClientProvider client={queryClient}>
                         <Routes>
-                            <Route path="/thread/1" element={<BasicThreadView />} />
-                            <Route path="/thread/1/styled" element={<StyledThreadView />} />
                             <Route path="/" element={<Home />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/topics" element={<Topics />} />
+                            <Route path="/topics/:id/posts" element={<TopicPosts />} />
                         </Routes>
                     </QueryClientProvider>
                 </BrowserRouter>

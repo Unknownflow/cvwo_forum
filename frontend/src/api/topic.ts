@@ -13,6 +13,11 @@ const readTopic = async (id: number) => {
     return response.data;
 };
 
+const readTopicPosts = async (id: number) => {
+    const response = await axios.get(addr + id + "/posts");
+    return response.data;
+};
+
 const createTopic = async (title: string) => {
     const response = await axios.post(addr, { title });
     return response.data;
@@ -28,4 +33,4 @@ const deleteTopic = async (id: number) => {
     return response.data;
 };
 
-export { readTopics, readTopic, createTopic, updateTopic, deleteTopic };
+export { readTopics, readTopic, readTopicPosts, createTopic, updateTopic, deleteTopic };

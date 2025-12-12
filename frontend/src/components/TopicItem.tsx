@@ -2,10 +2,11 @@ import Topic from "../types/Topic";
 import { deleteTopic, updateTopic } from "../api/topic";
 import { queryClient } from "../App";
 import React, { useState } from "react";
-import { Box, Button, Card, CardActions, CardContent, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
     topic: Topic;
@@ -14,6 +15,13 @@ type Props = {
 const TopicItem: React.FC<Props> = ({ topic }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [newTitle, setNewTitle] = useState<string>("");
+    const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
+    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
+    const navigate = useNavigate();
+
+    const handleNavigate = () => {
+        navigate("/topics/" + topic.id + "/posts");
+    };
 
     const updateTopicItem = useMutation({
         mutationFn: updateTopic,
@@ -71,6 +79,11 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
     });
 
     const handleConfirmEdit = () => {
+        if (newTitle == "") {
+            setSnackBarMessage("Title must not be empty!");
+            setIsSnackBarOpen(true);
+            return;
+        }
         setIsEditing(false);
         topic.title = newTitle;
         updateTopicItem.mutate(topic);
@@ -86,13 +99,19 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
     };
 
     const handleDelete = () => deleteTopicItem.mutate(topic.id);
+    const handleSnackBarClose = () => setIsSnackBarOpen(false);
 
     return (
         <Card key={topic.id}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <CardContent>
                     {isEditing ? (
-                        <TextField value={newTitle} onChange={(event) => setNewTitle(event.target.value)}></TextField>
+                        <TextField
+                            value={newTitle}
+                            required
+                            label="Title"
+                            onChange={(event) => setNewTitle(event.target.value)}
+                        ></TextField>
                     ) : (
                         <Typography variant="body1" color="textPrimary" component="p">
                             {topic.title}
@@ -100,6 +119,9 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                     )}
                 </CardContent>
                 <CardActions>
+                    <Button size="small" onClick={handleNavigate}>
+                        View posts
+                    </Button>
                     {isEditing ? (
                         <>
                             <Button size="small" onClick={handleConfirmEdit}>
@@ -120,6 +142,13 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                     </Button>
                 </CardActions>
             </Box>
+            <Snackbar
+                open={isSnackBarOpen}
+                autoHideDuration={2000}
+                onClose={handleSnackBarClose}
+                message={snackBarMessage}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            />
         </Card>
     );
 };

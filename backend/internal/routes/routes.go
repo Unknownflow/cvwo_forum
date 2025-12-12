@@ -42,6 +42,21 @@ func TopicsRoutes() func(r chi.Router) {
 			r.Get("/", handlers.ReadTopic)
 			r.Put("/", handlers.UpdateTopic)
 			r.Delete("/", handlers.DeleteTopic)
+			r.Get("/posts", handlers.ReadTopicPosts)
+		})
+	}
+}
+
+func PostsRoutes() func(r chi.Router) {
+	return func(r chi.Router) {
+		r.Route("/", func(r chi.Router) {
+			r.Get("/", handlers.ReadPosts)
+			r.Post("/", handlers.CreatePost)
+		})
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", handlers.ReadPost)
+			r.Put("/", handlers.UpdatePost)
+			r.Delete("/", handlers.DeletePost)
 		})
 	}
 }

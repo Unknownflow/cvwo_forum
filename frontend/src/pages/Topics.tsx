@@ -4,23 +4,35 @@ import { queryClient } from "../App";
 import { createTopic, readTopics } from "../api/topic";
 import React, { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 const Topics: React.FC = () => {
     const [newTitle, setNewTitle] = useState<string>("");
     const [isCreating, setIsCreating] = useState<boolean>(false);
+    const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
+    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
     const { isLoading, isError, data } = useQuery({
         queryKey: ["topics"],
         queryFn: readTopics,
     });
 
     const handleCreate = () => setIsCreating(true);
-    const handleConfirm = () => mutation.mutate(newTitle);
+    const handleConfirm = () => {
+        if (newTitle == "") {
+            setSnackBarMessage("Title must not be empty!");
+            setIsSnackBarOpen(true);
+            return;
+        }
+        mutation.mutate(newTitle);
+    };
 
     const handleCancel = () => {
         setIsCreating(false);
         setNewTitle("");
     };
+
+    const handleSnackBarClose = () => setIsSnackBarOpen(false);
 
     const mutation = useMutation({
         mutationFn: createTopic,
@@ -43,8 +55,8 @@ const Topics: React.FC = () => {
             return { previousTopics };
         },
         onSuccess: () => {
-            setNewTitle("");
             setIsCreating(false);
+            setNewTitle("");
         },
         onError: (error, newTopic, context) => {
             // Rollback to previous state
@@ -69,12 +81,17 @@ const Topics: React.FC = () => {
                     gap: 2,
                 }}
             >
-                {data && data.map((topic: Topic) => <TopicItem key={topic.id} topic={topic}></TopicItem>)}
+                {data && data.map((topic: Topic) => <TopicItem key={topic.id} topic={topic} />)}
                 <Button onClick={handleCreate}>Create topic</Button>
                 {isCreating && (
                     <>
                         <Typography>New topic name</Typography>
-                        <TextField value={newTitle} required onChange={(event) => setNewTitle(event.target.value)} />
+                        <TextField
+                            value={newTitle}
+                            label="Title"
+                            required
+                            onChange={(event) => setNewTitle(event.target.value)}
+                        />
                         <Box sx={{ display: "flex", gap: 2 }}>
                             <Button size="small" onClick={handleConfirm}>
                                 Confirm
@@ -85,6 +102,16 @@ const Topics: React.FC = () => {
                         </Box>
                     </>
                 )}
+                <Link component={RouterLink} to="/">
+                    Back to home page
+                </Link>
+                <Snackbar
+                    open={isSnackBarOpen}
+                    autoHideDuration={2000}
+                    onClose={handleSnackBarClose}
+                    message={snackBarMessage}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                />
             </Box>
         </div>
     );

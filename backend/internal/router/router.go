@@ -18,4 +18,5 @@ func setUpRoutes(r chi.Router) {
 	r.Route("/auth", routes.AuthRoutes())
 	r.Route("/comments", routes.CommentRoutes())
 	r.Route("/topics", routes.TopicsRoutes())
+	r.Route("/posts", routes.PostsRoutes())
 }
