@@ -7,7 +7,6 @@ import (
 
 	"github.com/CVWO/sample-go-app/internal/database"
 	"github.com/CVWO/sample-go-app/internal/router"
-	"github.com/CVWO/sample-go-app/internal/routes"
 	"github.com/joho/godotenv"
 )
 
@@ -70,8 +69,6 @@ func main() {
 
 	// Middlewares
 	// r.Use(middleware.Logger)
-
-	r.Mount("/comments", routes.CommentRoutes())
 
 	log.Fatalln(http.ListenAndServe(":8000", r))
 }
