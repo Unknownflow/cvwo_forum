@@ -14,6 +14,11 @@ const readPost = async (id: number) => {
     return response.data;
 };
 
+const readPostComments = async (id: number) => {
+    const response = await axios.get(addr + id + "/comments");
+    return response.data;
+};
+
 const createPost = async (newPost: PostRequest) => {
     const response = await axios.post(addr, newPost);
     return response.data;
@@ -29,4 +34,4 @@ const deletePost = async (id: number) => {
     return response.data;
 };
 
-export { readPosts, readPost, createPost, updatePost, deletePost };
+export { readPosts, readPost, readPostComments, createPost, updatePost, deletePost };

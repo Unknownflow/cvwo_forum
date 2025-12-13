@@ -1,0 +1,151 @@
+import CommentRequest from "../types/CommentRequest";
+import { readPostComments } from "../api/post";
+import { useCreateComment } from "../hooks/comments";
+import CommentItem from "../components/CommentItem";
+import Comment from "../types/Comment";
+import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useParams, Link as RouterLink } from "react-router-dom";
+import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
+
+const PostComments: React.FC = () => {
+    const { topicID, postID } = useParams<{ topicID: string; postID: string }>();
+    const postIdNumber = Number(postID);
+    const prevPageLink = `/topics/${topicID}/posts`;
+    const [isCreating, setIsCreating] = useState<boolean>(false);
+    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
+        body: "",
+        author: "username", // TODO update to indiv username
+        post_id: postIdNumber,
+    });
+    const { isLoading, isError, data } = useQuery({
+        queryKey: ["postComments", postID],
+        queryFn: () => readPostComments(postIdNumber),
+        enabled: !!postID,
+    });
+
+    const resetForm = () => {
+        setNewCommentRequest({
+            body: "",
+            author: "username",
+            post_id: postIdNumber,
+        });
+    };
+
+    const createCommentMutation = useCreateComment(postID ? postID : "");
+    const handleCreate = () => setIsCreating(true);
+    const handleConfirm = () => {
+        const trimmedBody = newCommentRequest.body.trim();
+
+        if (!trimmedBody) {
+            showSnackBar("Body msut not be empty!");
+            return;
+        }
+
+        const newComment: CommentRequest = { ...newCommentRequest, body: trimmedBody };
+        createCommentMutation.mutate(newComment, {
+            onSuccess: () => {
+                resetForm();
+                setIsCreating(false);
+                showSnackBar("Comment created successfully!");
+            },
+            onError: () => {
+                showSnackBar("Failed to create comment.");
+            },
+        });
+    };
+
+    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
+    const showSnackBar = (message: string) => {
+        setSnackBar({ open: true, message });
+    };
+
+    const handleCancel = () => {
+        setIsCreating(false);
+        resetForm();
+    };
+
+    const isSubmitting = createCommentMutation.isPending;
+
+    return (
+        <Box sx={{ p: 3 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+                Comments
+            </Typography>
+
+            {isLoading && (
+                <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+                    <CircularProgress />
+                </Box>
+            )}
+
+            {isError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Error loading comments.
+                </Alert>
+            )}
+
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    mx: "auto",
+                    gap: 2,
+                    maxWidth: 800,
+                }}
+            >
+                {data?.map((comment: Comment) => (
+                    <CommentItem key={comment.id} postID={postID ? postID : ""} comment={comment} />
+                ))}
+                <Button onClick={handleCreate} disabled={isLoading}>
+                    Create comment
+                </Button>
+
+                {isCreating && (
+                    <>
+                        <Typography>Create new comment</Typography>
+                        <TextField
+                            value={newCommentRequest.body}
+                            required
+                            label="Body"
+                            disabled={isSubmitting}
+                            aria-label="Post body"
+                            multiline
+                            rows={4}
+                            onChange={(event) =>
+                                setNewCommentRequest({ ...newCommentRequest, body: event.target.value })
+                            }
+                        />
+                        <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+                            <Button onClick={handleCancel} disabled={isSubmitting}>
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={handleConfirm}
+                                disabled={isSubmitting}
+                                startIcon={isSubmitting && <CircularProgress size={16} />}
+                            >
+                                {isSubmitting ? "Creating..." : "Confirm"}
+                            </Button>
+                        </Box>
+                    </>
+                )}
+                <Link component={RouterLink} to={prevPageLink} underline="hover">
+                    Back to posts page
+                </Link>
+                <Snackbar
+                    open={snackBar.open}
+                    autoHideDuration={2500}
+                    onClose={handleSnackBarClose}
+                    message={snackBar.message}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                />
+            </Box>
+        </Box>
+    );
+};
+
+export default PostComments;

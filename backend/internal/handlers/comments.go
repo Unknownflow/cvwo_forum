@@ -30,6 +30,24 @@ func ReadComments(w http.ResponseWriter, r *http.Request) {
 	RespondJSON(w, http.StatusOK, comments)
 }
 
+func ReadPostComments(w http.ResponseWriter, r *http.Request) {
+	db, ok := GetDBConnection(w)
+	if !ok {
+		return
+	}
+
+	var comments []models.Comment
+	postID := chi.URLParam(r, "id")
+	query := "SELECT * FROM comments WHERE post_id = $1"
+
+	err := db.Conn.Select(&comments, query, postID)
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve comments: %v", err))
+		return
+	}
+	RespondJSON(w, http.StatusOK, comments)
+}
+
 func ReadComment(w http.ResponseWriter, r *http.Request) {
 	db, ok := GetDBConnection(w)
 	if !ok {
@@ -109,7 +127,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 
 	newComment.CreatedAt = time.Now()
 	query := `UPDATE comments
-			  SET body = :body, author = :author, created_at = :created_at
+			  SET body = :body, author = :author
 			  WHERE id = :id 
 			  RETURNING id`
 	db, ok := GetDBConnection(w)

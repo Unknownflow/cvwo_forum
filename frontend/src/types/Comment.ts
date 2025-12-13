@@ -2,7 +2,8 @@ type Comment = {
     id: number;
     body: string;
     author: string;
-    timestamp: Date;
+    createdAt: string;
+    post_id: number;
 };
 
 export default Comment;

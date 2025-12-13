@@ -2,6 +2,7 @@ import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Topics from "./pages/Topics";
 import TopicPosts from "./pages/TopicPosts";
+import PostComments from "./pages/PostComments";
 import React from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -29,6 +30,7 @@ const App: React.FC = () => {
                             <Route path="/register" element={<Register />} />
                             <Route path="/topics" element={<Topics />} />
                             <Route path="/topics/:id/posts" element={<TopicPosts />} />
+                            <Route path="/topics/:topicID/posts/:postID/comments" element={<PostComments />} />
                         </Routes>
                     </QueryClientProvider>
                 </BrowserRouter>

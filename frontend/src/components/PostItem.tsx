@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
     post: Post;
@@ -25,12 +26,17 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedPost, setEditedPost] = useState<{ header: string; body: string }>({ header: "", body: "" });
     const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const navigate = useNavigate();
     const updatePostMutation = useUpdatePost(topicID);
     const deletePostMutation = useDeletePost(topicID);
 
     const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
     const showSnackBar = (message: string) => {
         setSnackBar({ open: true, message });
+    };
+
+    const handleNavigate = () => {
+        navigate("/topics/" + topicID + "/posts/" + post.id + "/comments");
     };
 
     const handleConfirmEdit = () => {
@@ -120,6 +126,9 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                     )}
                 </CardContent>
                 <CardActions>
+                    <Button size="small" onClick={handleNavigate}>
+                        View comments
+                    </Button>
                     {isEditing ? (
                         <>
                             <Button
