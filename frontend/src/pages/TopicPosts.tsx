@@ -1,105 +1,109 @@
 import Post from "../types/Post";
 import PostRequest from "../types/PostRequest";
 import PostItem from "../components/PostItem";
-import { queryClient } from "../App";
-import { createPost } from "../api/post";
 import { readTopicPosts } from "../api/topic";
+import { useCreatePost } from "../hooks/posts";
 import React, { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
 import { useParams, Link as RouterLink } from "react-router-dom";
 
 const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const topicId = id ?? "";
+    const topicIdNumber = Number(topicId);
     const [isCreating, setIsCreating] = useState<boolean>(false);
-    const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
+    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({
         header: "",
         body: "",
-        author: "username", // to update to indiv username
-        topic_id: Number(id),
+        author: "username", // TODO: update to indiv username
+        topic_id: topicIdNumber,
     });
     const { isLoading, isError, data } = useQuery({
         queryKey: ["topicPosts", id],
-        queryFn: () => readTopicPosts(Number(id)),
+        queryFn: () => readTopicPosts(topicIdNumber),
+        enabled: !!topicId,
     });
 
-    const handleCreate = () => setIsCreating(true);
-    const handleConfirm = () => {
-        if (newPostRequest.header == "" || newPostRequest.body == "") {
-            setSnackBarMessage("Header and body must not be empty!");
-            setIsSnackBarOpen(true);
-            return;
-        }
-        mutation.mutate(newPostRequest);
-    };
-
-    const handleSnackBarClose = () => setIsSnackBarOpen(false);
-
-    const handleCancel = () => {
-        setIsCreating(false);
+    const resetForm = () => {
         setNewPostRequest({
             header: "",
             body: "",
             author: "username",
-            topic_id: Number(id),
+            topic_id: topicIdNumber,
+        });
+    };
+    const createPostMutation = useCreatePost(topicId);
+    const handleCreate = () => setIsCreating(true);
+    const handleConfirm = () => {
+        const trimmedHeader = newPostRequest.header.trim();
+        const trimmedBody = newPostRequest.body.trim();
+
+        if (!trimmedHeader || !trimmedBody) {
+            showSnackBar("Header and body must not be empty!");
+            return;
+        }
+        const newPost: PostRequest = { ...newPostRequest, body: trimmedBody, header: trimmedHeader };
+        createPostMutation.mutate(newPost, {
+            onSuccess: () => {
+                resetForm();
+                setIsCreating(false);
+                showSnackBar("Post created successfully!");
+            },
+            onError: () => {
+                showSnackBar("Failed to create post.");
+            },
         });
     };
 
-    const mutation = useMutation({
-        mutationFn: createPost,
-        onMutate: async (post: PostRequest) => {
-            // Cancel any outgoing refetches
-            console.log(Number(id));
+    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
+    const showSnackBar = (message: string) => {
+        setSnackBar({ open: true, message });
+    };
 
-            await queryClient.cancelQueries({ queryKey: ["topicPosts", id] });
+    const handleCancel = () => {
+        setIsCreating(false);
+        resetForm();
+    };
 
-            // Snapshot prevd value
-            const previousPosts = queryClient.getQueryData<Post[]>(["posts", id]);
-
-            const optimisticPost = { ...post, id: -Date.now(), createdAt: new Date().toISOString() };
-            console.log("optimsitic", optimisticPost);
-
-            queryClient.setQueryData<Post[]>(["posts", id], (old) => [...(old ?? []), optimisticPost]);
-
-            // Return context for rollback
-            return { previousPosts };
-        },
-        onSuccess: () => {
-            setNewPostRequest({
-                header: "",
-                body: "",
-                author: "username",
-                topic_id: Number(id),
-            });
-            setIsCreating(false);
-        },
-        onError: (error, newPost, context) => {
-            // Rollback to previous state
-            queryClient.setQueryData(["posts", id], context?.previousPosts);
-        },
-        onSettled: () => {
-            // Sync with server (replaces temp ID with real ID)
-            queryClient.invalidateQueries({ queryKey: ["topicPosts", id] });
-        },
-    });
+    const isSubmitting = createPostMutation.isPending;
 
     return (
-        <div>
-            <h1>Posts</h1>
-            {isLoading && <div>Loading...</div>}
-            {isError && <div>Error loading...</div>}
+        <Box sx={{ p: 3 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+                Posts
+            </Typography>
+
+            {isLoading && (
+                <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+                    <CircularProgress />
+                </Box>
+            )}
+
+            {isError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Error loading posts.
+                </Alert>
+            )}
+
             <Box
                 sx={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
+                    mx: "auto",
                     gap: 2,
+                    maxWidth: 800,
                 }}
             >
-                {data && data.map((post: Post) => <PostItem key={post.id} topicID={id ? id : ""} post={post} />)}
-                <Button onClick={handleCreate}>Create post</Button>
+                {data?.map((post: Post) => (
+                    <PostItem key={post.id} topicID={id ? id : ""} post={post} />
+                ))}
+                <Button onClick={handleCreate} disabled={isLoading}>
+                    Create post
+                </Button>
+
                 {isCreating && (
                     <>
                         <Typography>Create new post</Typography>
@@ -107,36 +111,47 @@ const TopicPosts: React.FC = () => {
                             value={newPostRequest.header}
                             required
                             label="Header"
+                            disabled={isSubmitting}
+                            aria-label="Post header"
                             onChange={(event) => setNewPostRequest({ ...newPostRequest, header: event.target.value })}
                         />
                         <TextField
                             value={newPostRequest.body}
                             required
                             label="Body"
+                            disabled={isSubmitting}
+                            aria-label="Post body"
+                            multiline
+                            rows={4}
                             onChange={(event) => setNewPostRequest({ ...newPostRequest, body: event.target.value })}
                         />
-                        <Box sx={{ display: "flex", gap: 2 }}>
-                            <Button size="small" onClick={handleConfirm}>
-                                Confirm
-                            </Button>
-                            <Button size="small" onClick={handleCancel}>
+                        <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+                            <Button onClick={handleCancel} disabled={isSubmitting}>
                                 Cancel
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={handleConfirm}
+                                disabled={isSubmitting}
+                                startIcon={isSubmitting && <CircularProgress size={16} />}
+                            >
+                                {isSubmitting ? "Creating..." : "Confirm"}
                             </Button>
                         </Box>
                     </>
                 )}
-                <Link component={RouterLink} to="/topics">
+                <Link component={RouterLink} to="/topics" underline="hover">
                     Back to topics page
                 </Link>
                 <Snackbar
-                    open={isSnackBarOpen}
-                    autoHideDuration={2000}
+                    open={snackBar.open}
+                    autoHideDuration={2500}
                     onClose={handleSnackBarClose}
-                    message={snackBarMessage}
+                    message={snackBar.message}
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 />
             </Box>
-        </div>
+        </Box>
     );
 };
 

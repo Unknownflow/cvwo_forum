@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/CVWO/sample-go-app/internal/models"
 	"github.com/go-chi/chi/v5"
@@ -124,11 +125,17 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// postID := chi.URLParam(r, "id")
+	postID := chi.URLParam(r, "id")
+	postIDInt, err := strconv.Atoi(postID)
+	if err != nil {
+		RespondError(w, http.StatusBadRequest, "incorrect url")
+		return
+	}
+	newPost.ID = postIDInt
 
 	query := `UPDATE posts
 			  SET header = :header, body = :body, author = :author
-			  WHERE id = $1
+			  WHERE id = :id
 			  RETURNING id`
 	db, ok := GetDBConnection(w)
 	if !ok {

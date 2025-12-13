@@ -1,11 +1,20 @@
 import Post from "../types/Post";
-import { deletePost, updatePost } from "../api/post";
-import { queryClient } from "../App";
+import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import React, { useState } from "react";
-import { Box, Button, Card, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CircularProgress,
+    IconButton,
+    Snackbar,
+    TextField,
+    Typography,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useMutation } from "@tanstack/react-query";
 
 type Props = {
     post: Post;
@@ -14,90 +23,62 @@ type Props = {
 
 const PostItem: React.FC<Props> = ({ post, topicID }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [newBody, setNewBody] = useState<string>("");
-    const [newHeader, setNewHeader] = useState<string>("");
-    const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
+    const [editedPost, setEditedPost] = useState<{ header: string; body: string }>({ header: "", body: "" });
+    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const updatePostMutation = useUpdatePost(topicID);
+    const deletePostMutation = useDeletePost(topicID);
 
-    const updatePostItem = useMutation({
-        mutationFn: updatePost,
-        // Optimistically update UI before server responds
-        onMutate: async (updatedPost: Post) => {
-            // Cancel any outgoing refetches
-            await queryClient.cancelQueries({ queryKey: ["topicPosts", topicID] });
-
-            // Snapshot prev value
-            const previousPosts = queryClient.getQueryData<Post[]>(["posts"]);
-
-            // Optimistically update post in list
-            queryClient.setQueryData<Post[]>(
-                ["posts"],
-                (old) => old?.map((t) => (t.id === updatedPost.id ? { ...t, ...updatedPost } : t)) ?? [],
-            );
-
-            // Return context with snapshot
-            return { previousPosts };
-        },
-        // If mutation fails, rollback to prev value
-        onError: (err, updatedPost, context) => {
-            queryClient.setQueryData(["posts"], context?.previousPosts);
-        },
-        // Always refetch after error or success to sync with server
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
-        },
-    });
-
-    const deletePostItem = useMutation({
-        mutationFn: deletePost,
-        // Optimistically update UI before server responds
-        onMutate: async (postId: number) => {
-            // Cancel any outgoing refetches
-            await queryClient.cancelQueries({ queryKey: ["topicPosts", topicID] });
-
-            // Snapshot prev value
-            const previousPosts = queryClient.getQueryData<Post[]>(["posts"]);
-
-            // Optimistically update by removing post
-            queryClient.setQueryData<Post[]>(["posts"], (old) => old?.filter((t) => t.id !== postId) ?? []);
-
-            // Return context with snapshot
-            return { previousPosts };
-        },
-        // If mutation fails, rollback to prev value
-        onError: (err, postId, context) => {
-            queryClient.setQueryData(["posts"], context?.previousPosts);
-        },
-        // Always refetch after error or success to sync with server
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
-        },
-    });
+    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
+    const showSnackBar = (message: string) => {
+        setSnackBar({ open: true, message });
+    };
 
     const handleConfirmEdit = () => {
-        if (newBody == "" || newHeader == "") {
-            setSnackBarMessage("Header and body must not be empty!");
-            setIsSnackBarOpen(true);
+        const trimmedHeader = editedPost.header.trim();
+        const trimmedBody = editedPost.body.trim();
+
+        if (!trimmedHeader || !trimmedBody) {
+            showSnackBar("Header and body must not be empty!");
             return;
         }
-        setIsEditing(false);
-        post.body = newBody;
-        post.header = newHeader;
-        updatePostItem.mutate(post);
+
+        const updatedPost: Post = { ...post, body: trimmedBody, header: trimmedHeader };
+
+        updatePostMutation.mutate(updatedPost, {
+            onSuccess: () => {
+                setIsEditing(false);
+                showSnackBar("Post updated successfully!");
+            },
+            onError: () => {
+                showSnackBar("Failed to update post.");
+            },
+        });
     };
 
     const handleStartEdit = () => {
         setIsEditing(true);
-        setNewBody(post.body);
-        setNewHeader(post.header);
+        setEditedPost({ header: post.header, body: post.body });
     };
 
     const handleCancelEdit = () => {
         setIsEditing(false);
+        setEditedPost({ header: "", body: "" });
     };
 
-    const handleDelete = () => deletePostItem.mutate(post.id);
-    const handleSnackBarClose = () => setIsSnackBarOpen(false);
+    const handleDelete = () => {
+        if (window.confirm("Are you sure you want to delete this post?")) {
+            deletePostMutation.mutate(post.id, {
+                onSuccess: () => {
+                    showSnackBar("Post deleted successfully!");
+                },
+                onError: () => {
+                    showSnackBar("Failed to delete post");
+                },
+            });
+        }
+    };
+
+    const isLoading = updatePostMutation.isPending || deletePostMutation.isPending;
 
     return (
         <Card key={post.id}>
@@ -106,16 +87,22 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                     {isEditing ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <TextField
-                                value={newHeader}
+                                value={editedPost.header}
                                 required
                                 label="Header"
-                                onChange={(event) => setNewHeader(event.target.value)}
+                                disabled={isLoading}
+                                aria-label="Post header"
+                                onChange={(event) => setEditedPost({ ...editedPost, header: event.target.value })}
                             />
                             <TextField
-                                value={newBody}
+                                value={editedPost.body}
                                 required
                                 label="Body"
-                                onChange={(event) => setNewBody(event.target.value)}
+                                disabled={isLoading}
+                                aria-label="Post body"
+                                multiline
+                                rows={4}
+                                onChange={(event) => setEditedPost({ ...editedPost, body: event.target.value })}
                             />
                         </Box>
                     ) : (
@@ -135,29 +122,51 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                 <CardActions>
                     {isEditing ? (
                         <>
-                            <Button size="small" onClick={handleConfirmEdit}>
+                            <Button
+                                size="small"
+                                onClick={handleConfirmEdit}
+                                disabled={isLoading}
+                                startIcon={isLoading && <CircularProgress size={16} />}
+                                aria-label="Confirm edit"
+                            >
                                 Confirm
                             </Button>
-                            <Button size="small" onClick={handleCancelEdit}>
+                            <Button
+                                size="small"
+                                onClick={handleCancelEdit}
+                                disabled={isLoading}
+                                aria-label="Cancel edit"
+                            >
                                 Cancel
                             </Button>
                         </>
                     ) : (
-                        <Button size="small" onClick={handleStartEdit}>
-                            <EditIcon />
-                        </Button>
+                        <>
+                            <IconButton
+                                size="small"
+                                onClick={handleStartEdit}
+                                disabled={isLoading}
+                                aria-label="Edit post"
+                            >
+                                <EditIcon />
+                            </IconButton>
+                            <IconButton
+                                size="small"
+                                onClick={handleDelete}
+                                disabled={isLoading}
+                                aria-label="Delete post"
+                            >
+                                {deletePostMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
+                            </IconButton>
+                        </>
                     )}
-
-                    <Button size="small" onClick={handleDelete}>
-                        <DeleteIcon />
-                    </Button>
                 </CardActions>
             </Box>
             <Snackbar
-                open={isSnackBarOpen}
-                autoHideDuration={2000}
+                open={snackBar.open}
+                autoHideDuration={2500}
                 onClose={handleSnackBarClose}
-                message={snackBarMessage}
+                message={snackBar.message}
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             />
         </Card>

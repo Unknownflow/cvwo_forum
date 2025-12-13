@@ -1,11 +1,20 @@
 import Topic from "../types/Topic";
-import { deleteTopic, updateTopic } from "../api/topic";
-import { queryClient } from "../App";
+import { useDeleteTopic, useUpdateTopic } from "../hooks/topics";
 import React, { useState } from "react";
-import { Box, Button, Card, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CircularProgress,
+    IconButton,
+    Snackbar,
+    TextField,
+    Typography,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
@@ -15,78 +24,33 @@ type Props = {
 const TopicItem: React.FC<Props> = ({ topic }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [newTitle, setNewTitle] = useState<string>("");
-    const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
+    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
     const navigate = useNavigate();
+    const updateTopicMutation = useUpdateTopic();
+    const deleteTopicMutation = useDeleteTopic();
 
     const handleNavigate = () => {
         navigate("/topics/" + topic.id + "/posts");
     };
 
-    const updateTopicItem = useMutation({
-        mutationFn: updateTopic,
-        // Optimistically update UI before server responds
-        onMutate: async (updatedTopic: Topic) => {
-            // Cancel any outgoing refetches
-            await queryClient.cancelQueries({ queryKey: ["topics"] });
-
-            // Snapshot prev value
-            const previousTopics = queryClient.getQueryData<Topic[]>(["topics"]);
-
-            // Optimistically update topic in list
-            queryClient.setQueryData<Topic[]>(
-                ["topics"],
-                (old) => old?.map((t) => (t.id === updatedTopic.id ? { ...t, ...updatedTopic } : t)) ?? [],
-            );
-
-            // Return context with snapshot
-            return { previousTopics };
-        },
-        // If mutation fails, rollback to prev value
-        onError: (err, updatedTopic, context) => {
-            queryClient.setQueryData(["topics"], context?.previousTopics);
-        },
-        // Always refetch after error or success to sync with server
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["topics"] });
-        },
-    });
-
-    const deleteTopicItem = useMutation({
-        mutationFn: deleteTopic,
-        // Optimistically update UI before server responds
-        onMutate: async (topicId: number) => {
-            // Cancel any outgoing refetches
-            await queryClient.cancelQueries({ queryKey: ["topics"] });
-
-            // Snapshot prev value
-            const previousTopics = queryClient.getQueryData<Topic[]>(["topics"]);
-
-            // Optimistically update by removing topic
-            queryClient.setQueryData<Topic[]>(["topics"], (old) => old?.filter((t) => t.id !== topicId) ?? []);
-
-            // Return context with snapshot
-            return { previousTopics };
-        },
-        // If mutation fails, rollback to prev value
-        onError: (err, topicId, context) => {
-            queryClient.setQueryData(["topics"], context?.previousTopics);
-        },
-        // Always refetch after error or success to sync with server
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["topics"] });
-        },
-    });
-
     const handleConfirmEdit = () => {
         if (newTitle == "") {
-            setSnackBarMessage("Title must not be empty!");
-            setIsSnackBarOpen(true);
+            showSnackBar("Title must not be empty!");
             return;
         }
         setIsEditing(false);
-        topic.title = newTitle;
-        updateTopicItem.mutate(topic);
+        const newTopic: Topic = {
+            ...topic,
+            title: newTitle,
+        };
+        updateTopicMutation.mutate(newTopic, {
+            onSuccess: () => {
+                showSnackBar("Successfully updated topic!");
+            },
+            onError: () => {
+                showSnackBar("Faild to update topic.");
+            },
+        });
     };
 
     const handleStartEdit = () => {
@@ -98,8 +62,23 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
         setIsEditing(false);
     };
 
-    const handleDelete = () => deleteTopicItem.mutate(topic.id);
-    const handleSnackBarClose = () => setIsSnackBarOpen(false);
+    const handleDelete = () => {
+        deleteTopicMutation.mutate(topic.id, {
+            onSuccess: () => {
+                showSnackBar("Successfully deleted topic!");
+            },
+            onError: () => {
+                showSnackBar("Failed to delete topic.");
+            },
+        });
+    };
+
+    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
+    const showSnackBar = (message: string) => {
+        setSnackBar({ open: true, message });
+    };
+
+    const isLoading = updateTopicMutation.isPending || deleteTopicMutation.isPending;
 
     return (
         <Card key={topic.id}>
@@ -110,6 +89,8 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                             value={newTitle}
                             required
                             label="Title"
+                            disabled={isLoading}
+                            aria-label="Title"
                             onChange={(event) => setNewTitle(event.target.value)}
                         ></TextField>
                     ) : (
@@ -124,29 +105,51 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                     </Button>
                     {isEditing ? (
                         <>
-                            <Button size="small" onClick={handleConfirmEdit}>
+                            <Button
+                                size="small"
+                                onClick={handleConfirmEdit}
+                                disabled={isLoading}
+                                startIcon={isLoading && <CircularProgress size={16} />}
+                                aria-label="Confirm edit"
+                            >
                                 Confirm
                             </Button>
-                            <Button size="small" onClick={handleCancelEdit}>
+                            <Button
+                                size="small"
+                                onClick={handleCancelEdit}
+                                disabled={isLoading}
+                                aria-label="Cancel edit"
+                            >
                                 Cancel
                             </Button>
                         </>
                     ) : (
-                        <Button size="small" onClick={handleStartEdit}>
-                            <EditIcon />
-                        </Button>
+                        <>
+                            <IconButton
+                                size="small"
+                                onClick={handleStartEdit}
+                                disabled={isLoading}
+                                aria-label="Edit topic"
+                            >
+                                <EditIcon />
+                            </IconButton>
+                            <IconButton
+                                size="small"
+                                onClick={handleDelete}
+                                disabled={isLoading}
+                                aria-label="Delete topic"
+                            >
+                                {deleteTopicMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
+                            </IconButton>
+                        </>
                     )}
-
-                    <Button size="small" onClick={handleDelete}>
-                        <DeleteIcon />
-                    </Button>
                 </CardActions>
             </Box>
             <Snackbar
-                open={isSnackBarOpen}
-                autoHideDuration={2000}
+                open={snackBar.open}
+                autoHideDuration={2500}
                 onClose={handleSnackBarClose}
-                message={snackBarMessage}
+                message={snackBar.message}
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             />
         </Card>

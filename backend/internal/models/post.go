@@ -12,6 +12,7 @@ type Post struct {
 }
 
 type PostRequest struct {
+	ID      int    `db:"id" json:"id"`
 	Header  string `db:"header" json:"header"`
 	Body    string `db:"body" json:"body"`
 	Author  string `db:"author" json:"author"`
