@@ -57,6 +57,8 @@ func main() {
 
 	r := router.Setup()
 
+	database.InitDB()
+
 	db, err := database.GetDB()
 	if err != nil {
 		log.Fatal("Error loading database")
