@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import TopicIcon from "@mui/icons-material/Topic";
 
 const Topics: React.FC = () => {
     const [newTitle, setNewTitle] = useState<string>("");
@@ -50,7 +51,7 @@ const Topics: React.FC = () => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" component="h1" gutterBottom>
-                Topics
+                Topics <TopicIcon />
             </Typography>
 
             {isLoading && (
@@ -73,10 +74,12 @@ const Topics: React.FC = () => {
                     gap: 2,
                 }}
             >
+                {data == null && <Typography>No topics yet.</Typography>}
+
                 {data?.map((topic: Topic) => (
                     <TopicItem key={topic.id} topic={topic} />
                 ))}
-                <Button onClick={handleCreate} disabled={isLoading}>
+                <Button onClick={handleCreate} disabled={isLoading} variant="outlined">
                     Create topic
                 </Button>
                 {isCreating && (

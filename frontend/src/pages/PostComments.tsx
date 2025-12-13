@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
+import CommentIcon from "@mui/icons-material/Comment";
 
 const PostComments: React.FC = () => {
     const { topicID, postID } = useParams<{ topicID: string; postID: string }>();
@@ -71,7 +72,7 @@ const PostComments: React.FC = () => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" component="h1" gutterBottom>
-                Comments
+                Comments <CommentIcon />
             </Typography>
 
             {isLoading && (
@@ -96,6 +97,8 @@ const PostComments: React.FC = () => {
                     maxWidth: 800,
                 }}
             >
+                {data == null && <Typography>No comments yet.</Typography>}
+
                 {data?.map((comment: Comment) => (
                     <CommentItem key={comment.id} postID={postID ? postID : ""} comment={comment} />
                 ))}

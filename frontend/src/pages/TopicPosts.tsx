@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
 import { useParams, Link as RouterLink } from "react-router-dom";
+import ArticleIcon from "@mui/icons-material/Article";
 
 const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -72,7 +73,7 @@ const TopicPosts: React.FC = () => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" component="h1" gutterBottom>
-                Posts
+                Posts <ArticleIcon />
             </Typography>
 
             {isLoading && (
@@ -97,6 +98,8 @@ const TopicPosts: React.FC = () => {
                     maxWidth: 800,
                 }}
             >
+                {data == null && <Typography>No posts yet.</Typography>}
+
                 {data?.map((post: Post) => (
                     <PostItem key={post.id} topicID={id ? id : ""} post={post} />
                 ))}

@@ -5,6 +5,7 @@ import {
     Box,
     Button,
     Card,
+    CardActionArea,
     CardActions,
     CardContent,
     CircularProgress,
@@ -83,26 +84,25 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
     return (
         <Card key={topic.id}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <CardContent>
-                    {isEditing ? (
-                        <TextField
-                            value={newTitle}
-                            required
-                            label="Title"
-                            disabled={isLoading}
-                            aria-label="Title"
-                            onChange={(event) => setNewTitle(event.target.value)}
-                        ></TextField>
-                    ) : (
-                        <Typography variant="body1" color="textPrimary" component="p">
-                            {topic.title}
-                        </Typography>
-                    )}
-                </CardContent>
+                <CardActionArea onClick={handleNavigate}>
+                    <CardContent>
+                        {isEditing ? (
+                            <TextField
+                                value={newTitle}
+                                required
+                                label="Title"
+                                disabled={isLoading}
+                                aria-label="Title"
+                                onChange={(event) => setNewTitle(event.target.value)}
+                            ></TextField>
+                        ) : (
+                            <Typography variant="body1" color="textPrimary" component="p">
+                                {topic.title}
+                            </Typography>
+                        )}
+                    </CardContent>
+                </CardActionArea>
                 <CardActions>
-                    <Button size="small" onClick={handleNavigate}>
-                        View posts
-                    </Button>
                     {isEditing ? (
                         <>
                             <Button
