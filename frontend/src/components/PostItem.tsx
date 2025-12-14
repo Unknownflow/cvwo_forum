@@ -1,5 +1,6 @@
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
+import useSnackBar from "../hooks/useSnackBar";
 import React, { useState } from "react";
 import {
     Box,
@@ -26,15 +27,10 @@ type Props = {
 const PostItem: React.FC<Props> = ({ post, topicID }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedPost, setEditedPost] = useState<{ header: string; body: string }>({ header: "", body: "" });
-    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const navigate = useNavigate();
     const updatePostMutation = useUpdatePost(topicID);
     const deletePostMutation = useDeletePost(topicID);
-
-    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
-    const showSnackBar = (message: string) => {
-        setSnackBar({ open: true, message });
-    };
 
     const handleNavigate = () => {
         navigate("/topics/" + topicID + "/posts/" + post.id + "/comments");

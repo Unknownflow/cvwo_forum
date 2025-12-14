@@ -1,5 +1,6 @@
 import Comment from "../types/Comment";
 import { useDeleteComment, useUpdateComment } from "../hooks/comments";
+import useSnackBar from "../hooks/useSnackBar";
 import React, { useState } from "react";
 import {
     Box,
@@ -24,14 +25,9 @@ type Props = {
 const CommentItem: React.FC<Props> = ({ comment, postID }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedComment, setEditedComment] = useState<{ body: string }>({ body: "" });
-    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const updateCommentMutation = useUpdateComment(postID);
     const deleteCommentMutation = useDeleteComment(postID);
-
-    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
-    const showSnackBar = (message: string) => {
-        setSnackBar({ open: true, message });
-    };
 
     const handleConfirmEdit = () => {
         const trimmedBody = editedComment.body.trim();

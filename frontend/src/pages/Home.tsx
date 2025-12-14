@@ -1,4 +1,5 @@
 import { useVerifyUser } from "../hooks/users";
+import useSnackBar from "../hooks/useSnackBar";
 import { Box, Button, CircularProgress, Container, Link, Paper, Snackbar, TextField, Typography } from "@mui/material";
 import React, { FormEvent, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
@@ -6,14 +7,9 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 const Home: React.FC = () => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const navigate = useNavigate();
     const verifyUserMutation = useVerifyUser();
-
-    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
-    const showSnackBar = (message: string) => {
-        setSnackBar({ open: true, message });
-    };
 
     const resetForm = () => {
         setPassword("");

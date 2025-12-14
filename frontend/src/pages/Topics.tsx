@@ -2,6 +2,7 @@ import TopicItem from "../components/TopicItem";
 import Topic from "../types/Topic";
 import { readTopics } from "../api/topic";
 import { useCreateTopic } from "../hooks/topics";
+import useSnackBar from "../hooks/useSnackBar";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
@@ -11,17 +12,12 @@ import TopicIcon from "@mui/icons-material/Topic";
 const Topics: React.FC = () => {
     const [newTitle, setNewTitle] = useState<string>("");
     const [isCreating, setIsCreating] = useState<boolean>(false);
-    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
+    const createTopicMutation = useCreateTopic();
     const { isLoading, isError, data } = useQuery({
         queryKey: ["topics"],
         queryFn: readTopics,
     });
-
-    const createTopicMutation = useCreateTopic();
-    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
-    const showSnackBar = (message: string) => {
-        setSnackBar({ open: true, message });
-    };
 
     const handleCreate = () => setIsCreating(true);
     const handleConfirm = () => {

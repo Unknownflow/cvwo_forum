@@ -3,6 +3,7 @@ import { readPostComments } from "../api/post";
 import { useCreateComment } from "../hooks/comments";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
+import useSnackBar from "../hooks/useSnackBar";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
@@ -14,7 +15,7 @@ const PostComments: React.FC = () => {
     const postIdNumber = Number(postID);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isCreating, setIsCreating] = useState<boolean>(false);
-    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
         body: "",
         author: "username", // TODO update to indiv username
@@ -55,11 +56,6 @@ const PostComments: React.FC = () => {
                 showSnackBar("Failed to create comment.");
             },
         });
-    };
-
-    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
-    const showSnackBar = (message: string) => {
-        setSnackBar({ open: true, message });
     };
 
     const handleCancel = () => {

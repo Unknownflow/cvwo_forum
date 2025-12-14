@@ -1,4 +1,5 @@
 import Topic from "../types/Topic";
+import useSnackBar from "../hooks/useSnackBar";
 import { useDeleteTopic, useUpdateTopic } from "../hooks/topics";
 import React, { useState } from "react";
 import {
@@ -25,7 +26,7 @@ type Props = {
 const TopicItem: React.FC<Props> = ({ topic }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [newTitle, setNewTitle] = useState<string>("");
-    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const navigate = useNavigate();
     const updateTopicMutation = useUpdateTopic();
     const deleteTopicMutation = useDeleteTopic();
@@ -72,11 +73,6 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                 showSnackBar("Failed to delete topic.");
             },
         });
-    };
-
-    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
-    const showSnackBar = (message: string) => {
-        setSnackBar({ open: true, message });
     };
 
     const isLoading = updateTopicMutation.isPending || deleteTopicMutation.isPending;

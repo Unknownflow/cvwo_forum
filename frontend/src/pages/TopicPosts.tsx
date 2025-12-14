@@ -3,6 +3,7 @@ import PostRequest from "../types/PostRequest";
 import PostItem from "../components/PostItem";
 import { readTopicPosts } from "../api/topic";
 import { useCreatePost } from "../hooks/posts";
+import useSnackBar from "../hooks/useSnackBar";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
@@ -14,7 +15,8 @@ const TopicPosts: React.FC = () => {
     const topicId = id ?? "";
     const topicIdNumber = Number(topicId);
     const [isCreating, setIsCreating] = useState<boolean>(false);
-    const [snackBar, setSnackBar] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
+    const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
+
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({
         header: "",
         body: "",
@@ -56,11 +58,6 @@ const TopicPosts: React.FC = () => {
                 showSnackBar("Failed to create post.");
             },
         });
-    };
-
-    const handleSnackBarClose = () => setSnackBar({ open: false, message: "" });
-    const showSnackBar = (message: string) => {
-        setSnackBar({ open: true, message });
     };
 
     const handleCancel = () => {
