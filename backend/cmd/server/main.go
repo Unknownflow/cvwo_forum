@@ -55,23 +55,19 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	r := router.Setup()
-
 	database.InitDB()
-
 	db, err := database.GetDB()
 	if err != nil {
 		log.Fatal("Error loading database")
 		return
 	}
 
+	r := router.Setup(db.Conn)
+
 	// execute database schema
 	db.Conn.MustExec(schema)
 
 	fmt.Print("Listening on port 8000 at http://localhost:8000!")
-
-	// Middlewares
-	// r.Use(middleware.Logger)
 
 	log.Fatalln(http.ListenAndServe(":8000", r))
 }
