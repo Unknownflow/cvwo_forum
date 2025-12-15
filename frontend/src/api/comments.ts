@@ -1,32 +1,31 @@
 import Comment from "../types/Comment";
 import CommentRequest from "../types/CommentRequest";
+import axiosInstance from "../utils/axios";
 
-import axios from "axios";
-
-const addr = process.env.REACT_APP_API_BASE_URL + "/comments/";
+const route = "/comments/";
 
 const readComments = async () => {
-    const response = await axios.get(addr);
+    const response = await axiosInstance.get(route);
     return response.data;
 };
 
 const readComment = async (id: number) => {
-    const response = await axios.get(addr + id);
+    const response = await axiosInstance.get(route + id);
     return response.data;
 };
 
 const createComment = async (newComment: CommentRequest) => {
-    const response = await axios.post(addr, newComment);
+    const response = await axiosInstance.post(route, newComment);
     return response.data;
 };
 
 const updateComment = async (newComment: Comment) => {
-    const response = await axios.put(addr + newComment.id, newComment);
+    const response = await axiosInstance.put(route + newComment.id, newComment);
     return response.data;
 };
 
 const deleteComment = async (id: number) => {
-    const response = await axios.delete(addr + id);
+    const response = await axiosInstance.delete(route + id);
     return response.data;
 };
 

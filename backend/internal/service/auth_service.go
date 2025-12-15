@@ -1,11 +1,13 @@
 package service
 
 import (
+	"errors"
 	"strings"
 	"time"
 
 	"github.com/CVWO/sample-go-app/internal/models"
 	"github.com/CVWO/sample-go-app/internal/repository"
+	"github.com/CVWO/sample-go-app/internal/token"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -13,6 +15,7 @@ type AuthService interface {
 	CreateUser(userReq models.UserRequest) (*models.User, error)
 	VerifyUser(userReq models.UserRequest) bool
 	GenerateRefreshExpiry(username string, refreshToken string) error
+	RefreshSession(oldRefreshToken string) (*token.TokenPair, error)
 	EndSession(refreshToken string) error
 }
 
@@ -58,6 +61,39 @@ func (s *authService) GenerateRefreshExpiry(username string, refreshToken string
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
 	err := s.repo.SaveRefreshToken(username, refreshToken, expiresAt)
 	return err
+}
+
+func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, error) {
+	// Check that the refresh token is of valid format
+	claims, err := token.ValidateRefreshToken(oldRefreshToken)
+	if err != nil {
+		return nil, errors.New("invalid refresh token format")
+	}
+
+	// Check that the refresh token is not revoked
+	storedToken, err := s.repo.GetRefreshToken(claims.Username)
+	if err != nil {
+		return nil, errors.New("user session not found")
+	}
+
+	// Check if the token matches the one in the DB.
+	if storedToken.Token != oldRefreshToken {
+		return nil, errors.New("refresh token reuse detected or invalid")
+	}
+
+	// Generate a new Token Pair
+	newTokenPair, err := token.GenerateTokenPair(claims.Username, claims.Role)
+	if err != nil {
+		return nil, errors.New("failed to generate new tokens")
+	}
+
+	// Replace old refrsh token with a new one
+	err = s.GenerateRefreshExpiry(claims.Username, newTokenPair.RefreshToken)
+	if err != nil {
+		return nil, errors.New("failed to persist new refresh token")
+	}
+
+	return newTokenPair, nil
 }
 
 func (s *authService) EndSession(refreshToken string) error {

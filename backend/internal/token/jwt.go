@@ -1,8 +1,6 @@
 package token
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"fmt"
 	"os"
 	"time"
@@ -27,7 +25,7 @@ func GenerateTokenPair(username string, role string) (*TokenPair, error) {
 		return nil, err
 	}
 
-	refreshToken, err := generateRefreshTokenString()
+	refreshToken, err := generateRefreshToken(username)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +37,7 @@ func GenerateTokenPair(username string, role string) (*TokenPair, error) {
 }
 
 func generateAccessToken(username string, role string) (string, error) {
-	secret := os.Getenv("JWT_SECRET")
+	secret := os.Getenv("JWT_ACCESS_TOKEN_SECRET")
 	if secret == "" {
 		return "", fmt.Errorf("secret key not found")
 	}
@@ -63,17 +61,53 @@ func generateAccessToken(username string, role string) (string, error) {
 	return tokenStr, nil
 }
 
-func generateRefreshTokenString() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
+func generateRefreshToken(username string) (string, error) {
+	secret := os.Getenv("JWT_REFRESH_TOKEN_SECRET")
+	if secret == "" {
+		return "", fmt.Errorf("secret key not found")
 	}
-	return base64.URLEncoding.EncodeToString(b), nil
+
+	claims := Claims{
+		Username: username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 7 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "web-forum",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenStr, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return "", fmt.Errorf("error signing token: %w", err)
+	}
+
+	return tokenStr, nil
 }
 
 func ValidateAccessToken(tokenString string) (*Claims, error) {
-	secret := os.Getenv("JWT_SECRET")
+	secret := os.Getenv("JWT_ACCESS_TOKEN_SECRET")
+	if secret == "" {
+		return nil, fmt.Errorf("secret key not found")
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, jwt.ErrSignatureInvalid
+}
+
+func ValidateRefreshToken(tokenString string) (*Claims, error) {
+	secret := os.Getenv("JWT_REFRESH_TOKEN_SECRET")
 	if secret == "" {
 		return nil, fmt.Errorf("secret key not found")
 	}

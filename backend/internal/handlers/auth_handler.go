@@ -3,6 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/CVWO/sample-go-app/internal/models"
 	"github.com/CVWO/sample-go-app/internal/service"
@@ -12,6 +15,33 @@ import (
 // The handler depends on the Service interface
 type AuthHandler struct {
 	Service service.AuthService
+}
+
+func SetTokenCookies(w http.ResponseWriter, accessToken, refreshToken string) {
+	secure, err := strconv.ParseBool(os.Getenv("IS_PRODUCTION"))
+	if err != nil {
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    accessToken,
+		HttpOnly: true,
+		Secure:   secure, // TRUE In production, FALSE in development
+		Path:     "/",
+		Expires:  time.Now().Add(15 * time.Minute), // Expires in 15 minutes
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HttpOnly: true,
+		Secure:   secure, // TRUE In production, FALSE in development
+		Path:     "/",
+		Expires:  time.Now().Add(7 * 24 * time.Hour), // Expires in 1 week
+		SameSite: http.SameSiteLaxMode,
+	})
 }
 
 func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -44,12 +74,10 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	SetTokenCookies(w, tokenPair.AccessToken, tokenPair.RefreshToken)
 	RespondJSON(w, http.StatusAccepted, map[string]interface{}{
-		"access_token":  tokenPair.AccessToken,
-		"refresh_token": tokenPair.RefreshToken,
-		"token_type":    "Bearer",
-		"expires_in":    900, // 15 mins in seconds
-		"user":          user.Username,
+		"message": "login successful",
+		"user":    user.Username,
 	})
 }
 
@@ -83,12 +111,10 @@ func (h *AuthHandler) HandleSignUp(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	SetTokenCookies(w, tokenPair.AccessToken, tokenPair.RefreshToken)
 	RespondJSON(w, http.StatusCreated, map[string]interface{}{
-		"access_token":  tokenPair.AccessToken,
-		"refresh_token": tokenPair.RefreshToken,
-		"token_type":    "Bearer",
-		"expires_in":    900, // 15 mins in seconds
-		"user":          user.Username,
+		"message": "signup successful",
+		"user":    user.Username,
 	})
 }
 
@@ -109,6 +135,22 @@ func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		RespondError(w, http.StatusUnauthorized, "error ending session")
 		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+	})
 
 	RespondJSON(w, http.StatusOK, map[string]string{
 		"message": "logged out successfully",

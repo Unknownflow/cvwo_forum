@@ -1,36 +1,36 @@
 import Post from "../types/Post";
 import PostRequest from "../types/PostRequest";
-import axios from "axios";
+import axiosInstance from "../utils/axios";
 
-const addr = process.env.REACT_APP_API_BASE_URL + "/posts/";
+const route = "/posts/";
 
 const readPosts = async () => {
-    const response = await axios.get(addr);
+    const response = await axiosInstance.get(route);
     return response.data;
 };
 
 const readPost = async (id: number) => {
-    const response = await axios.get(addr + id);
+    const response = await axiosInstance.get(route + id);
     return response.data;
 };
 
 const readPostComments = async (id: number) => {
-    const response = await axios.get(addr + id + "/comments");
+    const response = await axiosInstance.get(route + id + "/comments");
     return response.data;
 };
 
 const createPost = async (newPost: PostRequest) => {
-    const response = await axios.post(addr, newPost);
+    const response = await axiosInstance.post(route, newPost);
     return response.data;
 };
 
 const updatePost = async (newPost: Post) => {
-    const response = await axios.put(addr + newPost.id, newPost);
+    const response = await axiosInstance.put(route + newPost.id, newPost);
     return response.data;
 };
 
 const deletePost = async (id: number) => {
-    const response = await axios.delete(addr + id);
+    const response = await axiosInstance.delete(route + id);
     return response.data;
 };
 
