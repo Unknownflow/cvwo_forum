@@ -45,11 +45,15 @@ cd ../backend
 
 7. Download and install Go by following the instructions [here](https://go.dev/doc/install).
 
-8. Run `go run cmd/server/main.go` and head over to http://localhost:8000/users to view the response.
+8. Run the go server by entering this command:
+
+```bash
+go run ./cmd/server/main.go
+```
 
 ## Installation using Docker
 
-8. Clone the repository to your local machine
+1. Clone the repository to your local machine
 
 ```sh
 git clone https://github.com/Unknownflow/cvwo_assignment.git
@@ -64,5 +68,3 @@ docker compose up -d
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) to view the frontend in the browser.
-
-5. Open [http://localhost:8000/users](http://localhost:8000/users) to view the response.
