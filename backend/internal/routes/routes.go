@@ -17,6 +17,7 @@ func AuthRoutes(conn *sqlx.DB) func(r chi.Router) {
 	return func(r chi.Router) {
 		r.Post("/login", authHandler.HandleLogin)
 		r.Post("/signup", authHandler.HandleSignUp)
+		r.Post("/logout", authHandler.HandleLogout)
 	}
 }
 

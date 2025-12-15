@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/CVWO/sample-go-app/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -15,6 +16,11 @@ type AuthRepository interface {
 	ValidateUser(userReq models.UserRequest) (bool, error)
 	SaveUser(user models.User) (models.User, error)
 	GetPassword(userReq models.UserRequest) string
+	SaveRefreshToken(username string, token string, expiresAt time.Time) error
+	GetRefreshToken(tokenString string) (*models.RefreshToken, error)
+	RevokeRefreshToken(tokenString string) error
+	RevokeAllUserTokens(userId int) error
+	DeleteExpiredTokens() error
 }
 
 type authRepository struct {
@@ -78,4 +84,47 @@ func (r *authRepository) GetPassword(userReq models.UserRequest) string {
 	query := `SELECT password FROM users WHERE username = $1`
 	r.db.QueryRow(query, userReq.Username).Scan(&origPassword)
 	return origPassword
+}
+
+func (r *authRepository) SaveRefreshToken(username string, token string, expiresAt time.Time) error {
+	query := `
+        INSERT INTO refresh_tokens (username, token, expires_at)
+        VALUES ($1, $2, $3)
+    `
+	_, err := r.db.Exec(query, username, token, expiresAt)
+	return err
+}
+
+func (r *authRepository) GetRefreshToken(tokenString string) (*models.RefreshToken, error) {
+	query := `
+        SELECT id, user_id, token, expires_at, created_at, is_revoked
+        FROM refresh_tokens
+        WHERE token = $1 AND is_revoked = FALSE AND expires_at > NOW()
+    `
+	var token models.RefreshToken
+	err := r.db.QueryRowx(query, tokenString).StructScan(&token)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &token, nil
+}
+
+func (r *authRepository) RevokeRefreshToken(tokenString string) error {
+	query := `UPDATE refresh_tokens SET is_revoked = TRUE WHERE token = $1`
+	_, err := r.db.Exec(query, tokenString)
+	return err
+}
+
+func (r *authRepository) RevokeAllUserTokens(userID int) error {
+	query := `UPDATE refresh_tokens SET is_revoked = TRUE WHERE user_id = $1`
+	_, err := r.db.Exec(query, userID)
+	return err
+}
+
+func (r *authRepository) DeleteExpiredTokens() error {
+	query := `DELETE FROM refresh_tokens WHERE expires_at < NOW()`
+	_, err := r.db.Exec(query)
+	return err
 }

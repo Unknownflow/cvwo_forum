@@ -2,6 +2,7 @@ package service
 
 import (
 	"strings"
+	"time"
 
 	"github.com/CVWO/sample-go-app/internal/models"
 	"github.com/CVWO/sample-go-app/internal/repository"
@@ -11,6 +12,8 @@ import (
 type AuthService interface {
 	CreateUser(userReq models.UserRequest) (*models.User, error)
 	VerifyUser(userReq models.UserRequest) bool
+	GenerateRefreshExpiry(username string, refreshToken string) error
+	EndSession(refreshToken string) error
 }
 
 type authService struct {
@@ -48,6 +51,18 @@ func (s *authService) CreateUser(userReq models.UserRequest) (*models.User, erro
 func (s *authService) VerifyUser(userReq models.UserRequest) bool {
 	origPassword := s.repo.GetPassword(userReq)
 	return verifyPassword(userReq.Password, origPassword)
+}
+
+func (s *authService) GenerateRefreshExpiry(username string, refreshToken string) error {
+	// refresh token expire in 7 days
+	expiresAt := time.Now().Add(7 * 24 * time.Hour)
+	err := s.repo.SaveRefreshToken(username, refreshToken, expiresAt)
+	return err
+}
+
+func (s *authService) EndSession(refreshToken string) error {
+	err := s.repo.RevokeRefreshToken(refreshToken)
+	return err
 }
 
 func hashPassword(password string) (string, error) {
