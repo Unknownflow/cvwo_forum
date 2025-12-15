@@ -80,24 +80,26 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
     return (
         <Card key={topic.id}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <CardActionArea onClick={handleNavigate}>
+                {isEditing ? (
                     <CardContent>
-                        {isEditing ? (
-                            <TextField
-                                value={newTitle}
-                                required
-                                label="Title"
-                                disabled={isLoading}
-                                aria-label="Title"
-                                onChange={(event) => setNewTitle(event.target.value)}
-                            ></TextField>
-                        ) : (
+                        <TextField
+                            value={newTitle}
+                            required
+                            label="Title"
+                            disabled={isLoading}
+                            aria-label="Title"
+                            onChange={(event) => setNewTitle(event.target.value)}
+                        />
+                    </CardContent>
+                ) : (
+                    <CardActionArea onClick={handleNavigate}>
+                        <CardContent>
                             <Typography variant="body1" color="textPrimary" component="p">
                                 {topic.title}
                             </Typography>
-                        )}
-                    </CardContent>
-                </CardActionArea>
+                        </CardContent>
+                    </CardActionArea>
+                )}
                 <CardActions>
                     {isEditing ? (
                         <>

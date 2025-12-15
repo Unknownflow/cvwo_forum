@@ -88,44 +88,45 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
             <Box
                 sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}
             >
-                <CardActionArea onClick={handleNavigate}>
+                {isEditing ? (
                     <CardContent>
-                        {isEditing ? (
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <TextField
-                                    value={editedPost.header}
-                                    required
-                                    label="Header"
-                                    disabled={isLoading}
-                                    aria-label="Post header"
-                                    onChange={(event) => setEditedPost({ ...editedPost, header: event.target.value })}
-                                />
-                                <TextField
-                                    value={editedPost.body}
-                                    required
-                                    label="Body"
-                                    disabled={isLoading}
-                                    aria-label="Post body"
-                                    multiline
-                                    rows={4}
-                                    onChange={(event) => setEditedPost({ ...editedPost, body: event.target.value })}
-                                />
-                            </Box>
-                        ) : (
-                            <>
-                                <Typography variant="h6" color="textPrimary" component="p" fontWeight="bold">
-                                    {post.header}
-                                </Typography>
-                                <Typography variant="body1" color="textPrimary" component="p">
-                                    {post.body}
-                                </Typography>
-                                <Typography variant="body2" color="textPrimary" component="p">
-                                    By {post.author}
-                                </Typography>
-                            </>
-                        )}
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <TextField
+                                value={editedPost.header}
+                                required
+                                label="Header"
+                                disabled={isLoading}
+                                aria-label="Post header"
+                                onChange={(event) => setEditedPost({ ...editedPost, header: event.target.value })}
+                            />
+                            <TextField
+                                value={editedPost.body}
+                                required
+                                label="Body"
+                                disabled={isLoading}
+                                aria-label="Post body"
+                                multiline
+                                rows={4}
+                                onChange={(event) => setEditedPost({ ...editedPost, body: event.target.value })}
+                            />
+                        </Box>
                     </CardContent>
-                </CardActionArea>
+                ) : (
+                    <CardActionArea onClick={handleNavigate}>
+                        <CardContent>
+                            <Typography variant="h6" color="textPrimary" component="p" fontWeight="bold">
+                                {post.header}
+                            </Typography>
+                            <Typography variant="body1" color="textPrimary" component="p">
+                                {post.body}
+                            </Typography>
+                            <Typography variant="body2" color="textPrimary" component="p">
+                                By {post.author}
+                            </Typography>
+                        </CardContent>
+                    </CardActionArea>
+                )}
+
                 <CardActions>
                     {isEditing ? (
                         <>
