@@ -50,7 +50,7 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                 showSnackBar("Successfully updated topic!");
             },
             onError: () => {
-                showSnackBar("Faild to update topic.");
+                showSnackBar("Failed to update topic.");
             },
         });
     };
@@ -78,13 +78,14 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
     const isLoading = updateTopicMutation.isPending || deleteTopicMutation.isPending;
 
     return (
-        <Card key={topic.id}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Card key={topic.id} sx={{ width: "100%", maxWidth: 600, borderRadius: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 {isEditing ? (
-                    <CardContent>
+                    <CardContent sx={{ display: "flex", flexGrow: 1 }}>
                         <TextField
                             value={newTitle}
                             required
+                            fullWidth
                             label="Title"
                             disabled={isLoading}
                             aria-label="Title"
@@ -92,9 +93,9 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                         />
                     </CardContent>
                 ) : (
-                    <CardActionArea onClick={handleNavigate}>
+                    <CardActionArea onClick={handleNavigate} sx={{ display: "flex", justifyContent: "left" }}>
                         <CardContent>
-                            <Typography variant="body1" color="textPrimary" component="p">
+                            <Typography noWrap variant="body1" color="textPrimary" component="p">
                                 {topic.title}
                             </Typography>
                         </CardContent>
@@ -104,6 +105,8 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                     {isEditing ? (
                         <>
                             <Button
+                                variant="contained"
+                                color="success"
                                 size="small"
                                 onClick={handleConfirmEdit}
                                 disabled={isLoading}
@@ -113,6 +116,8 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                                 Confirm
                             </Button>
                             <Button
+                                variant="outlined"
+                                color="error"
                                 size="small"
                                 onClick={handleCancelEdit}
                                 disabled={isLoading}

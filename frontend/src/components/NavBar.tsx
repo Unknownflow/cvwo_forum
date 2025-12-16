@@ -1,9 +1,12 @@
 import { useUser } from "../context/userContext";
 import { useLogoutUser } from "../hooks/users";
 import React from "react";
-import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, Toolbar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { HomeFilled } from "@mui/icons-material";
+import TopicIcon from "@mui/icons-material/Topic";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const NavBar: React.FC = () => {
     const { user, logout } = useUser();
@@ -12,6 +15,10 @@ const NavBar: React.FC = () => {
 
     const handleHome = () => {
         navigate("/");
+    };
+
+    const handleTopics = () => {
+        navigate("/topics");
     };
 
     const handleLogin = () => {
@@ -27,18 +34,31 @@ const NavBar: React.FC = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar>
-                    <Typography
-                        variant="h6"
-                        component="div"
-                        sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}
-                        onClick={handleHome}
-                    >
-                        <HomeFilled />
-                        &nbsp;Home
-                    </Typography>
-                    <Button color="inherit" onClick={() => (user ? handleLogout() : handleLogin())}>
-                        {user == "" ? "Log in" : "Log out"}
-                    </Button>
+                    <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "align-left", gap: 2 }}>
+                        <Button color="inherit" onClick={handleHome}>
+                            <HomeFilled />
+                            &nbsp;Home
+                        </Button>
+                        <Button color="inherit" onClick={handleTopics}>
+                            <TopicIcon />
+                            &nbsp;Topics
+                        </Button>
+                    </Box>
+                    <Box>
+                        <Button color="inherit" onClick={() => (user ? handleLogout() : handleLogin())}>
+                            {user == "" ? (
+                                <>
+                                    <LoginIcon />
+                                    &nbsp;Log in
+                                </>
+                            ) : (
+                                <>
+                                    <LogoutIcon />
+                                    &nbsp;Log out
+                                </>
+                            )}
+                        </Button>
+                    </Box>
                 </Toolbar>
             </AppBar>
         </Box>

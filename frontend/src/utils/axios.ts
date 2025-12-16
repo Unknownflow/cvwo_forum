@@ -31,14 +31,12 @@ axiosInstance.interceptors.response.use(
             // Handle 401 Unauthorized globally
             if (error.response?.status === 401) {
                 console.log("Unauthorized - redirecting to login");
-                // You can dispatch a logout action here if needed
             }
 
             // Extract error message from response
-            const message = error.response?.data?.message || error.message;
+            const message = error.response?.data;
             console.error("API Error:", message);
 
-            // Return a more user-friendly error
             return Promise.reject(new Error(message));
         }
         return Promise.reject(error);
