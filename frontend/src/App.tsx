@@ -1,8 +1,11 @@
 import Home from "./pages/Home";
+import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Topics from "./pages/Topics";
 import TopicPosts from "./pages/TopicPosts";
 import PostComments from "./pages/PostComments";
+import NavBar from "./components/NavBar";
+import { UserProvider } from "./context/userContext";
 import React from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -25,13 +28,18 @@ const App: React.FC = () => {
             <ThemeProvider theme={theme}>
                 <BrowserRouter>
                     <QueryClientProvider client={queryClient}>
-                        <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/topics" element={<Topics />} />
-                            <Route path="/topics/:id/posts" element={<TopicPosts />} />
-                            <Route path="/topics/:topicID/posts/:postID/comments" element={<PostComments />} />
-                        </Routes>
+                        <UserProvider>
+                            <NavBar />
+
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/login" element={<Login />} />
+                                <Route path="/register" element={<Register />} />
+                                <Route path="/topics" element={<Topics />} />
+                                <Route path="/topics/:id/posts" element={<TopicPosts />} />
+                                <Route path="/topics/:topicID/posts/:postID/comments" element={<PostComments />} />
+                            </Routes>
+                        </UserProvider>
                     </QueryClientProvider>
                 </BrowserRouter>
             </ThemeProvider>

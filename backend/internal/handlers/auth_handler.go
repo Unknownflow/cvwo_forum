@@ -119,18 +119,15 @@ func (h *AuthHandler) HandleSignUp(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
-	var request struct {
-		RefreshToken string `json:"refresh_token"`
-	}
-	err := json.NewDecoder(r.Body).Decode(&request)
+	cookie, err := r.Cookie("refresh_token")
 	defer r.Body.Close()
 
 	if err != nil {
-		RespondError(w, http.StatusBadRequest, "Invalid request body format")
+		RespondError(w, http.StatusBadRequest, "Invalid refresh token")
 		return
 	}
 
-	err = h.Service.EndSession(request.RefreshToken)
+	err = h.Service.EndSession(cookie.Value)
 	if err != nil {
 		RespondError(w, http.StatusUnauthorized, "error ending session")
 		return

@@ -1,4 +1,4 @@
-import { createUser, verifyUser } from "../api/user";
+import { createUser, logoutUser, verifyUser } from "../api/user";
 import { queryClient } from "../App";
 import { useMutation } from "@tanstack/react-query";
 
@@ -20,4 +20,13 @@ const useCreateUser = () => {
     });
 };
 
-export { useVerifyUser, useCreateUser };
+const useLogoutUser = () => {
+    return useMutation({
+        mutationFn: logoutUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["users"] });
+        },
+    });
+};
+
+export { useVerifyUser, useCreateUser, useLogoutUser };

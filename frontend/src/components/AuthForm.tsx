@@ -1,6 +1,7 @@
 import User from "../types/User";
 import { capitalizeFirstLetter } from "../utils/utils";
 import useSnackBar from "../hooks/useSnackBar";
+import { useUser } from "../context/userContext";
 import React, { FormEvent, useState } from "react";
 import { Box, Button, CircularProgress, Snackbar, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ const AuthForm: React.FC<Props> = ({ mutation, label }) => {
     const [password, setPassword] = useState<string>("");
     const navigate = useNavigate();
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
+    const { login } = useUser();
 
     const resetForm = () => {
         setPassword("");
@@ -36,6 +38,7 @@ const AuthForm: React.FC<Props> = ({ mutation, label }) => {
                 onSuccess: () => {
                     resetForm();
                     navigate("/topics");
+                    login(username);
                 },
                 onError: (error) => {
                     showSnackBar(error.message);

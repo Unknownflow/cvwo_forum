@@ -97,7 +97,7 @@ func (r *authRepository) SaveRefreshToken(username string, token string, expires
 
 func (r *authRepository) GetRefreshToken(tokenString string) (*models.RefreshToken, error) {
 	query := `
-        SELECT id, user_id, token, expires_at, created_at, is_revoked
+        SELECT id, username, token, expires_at, created_at, is_revoked
         FROM refresh_tokens
         WHERE token = $1 AND is_revoked = FALSE AND expires_at > NOW()
     `
