@@ -4,6 +4,7 @@ import { useCreateComment } from "../hooks/comments";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
 import useSnackBar from "../hooks/useSnackBar";
+import { useUser } from "../context/userContext";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
@@ -16,9 +17,10 @@ const PostComments: React.FC = () => {
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isCreating, setIsCreating] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
+    const { user } = useUser();
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
         body: "",
-        author: "username", // TODO update to indiv username
+        author: user,
         post_id: postIdNumber,
     });
     const { isLoading, isError, data } = useQuery({

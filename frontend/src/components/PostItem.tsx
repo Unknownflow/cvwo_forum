@@ -1,6 +1,7 @@
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
+import { useUser } from "../context/userContext";
 import React, { useState } from "react";
 import {
     Box,
@@ -31,6 +32,8 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
     const navigate = useNavigate();
     const updatePostMutation = useUpdatePost(topicID);
     const deletePostMutation = useDeletePost(topicID);
+    const { user } = useUser();
+    const isEditable = post.author == user;
 
     const handleNavigate = () => {
         navigate("/topics/" + topicID + "/posts/" + post.id + "/comments");
@@ -127,48 +130,50 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                     </CardActionArea>
                 )}
 
-                <CardActions>
-                    {isEditing ? (
-                        <>
-                            <Button
-                                size="small"
-                                onClick={handleConfirmEdit}
-                                disabled={isLoading}
-                                startIcon={isLoading && <CircularProgress size={16} />}
-                                aria-label="Confirm edit"
-                            >
-                                Confirm
-                            </Button>
-                            <Button
-                                size="small"
-                                onClick={handleCancelEdit}
-                                disabled={isLoading}
-                                aria-label="Cancel edit"
-                            >
-                                Cancel
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <IconButton
-                                size="small"
-                                onClick={handleStartEdit}
-                                disabled={isLoading}
-                                aria-label="Edit post"
-                            >
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton
-                                size="small"
-                                onClick={handleDelete}
-                                disabled={isLoading}
-                                aria-label="Delete post"
-                            >
-                                {deletePostMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
-                            </IconButton>
-                        </>
-                    )}
-                </CardActions>
+                {isEditable && (
+                    <CardActions>
+                        {isEditing ? (
+                            <>
+                                <Button
+                                    size="small"
+                                    onClick={handleConfirmEdit}
+                                    disabled={isLoading}
+                                    startIcon={isLoading && <CircularProgress size={16} />}
+                                    aria-label="Confirm edit"
+                                >
+                                    Confirm
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={handleCancelEdit}
+                                    disabled={isLoading}
+                                    aria-label="Cancel edit"
+                                >
+                                    Cancel
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <IconButton
+                                    size="small"
+                                    onClick={handleStartEdit}
+                                    disabled={isLoading}
+                                    aria-label="Edit post"
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                                <IconButton
+                                    size="small"
+                                    onClick={handleDelete}
+                                    disabled={isLoading}
+                                    aria-label="Delete post"
+                                >
+                                    {deletePostMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
+                                </IconButton>
+                            </>
+                        )}
+                    </CardActions>
+                )}
             </Box>
             <Snackbar
                 open={snackBar.open}

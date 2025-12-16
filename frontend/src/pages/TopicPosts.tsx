@@ -4,6 +4,7 @@ import PostItem from "../components/PostItem";
 import { readTopicPosts } from "../api/topic";
 import { useCreatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
+import { useUser } from "../context/userContext";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
@@ -16,11 +17,12 @@ const TopicPosts: React.FC = () => {
     const topicIdNumber = Number(topicId);
     const [isCreating, setIsCreating] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
+    const { user } = useUser();
 
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({
         header: "",
         body: "",
-        author: "username", // TODO: update to indiv username
+        author: user,
         topic_id: topicIdNumber,
     });
     const { isLoading, isError, data } = useQuery({

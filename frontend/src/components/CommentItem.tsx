@@ -1,6 +1,7 @@
 import Comment from "../types/Comment";
 import { useDeleteComment, useUpdateComment } from "../hooks/comments";
 import useSnackBar from "../hooks/useSnackBar";
+import { useUser } from "../context/userContext";
 import React, { useState } from "react";
 import {
     Box,
@@ -28,6 +29,8 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const updateCommentMutation = useUpdateComment(postID);
     const deleteCommentMutation = useDeleteComment(postID);
+    const { user } = useUser();
+    const isEditable = comment.author == user;
 
     const handleConfirmEdit = () => {
         const trimmedBody = editedComment.body.trim();
@@ -103,48 +106,50 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                         </>
                     )}
                 </CardContent>
-                <CardActions>
-                    {isEditing ? (
-                        <>
-                            <Button
-                                size="small"
-                                onClick={handleConfirmEdit}
-                                disabled={isLoading}
-                                startIcon={isLoading && <CircularProgress size={16} />}
-                                aria-label="Confirm edit"
-                            >
-                                Confirm
-                            </Button>
-                            <Button
-                                size="small"
-                                onClick={handleCancelEdit}
-                                disabled={isLoading}
-                                aria-label="Cancel edit"
-                            >
-                                Cancel
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <IconButton
-                                size="small"
-                                onClick={handleStartEdit}
-                                disabled={isLoading}
-                                aria-label="Edit comment"
-                            >
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton
-                                size="small"
-                                onClick={handleDelete}
-                                disabled={isLoading}
-                                aria-label="Delete comment"
-                            >
-                                {deleteCommentMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
-                            </IconButton>
-                        </>
-                    )}
-                </CardActions>
+                {isEditable && (
+                    <CardActions>
+                        {isEditing ? (
+                            <>
+                                <Button
+                                    size="small"
+                                    onClick={handleConfirmEdit}
+                                    disabled={isLoading}
+                                    startIcon={isLoading && <CircularProgress size={16} />}
+                                    aria-label="Confirm edit"
+                                >
+                                    Confirm
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={handleCancelEdit}
+                                    disabled={isLoading}
+                                    aria-label="Cancel edit"
+                                >
+                                    Cancel
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <IconButton
+                                    size="small"
+                                    onClick={handleStartEdit}
+                                    disabled={isLoading}
+                                    aria-label="Edit comment"
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                                <IconButton
+                                    size="small"
+                                    onClick={handleDelete}
+                                    disabled={isLoading}
+                                    aria-label="Delete comment"
+                                >
+                                    {deleteCommentMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
+                                </IconButton>
+                            </>
+                        )}
+                    </CardActions>
+                )}
             </Box>
             <Snackbar
                 open={snackBar.open}
