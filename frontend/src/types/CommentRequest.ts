@@ -1,7 +1,5 @@
-type CommentRequest = {
-    body: string;
-    author: string;
-    post_id: number;
-};
+import Comment from "./Comment";
+
+type CommentRequest = Omit<Comment, "id" | "createdAt">;
 
 export default CommentRequest;

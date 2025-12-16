@@ -1,8 +1,5 @@
-type PostRequest = {
-    header: string;
-    body: string;
-    author: string;
-    topic_id: number;
-};
+import Post from "./Post";
+
+type PostRequest = Omit<Post, "id" | "createdAt">;
 
 export default PostRequest;
