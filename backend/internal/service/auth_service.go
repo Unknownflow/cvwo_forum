@@ -16,6 +16,7 @@ type AuthService interface {
 	VerifyUser(userReq models.UserRequest) bool
 	GenerateRefreshExpiry(username string, refreshToken string) error
 	RefreshSession(oldRefreshToken string) (*token.TokenPair, error)
+	EndPreviousUserSessions(username string) error
 	EndSession(refreshToken string) error
 }
 
@@ -57,9 +58,15 @@ func (s *authService) VerifyUser(userReq models.UserRequest) bool {
 }
 
 func (s *authService) GenerateRefreshExpiry(username string, refreshToken string) error {
+	// revoke previous refresh tokens
+	err := s.repo.RevokeAllUserTokens(username)
+	if err != nil {
+		return err
+	}
+
 	// refresh token expire in 7 days
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	err := s.repo.SaveRefreshToken(username, refreshToken, expiresAt)
+	err = s.repo.SaveRefreshToken(username, refreshToken, expiresAt)
 	return err
 }
 
@@ -94,6 +101,11 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 	}
 
 	return newTokenPair, nil
+}
+
+func (s *authService) EndPreviousUserSessions(username string) error {
+	err := s.repo.RevokeAllUserTokens(username)
+	return err
 }
 
 func (s *authService) EndSession(refreshToken string) error {

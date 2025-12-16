@@ -62,6 +62,12 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = h.Service.EndPreviousUserSessions(user.Username)
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, "failed to end previous session")
+		return
+	}
+
 	tokenPair, err := token.GenerateTokenPair(user.Username, user.Role)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, "failed to generate tokens")

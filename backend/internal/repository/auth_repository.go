@@ -17,9 +17,9 @@ type AuthRepository interface {
 	SaveUser(user models.User) (models.User, error)
 	GetPassword(userReq models.UserRequest) string
 	SaveRefreshToken(username string, token string, expiresAt time.Time) error
-	GetRefreshToken(tokenString string) (*models.RefreshToken, error)
+	GetRefreshToken(username string) (*models.RefreshToken, error)
 	RevokeRefreshToken(tokenString string) error
-	RevokeAllUserTokens(userId int) error
+	RevokeAllUserTokens(username string) error
 	DeleteExpiredTokens() error
 }
 
@@ -95,14 +95,14 @@ func (r *authRepository) SaveRefreshToken(username string, token string, expires
 	return err
 }
 
-func (r *authRepository) GetRefreshToken(tokenString string) (*models.RefreshToken, error) {
+func (r *authRepository) GetRefreshToken(username string) (*models.RefreshToken, error) {
 	query := `
-        SELECT id, username, token, expires_at, created_at, is_revoked
+        SELECT *
         FROM refresh_tokens
-        WHERE token = $1 AND is_revoked = FALSE AND expires_at > NOW()
+        WHERE username = $1 AND is_revoked = FALSE AND expires_at > NOW()
     `
 	var token models.RefreshToken
-	err := r.db.QueryRowx(query, tokenString).StructScan(&token)
+	err := r.db.QueryRowx(query, username).StructScan(&token)
 
 	if err != nil {
 		return nil, err
@@ -117,9 +117,9 @@ func (r *authRepository) RevokeRefreshToken(tokenString string) error {
 	return err
 }
 
-func (r *authRepository) RevokeAllUserTokens(userID int) error {
-	query := `UPDATE refresh_tokens SET is_revoked = TRUE WHERE user_id = $1`
-	_, err := r.db.Exec(query, userID)
+func (r *authRepository) RevokeAllUserTokens(username string) error {
+	query := `UPDATE refresh_tokens SET is_revoked = TRUE WHERE username = $1`
+	_, err := r.db.Exec(query, username)
 	return err
 }
 
