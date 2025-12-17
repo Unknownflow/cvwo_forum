@@ -1,22 +1,11 @@
+import EditModeAction from "./EditModeAction";
+import ViewModeAction from "./ViewModeAction";
 import Comment from "../types/Comment";
 import { useDeleteComment, useUpdateComment } from "../hooks/comments";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
 import React, { useState } from "react";
-import {
-    Box,
-    Button,
-    Card,
-    CardActions,
-    CardContent,
-    CircularProgress,
-    IconButton,
-    Snackbar,
-    TextField,
-    Typography,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Box, Card, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 
 type Props = {
     comment: Comment;
@@ -109,44 +98,19 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                 {isEditable && (
                     <CardActions>
                         {isEditing ? (
-                            <>
-                                <Button
-                                    size="small"
-                                    onClick={handleConfirmEdit}
-                                    disabled={isLoading}
-                                    startIcon={isLoading && <CircularProgress size={16} />}
-                                    aria-label="Confirm edit"
-                                >
-                                    Confirm
-                                </Button>
-                                <Button
-                                    size="small"
-                                    onClick={handleCancelEdit}
-                                    disabled={isLoading}
-                                    aria-label="Cancel edit"
-                                >
-                                    Cancel
-                                </Button>
-                            </>
+                            <EditModeAction
+                                handleCancelEdit={handleCancelEdit}
+                                handleConfirmEdit={handleConfirmEdit}
+                                isLoading={isLoading}
+                            />
                         ) : (
-                            <>
-                                <IconButton
-                                    size="small"
-                                    onClick={handleStartEdit}
-                                    disabled={isLoading}
-                                    aria-label="Edit comment"
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                                <IconButton
-                                    size="small"
-                                    onClick={handleDelete}
-                                    disabled={isLoading}
-                                    aria-label="Delete comment"
-                                >
-                                    {deleteCommentMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
-                                </IconButton>
-                            </>
+                            <ViewModeAction
+                                handleStartEdit={handleStartEdit}
+                                handleDelete={handleDelete}
+                                isLoading={isLoading}
+                                isPending={deleteCommentMutation.isPending}
+                                type="comment"
+                            />
                         )}
                     </CardActions>
                 )}

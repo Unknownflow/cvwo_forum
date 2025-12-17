@@ -1,23 +1,11 @@
+import EditModeAction from "./EditModeAction";
+import ViewModeAction from "./ViewModeAction";
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
 import React, { useState } from "react";
-import {
-    Box,
-    Button,
-    Card,
-    CardActionArea,
-    CardActions,
-    CardContent,
-    CircularProgress,
-    IconButton,
-    Snackbar,
-    TextField,
-    Typography,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Box, Card, CardActionArea, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
@@ -133,44 +121,19 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                 {isEditable && (
                     <CardActions>
                         {isEditing ? (
-                            <>
-                                <Button
-                                    size="small"
-                                    onClick={handleConfirmEdit}
-                                    disabled={isLoading}
-                                    startIcon={isLoading && <CircularProgress size={16} />}
-                                    aria-label="Confirm edit"
-                                >
-                                    Confirm
-                                </Button>
-                                <Button
-                                    size="small"
-                                    onClick={handleCancelEdit}
-                                    disabled={isLoading}
-                                    aria-label="Cancel edit"
-                                >
-                                    Cancel
-                                </Button>
-                            </>
+                            <EditModeAction
+                                handleCancelEdit={handleCancelEdit}
+                                handleConfirmEdit={handleConfirmEdit}
+                                isLoading={isLoading}
+                            />
                         ) : (
-                            <>
-                                <IconButton
-                                    size="small"
-                                    onClick={handleStartEdit}
-                                    disabled={isLoading}
-                                    aria-label="Edit post"
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                                <IconButton
-                                    size="small"
-                                    onClick={handleDelete}
-                                    disabled={isLoading}
-                                    aria-label="Delete post"
-                                >
-                                    {deletePostMutation.isPending ? <CircularProgress size={20} /> : <DeleteIcon />}
-                                </IconButton>
-                            </>
+                            <ViewModeAction
+                                handleStartEdit={handleStartEdit}
+                                handleDelete={handleDelete}
+                                isLoading={isLoading}
+                                isPending={deletePostMutation.isPending}
+                                type="post"
+                            />
                         )}
                     </CardActions>
                 )}
