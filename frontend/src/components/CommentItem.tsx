@@ -4,6 +4,7 @@ import Comment from "../types/Comment";
 import { useDeleteComment, useUpdateComment } from "../hooks/comments";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
+import { formatDateTime } from "../utils/utils";
 import React, { useState } from "react";
 import { Box, Card, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 
@@ -68,9 +69,9 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
     const isLoading = updateCommentMutation.isPending || deleteCommentMutation.isPending;
 
     return (
-        <Card key={comment.id}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <CardContent>
+        <Card key={comment.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
+            <Box sx={{ display: "flex" }}>
+                <CardContent sx={{ flex: 1 }}>
                     {isEditing ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <TextField
@@ -85,18 +86,23 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                             />
                         </Box>
                     ) : (
-                        <>
-                            <Typography variant="h6" color="textPrimary" component="p" fontWeight="bold">
-                                {comment.author}
-                            </Typography>
+                        <Box sx={{ textAlign: "left", wordBreak: "break-all" }}>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                                <Typography variant="h6" color="textPrimary" component="p" fontWeight="bold">
+                                    {comment.author} ·
+                                </Typography>
+                                <Typography variant="body1" color="text.secondary" component="p">
+                                    &nbsp;{formatDateTime(comment.created_at)}
+                                </Typography>
+                            </Box>
                             <Typography variant="body1" color="textPrimary" component="p">
                                 {comment.body}
                             </Typography>
-                        </>
+                        </Box>
                     )}
                 </CardContent>
                 {isEditable && (
-                    <CardActions>
+                    <CardActions sx={{ flexShrink: 0 }}>
                         {isEditing ? (
                             <EditModeAction
                                 handleCancelEdit={handleCancelEdit}

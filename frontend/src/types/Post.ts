@@ -3,7 +3,7 @@ type Post = {
     header: string;
     body: string;
     author: string;
-    createdAt: string;
+    created_at: string;
     topic_id: number;
 };
 

@@ -4,6 +4,7 @@ import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
+import { formatDateTime } from "../utils/utils";
 import React, { useState } from "react";
 import { Box, Card, CardActionArea, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -75,9 +76,15 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
     const isLoading = updatePostMutation.isPending || deletePostMutation.isPending;
 
     return (
-        <Card key={post.id}>
+        <Card key={post.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
             <Box
-                sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}
+                sx={{
+                    display: "flex",
+                    textAlign: "left",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                }}
             >
                 {isEditing ? (
                     <CardContent>
@@ -103,7 +110,7 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                         </Box>
                     </CardContent>
                 ) : (
-                    <CardActionArea onClick={handleNavigate}>
+                    <CardActionArea onClick={handleNavigate} sx={{ textAlign: "left", wordBreak: "break-all" }}>
                         <CardContent>
                             <Typography variant="h6" color="textPrimary" component="p" fontWeight="bold">
                                 {post.header}
@@ -111,8 +118,8 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                             <Typography variant="body1" color="textPrimary" component="p">
                                 {post.body}
                             </Typography>
-                            <Typography variant="body2" color="textPrimary" component="p">
-                                By {post.author}
+                            <Typography variant="body2" color="text.secondary" component="p">
+                                Created by: {post.author} at {formatDateTime(post.created_at)}
                             </Typography>
                         </CardContent>
                     </CardActionArea>

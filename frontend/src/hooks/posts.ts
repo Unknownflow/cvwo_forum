@@ -15,7 +15,7 @@ const useCreatePost = (topicID: string) => {
             // Snapshot prevd value
             const previousPosts = queryClient.getQueryData<Post[]>(["topicPosts", topicID]);
 
-            const optimisticPost = { ...post, id: -Date.now(), createdAt: new Date().toISOString() };
+            const optimisticPost = { ...post, id: -Date.now(), created_at: new Date().toISOString() };
 
             queryClient.setQueryData<Post[]>(["topicPosts", topicID], (old) => [...(old ?? []), optimisticPost]);
 

@@ -2,7 +2,7 @@ type Comment = {
     id: number;
     body: string;
     author: string;
-    createdAt: string;
+    created_at: string;
     post_id: number;
 };
 

@@ -67,9 +67,9 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
 
     return (
         <Card key={topic.id} sx={{ width: "100%", maxWidth: 600, borderRadius: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: "flex", width: "100%" }}>
                 {isEditing ? (
-                    <CardContent sx={{ display: "flex", flexGrow: 1 }}>
+                    <CardContent sx={{ flex: 1 }}>
                         <TextField
                             value={newTitle}
                             required
@@ -81,15 +81,25 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                         />
                     </CardContent>
                 ) : (
-                    <CardActionArea onClick={handleNavigate} sx={{ display: "flex", justifyContent: "left" }}>
-                        <CardContent>
-                            <Typography noWrap variant="body1" color="textPrimary" component="p">
+                    <CardActionArea
+                        onClick={handleNavigate}
+                        sx={{
+                            flex: 1,
+                            minWidth: 0,
+                            display: "flex",
+                            justifyContent: "left",
+                            textAlign: "left",
+                            wordBreak: "break-all",
+                        }}
+                    >
+                        <CardContent sx={{ minWidth: 0 }}>
+                            <Typography variant="body1" color="textPrimary" component="p">
                                 {topic.title}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
                 )}
-                <CardActions>
+                <CardActions sx={{ flexShrink: 0 }}>
                     {isEditing ? (
                         <EditModeAction
                             handleCancelEdit={handleCancelEdit}
