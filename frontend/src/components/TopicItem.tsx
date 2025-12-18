@@ -3,6 +3,7 @@ import ViewModeAction from "./ViewModeAction";
 import Topic from "../types/Topic";
 import useSnackBar from "../hooks/useSnackBar";
 import { useDeleteTopic, useUpdateTopic } from "../hooks/topics";
+import { useUser } from "../context/userContext";
 import React, { useState } from "react";
 import { Box, Card, CardActionArea, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +19,8 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
     const navigate = useNavigate();
     const updateTopicMutation = useUpdateTopic();
     const deleteTopicMutation = useDeleteTopic();
+    const { user } = useUser();
+    const isEditable = topic.author == user;
 
     const handleNavigate = () => {
         navigate("/topics/" + topic.id + "/posts");
@@ -99,23 +102,25 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                         </CardContent>
                     </CardActionArea>
                 )}
-                <CardActions sx={{ flexShrink: 0 }}>
-                    {isEditing ? (
-                        <EditModeAction
-                            handleCancelEdit={handleCancelEdit}
-                            handleConfirmEdit={handleConfirmEdit}
-                            isLoading={isLoading}
-                        />
-                    ) : (
-                        <ViewModeAction
-                            handleStartEdit={handleStartEdit}
-                            handleDelete={handleDelete}
-                            isLoading={isLoading}
-                            isPending={deleteTopicMutation.isPending}
-                            type="topic"
-                        />
-                    )}
-                </CardActions>
+                {isEditable && (
+                    <CardActions sx={{ flexShrink: 0 }}>
+                        {isEditing ? (
+                            <EditModeAction
+                                handleCancelEdit={handleCancelEdit}
+                                handleConfirmEdit={handleConfirmEdit}
+                                isLoading={isLoading}
+                            />
+                        ) : (
+                            <ViewModeAction
+                                handleStartEdit={handleStartEdit}
+                                handleDelete={handleDelete}
+                                isLoading={isLoading}
+                                isPending={deleteTopicMutation.isPending}
+                                type="topic"
+                            />
+                        )}
+                    </CardActions>
+                )}
             </Box>
             <Snackbar
                 open={snackBar.open}

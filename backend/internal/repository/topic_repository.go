@@ -66,8 +66,8 @@ func (r *topicRepository) ReadPostsByTopicID(id int) ([]models.Post, error) {
 }
 
 func (r *topicRepository) Create(topic models.Topic) error {
-	query := `INSERT INTO topics (title) 
-			  VALUES (:title)`
+	query := `INSERT INTO topics (title, author) 
+			  VALUES (:title, :author)`
 
 	tx := r.db.MustBegin()
 	_, err := tx.NamedExec(query, topic)

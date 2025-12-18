@@ -3,6 +3,7 @@ import Topic from "../types/Topic";
 import { readTopics } from "../api/topic";
 import { useCreateTopic } from "../hooks/topics";
 import useSnackBar from "../hooks/useSnackBar";
+import { useUser } from "../context/userContext";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
@@ -14,6 +15,7 @@ const Topics: React.FC = () => {
     const [isCreating, setIsCreating] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const createTopicMutation = useCreateTopic();
+    const { user } = useUser();
     const { isLoading, isError, data } = useQuery({
         queryKey: ["topics"],
         queryFn: readTopics,
@@ -25,7 +27,9 @@ const Topics: React.FC = () => {
             showSnackBar("Title must not be empty!");
             return;
         }
-        createTopicMutation.mutate(newTitle, {
+
+        const topic: Topic = { title: newTitle, author: user, id: -1 };
+        createTopicMutation.mutate(topic, {
             onSuccess: () => {
                 setIsCreating(false);
                 setNewTitle("");

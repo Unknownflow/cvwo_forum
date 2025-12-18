@@ -18,8 +18,8 @@ const readTopicPosts = async (id: number) => {
     return response.data;
 };
 
-const createTopic = async (title: string) => {
-    const response = await axiosInstance.post(route, { title });
+const createTopic = async (topic: Topic) => {
+    const response = await axiosInstance.post(route, topic);
     return response.data;
 };
 

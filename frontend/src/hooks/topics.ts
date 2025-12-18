@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 const useCreateTopic = () => {
     return useMutation({
         mutationFn: createTopic,
-        onMutate: async (title: string) => {
+        onMutate: async (topic: Topic) => {
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey: ["topics"] });
 
@@ -15,7 +15,7 @@ const useCreateTopic = () => {
 
             // Optimistically add the new topic with a temporary ID
             const optimisticTopic = {
-                title: title,
+                ...topic,
                 id: -Date.now(),
             };
 

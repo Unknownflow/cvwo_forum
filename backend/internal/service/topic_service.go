@@ -102,5 +102,8 @@ func validateTopic(topic *models.Topic) error {
 	if topic.Title == "" {
 		return fmt.Errorf("topic field is required")
 	}
+	if topic.Author == "" {
+		return fmt.Errorf("author field is required")
+	}
 	return nil
 }
