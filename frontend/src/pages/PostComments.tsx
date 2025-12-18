@@ -1,10 +1,11 @@
 import CommentRequest from "../types/CommentRequest";
-import { readPostComments } from "../api/post";
+import { readPost, readPostComments } from "../api/post";
 import { useCreateComment } from "../hooks/comments";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
+import PostItem from "../components/PostItem";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
@@ -23,9 +24,22 @@ const PostComments: React.FC = () => {
         author: user,
         post_id: postIdNumber,
     });
-    const { isLoading, isError, data } = useQuery({
+    const {
+        isLoading: isCommentsLoading,
+        isError: isCommentsError,
+        data: commentsData,
+    } = useQuery({
         queryKey: ["postComments", postID],
         queryFn: () => readPostComments(postIdNumber),
+        enabled: !!postID,
+    });
+    const {
+        isLoading: isPostLoading,
+        isError: isPostError,
+        data: postData,
+    } = useQuery({
+        queryKey: ["post", postID],
+        queryFn: () => readPost(postIdNumber),
         enabled: !!postID,
     });
 
@@ -73,13 +87,19 @@ const PostComments: React.FC = () => {
                 Comments <CommentIcon />
             </Typography>
 
-            {isLoading && (
+            {isPostLoading && isCommentsLoading && (
                 <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
                     <CircularProgress />
                 </Box>
             )}
 
-            {isError && (
+            {isPostError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Error loading post.
+                </Alert>
+            )}
+
+            {isCommentsError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                     Error loading comments.
                 </Alert>
@@ -95,12 +115,20 @@ const PostComments: React.FC = () => {
                     maxWidth: 800,
                 }}
             >
-                {data == null && <Typography>No comments yet.</Typography>}
+                {!isPostLoading && !isPostError && (
+                    <Box sx={{ mb: 3 }}>
+                        <PostItem post={postData} topicID={topicID ? topicID : ""} />
+                    </Box>
+                )}
 
-                {data?.map((comment: Comment) => (
+                {!isCommentsError && !isCommentsLoading && commentsData == null && (
+                    <Typography>No comments yet.</Typography>
+                )}
+
+                {commentsData?.map((comment: Comment) => (
                     <CommentItem key={comment.id} postID={postID ? postID : ""} comment={comment} />
                 ))}
-                <Button onClick={handleCreate} disabled={isLoading}>
+                <Button onClick={handleCreate} disabled={isCommentsLoading}>
                     Create comment
                 </Button>
 

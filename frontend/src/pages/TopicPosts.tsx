@@ -1,10 +1,11 @@
 import Post from "../types/Post";
 import PostRequest from "../types/PostRequest";
 import PostItem from "../components/PostItem";
-import { readTopicPosts } from "../api/topic";
+import { readTopic, readTopicPosts } from "../api/topic";
 import { useCreatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
+import TopicItem from "../components/TopicItem";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
@@ -18,17 +19,28 @@ const TopicPosts: React.FC = () => {
     const [isCreating, setIsCreating] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
-
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({
         header: "",
         body: "",
         author: user,
         topic_id: topicIdNumber,
     });
-    const { isLoading, isError, data } = useQuery({
+    const {
+        isLoading: isPostLoading,
+        isError: isPostError,
+        data: postsData,
+    } = useQuery({
         queryKey: ["topicPosts", id],
         queryFn: () => readTopicPosts(topicIdNumber),
         enabled: !!topicId,
+    });
+    const {
+        isLoading: isTopicLoading,
+        isError: isTopicError,
+        data: topicData,
+    } = useQuery({
+        queryKey: ["topic", topicIdNumber],
+        queryFn: () => readTopic(topicIdNumber),
     });
 
     const resetForm = () => {
@@ -75,13 +87,19 @@ const TopicPosts: React.FC = () => {
                 Posts <ArticleIcon />
             </Typography>
 
-            {isLoading && (
+            {isTopicLoading && isPostLoading && (
                 <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
                     <CircularProgress />
                 </Box>
             )}
 
-            {isError && (
+            {isTopicError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Error loading topic.
+                </Alert>
+            )}
+
+            {isPostError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                     Error loading posts.
                 </Alert>
@@ -97,12 +115,18 @@ const TopicPosts: React.FC = () => {
                     maxWidth: 800,
                 }}
             >
-                {data == null && <Typography>No posts yet.</Typography>}
+                {!isTopicLoading && !isTopicError && (
+                    <Box sx={{ mb: 3 }}>
+                        <TopicItem topic={topicData} />
+                    </Box>
+                )}
 
-                {data?.map((post: Post) => (
+                {!isPostError && !isPostLoading && postsData == null && <Typography>No posts yet.</Typography>}
+
+                {postsData?.map((post: Post) => (
                     <PostItem key={post.id} topicID={id ? id : ""} post={post} />
                 ))}
-                <Button onClick={handleCreate} disabled={isLoading}>
+                <Button onClick={handleCreate} disabled={isPostLoading}>
                     Create post
                 </Button>
 
