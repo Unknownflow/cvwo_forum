@@ -6,9 +6,12 @@ import { useCreatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
 import TopicItem from "../components/TopicItem";
+import modalStyle from "../styles/ModalStyle";
+import ModalActions from "../components/ModalActions";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
+import Modal from "@mui/material/Modal";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import ArticleIcon from "@mui/icons-material/Article";
 
@@ -16,7 +19,7 @@ const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const topicId = id ?? "";
     const topicIdNumber = Number(topicId);
-    const [isCreating, setIsCreating] = useState<boolean>(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({
@@ -52,7 +55,9 @@ const TopicPosts: React.FC = () => {
         });
     };
     const createPostMutation = useCreatePost(topicId);
-    const handleCreate = () => setIsCreating(true);
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
+
     const handleConfirm = () => {
         const trimmedHeader = newPostRequest.header.trim();
         const trimmedBody = newPostRequest.body.trim();
@@ -65,7 +70,7 @@ const TopicPosts: React.FC = () => {
         createPostMutation.mutate(newPost, {
             onSuccess: () => {
                 resetForm();
-                setIsCreating(false);
+                handleModalClose();
                 showSnackBar("Post created successfully!");
             },
             onError: () => {
@@ -75,7 +80,7 @@ const TopicPosts: React.FC = () => {
     };
 
     const handleCancel = () => {
-        setIsCreating(false);
+        handleModalClose();
         resetForm();
     };
 
@@ -126,13 +131,13 @@ const TopicPosts: React.FC = () => {
                 {postsData?.map((post: Post) => (
                     <PostItem key={post.id} topicID={id ? id : ""} post={post} />
                 ))}
-                <Button onClick={handleCreate} disabled={isPostLoading}>
+                <Button onClick={handleModalOpen} disabled={isPostLoading}>
                     Create post
                 </Button>
 
-                {isCreating && (
-                    <>
-                        <Typography>Create new post</Typography>
+                <Modal open={isModalOpen} onClose={handleModalClose}>
+                    <Box sx={modalStyle}>
+                        <Typography fontWeight="bold">Create new post</Typography>
                         <TextField
                             value={newPostRequest.header}
                             required
@@ -151,21 +156,14 @@ const TopicPosts: React.FC = () => {
                             rows={4}
                             onChange={(event) => setNewPostRequest({ ...newPostRequest, body: event.target.value })}
                         />
-                        <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-                            <Button onClick={handleCancel} disabled={isSubmitting}>
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="contained"
-                                onClick={handleConfirm}
-                                disabled={isSubmitting}
-                                startIcon={isSubmitting && <CircularProgress size={16} />}
-                            >
-                                {isSubmitting ? "Creating..." : "Confirm"}
-                            </Button>
-                        </Box>
-                    </>
-                )}
+                        <ModalActions
+                            handleConfirm={handleConfirm}
+                            handleCancel={handleCancel}
+                            isSubmitting={isSubmitting}
+                        />
+                    </Box>
+                </Modal>
+
                 <Link component={RouterLink} to="/topics" underline="hover">
                     Back to topics page
                 </Link>

@@ -4,15 +4,18 @@ import { readTopics } from "../api/topic";
 import { useCreateTopic } from "../hooks/topics";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
+import ModalActions from "../components/ModalActions";
+import modalStyle from "../styles/ModalStyle";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import TopicIcon from "@mui/icons-material/Topic";
+import Modal from "@mui/material/Modal";
 
 const Topics: React.FC = () => {
     const [newTitle, setNewTitle] = useState<string>("");
-    const [isCreating, setIsCreating] = useState<boolean>(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const createTopicMutation = useCreateTopic();
     const { user } = useUser();
@@ -21,7 +24,8 @@ const Topics: React.FC = () => {
         queryFn: readTopics,
     });
 
-    const handleCreate = () => setIsCreating(true);
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
     const handleConfirm = () => {
         if (newTitle == "") {
             showSnackBar("Title must not be empty!");
@@ -31,7 +35,7 @@ const Topics: React.FC = () => {
         const topic: Topic = { title: newTitle, author: user, id: -1 };
         createTopicMutation.mutate(topic, {
             onSuccess: () => {
-                setIsCreating(false);
+                handleModalClose();
                 setNewTitle("");
                 showSnackBar("Topic created successfully!");
             },
@@ -42,7 +46,7 @@ const Topics: React.FC = () => {
     };
 
     const handleCancel = () => {
-        setIsCreating(false);
+        handleModalClose();
         setNewTitle("");
     };
 
@@ -79,12 +83,13 @@ const Topics: React.FC = () => {
                 {data?.map((topic: Topic) => (
                     <TopicItem key={topic.id} topic={topic} />
                 ))}
-                <Button onClick={handleCreate} disabled={isLoading} variant="outlined">
+                <Button onClick={handleModalOpen} disabled={isLoading} variant="outlined">
                     Create topic
                 </Button>
-                {isCreating && (
-                    <>
-                        <Typography>New topic name</Typography>
+
+                <Modal open={isModalOpen} onClose={handleModalClose}>
+                    <Box sx={modalStyle}>
+                        <Typography fontWeight="bold">New topic name</Typography>
                         <TextField
                             value={newTitle}
                             required
@@ -93,21 +98,14 @@ const Topics: React.FC = () => {
                             aria-label="Title"
                             onChange={(event) => setNewTitle(event.target.value)}
                         />
-                        <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-                            <Button onClick={handleCancel} disabled={isSubmitting}>
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="contained"
-                                onClick={handleConfirm}
-                                disabled={isSubmitting}
-                                startIcon={isSubmitting && <CircularProgress size={16} />}
-                            >
-                                {isSubmitting ? "Creating..." : "Confirm"}
-                            </Button>
-                        </Box>
-                    </>
-                )}
+                        <ModalActions
+                            handleConfirm={handleConfirm}
+                            handleCancel={handleCancel}
+                            isSubmitting={isSubmitting}
+                        />
+                    </Box>
+                </Modal>
+
                 <Link component={RouterLink} to="/" underline="hover">
                     Back to home page
                 </Link>
