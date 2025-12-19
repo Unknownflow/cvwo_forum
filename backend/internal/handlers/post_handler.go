@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/CVWO/sample-go-app/internal/models"
-	"github.com/CVWO/sample-go-app/internal/service"
+	"github.com/cvwo_assignment/backend/internal/models"
+	"github.com/cvwo_assignment/backend/internal/service"
 	"github.com/go-chi/chi/v5"
 )
 

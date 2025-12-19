@@ -1,4 +1,4 @@
-module github.com/CVWO/sample-go-app
+module github.com/cvwo_assignment/backend
 
 go 1.24.0
 

@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/CVWO/sample-go-app/internal/models"
-	"github.com/CVWO/sample-go-app/internal/service"
-	"github.com/CVWO/sample-go-app/internal/token"
+	"github.com/cvwo_assignment/backend/internal/models"
+	"github.com/cvwo_assignment/backend/internal/service"
+	"github.com/cvwo_assignment/backend/internal/token"
 )
 
 // The handler depends on the Service interface

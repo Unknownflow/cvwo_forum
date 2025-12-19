@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CVWO/sample-go-app/internal/models"
-	"github.com/CVWO/sample-go-app/internal/repository"
-	"github.com/CVWO/sample-go-app/internal/token"
+	"github.com/cvwo_assignment/backend/internal/models"
+	"github.com/cvwo_assignment/backend/internal/repository"
+	"github.com/cvwo_assignment/backend/internal/token"
 	"golang.org/x/crypto/bcrypt"
 )
 

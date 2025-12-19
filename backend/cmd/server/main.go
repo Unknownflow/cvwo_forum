@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/CVWO/sample-go-app/internal/database"
-	"github.com/CVWO/sample-go-app/internal/router"
+	"github.com/cvwo_assignment/backend/internal/database"
+	"github.com/cvwo_assignment/backend/internal/router"
 	"github.com/joho/godotenv"
 )
 

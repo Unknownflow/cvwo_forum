@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/CVWO/sample-go-app/internal/handlers"
-	"github.com/CVWO/sample-go-app/internal/repository"
-	"github.com/CVWO/sample-go-app/internal/service"
+	"github.com/cvwo_assignment/backend/internal/handlers"
+	"github.com/cvwo_assignment/backend/internal/repository"
+	"github.com/cvwo_assignment/backend/internal/service"
 	"github.com/go-chi/chi/v5"
 	"github.com/jmoiron/sqlx"
 )

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/CVWO/sample-go-app/internal/models"
-	"github.com/CVWO/sample-go-app/internal/repository"
+	"github.com/cvwo_assignment/backend/internal/models"
+	"github.com/cvwo_assignment/backend/internal/repository"
 )
 
 type PostService interface {

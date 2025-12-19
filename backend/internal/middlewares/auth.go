@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/CVWO/sample-go-app/internal/handlers"
-	"github.com/CVWO/sample-go-app/internal/repository"
-	"github.com/CVWO/sample-go-app/internal/service"
-	"github.com/CVWO/sample-go-app/internal/token"
+	"github.com/cvwo_assignment/backend/internal/handlers"
+	"github.com/cvwo_assignment/backend/internal/repository"
+	"github.com/cvwo_assignment/backend/internal/service"
+	"github.com/cvwo_assignment/backend/internal/token"
 	"github.com/jmoiron/sqlx"
 )
 
