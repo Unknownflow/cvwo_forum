@@ -1,47 +1,83 @@
 package routes
 
 import (
-	"github.com/CVWO/sample-go-app/internal/handlers"
+	"github.com/cvwo_assignment/backend/internal/handlers"
+	"github.com/cvwo_assignment/backend/internal/repository"
+	"github.com/cvwo_assignment/backend/internal/service"
 	"github.com/go-chi/chi/v5"
+	"github.com/jmoiron/sqlx"
 )
 
-func UserRoutes() func(r chi.Router) {
+func AuthRoutes(conn *sqlx.DB) func(r chi.Router) {
+	authRepo := repository.NewAuthRepository(conn)
+	authService := service.NewAuthService(authRepo)
+	authHandler := handlers.AuthHandler{
+		Service: authService,
+	}
 	return func(r chi.Router) {
-		r.Post("/users", handlers.HandleSignUp)
+		r.Post("/login", authHandler.HandleLogin)
+		r.Post("/signup", authHandler.HandleSignUp)
+		r.Post("/logout", authHandler.HandleLogout)
 	}
 }
 
-func AuthRoutes() func(r chi.Router) {
-	return func(r chi.Router) {
-		r.Post("/login", handlers.HandleLogin)
+func TopicsRoutes(conn *sqlx.DB) func(r chi.Router) {
+	topicRepo := repository.NewTopicRepository(conn)
+	topicService := service.NewTopicService(topicRepo)
+	topicHandler := handlers.TopicHandler{
+		Service: topicService,
 	}
-}
-
-func CommentRoutes() func(r chi.Router) {
 	return func(r chi.Router) {
 		r.Route("/", func(r chi.Router) {
-			r.Get("/", handlers.ReadComments)
-			r.Post("/", handlers.CreateComment)
+			r.Get("/", topicHandler.ReadTopics)
+			r.Post("/", topicHandler.CreateTopic)
 		})
 		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", handlers.ReadComment)
-			r.Put("/", handlers.UpdateComment)
-			r.Delete("/", handlers.DeleteComment)
+			r.Get("/", topicHandler.ReadTopic)
+			r.Get("/posts", topicHandler.ReadTopicPosts)
+			r.Put("/", topicHandler.UpdateTopic)
+			r.Delete("/", topicHandler.DeleteTopic)
 		})
-
 	}
 }
 
-func TopicsRoutes() func(r chi.Router) {
+func PostsRoutes(conn *sqlx.DB) func(r chi.Router) {
+	postRepo := repository.NewPostRepository(conn)
+	postService := service.NewPostService(postRepo)
+	postHandler := handlers.PostHandler{
+		Service: postService,
+	}
+
 	return func(r chi.Router) {
 		r.Route("/", func(r chi.Router) {
-			r.Get("/", handlers.ReadTopics)
-			r.Post("/", handlers.CreateTopic)
+			r.Post("/", postHandler.CreatePost)
+			r.Get("/", postHandler.ReadPosts)
 		})
 		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", handlers.ReadTopic)
-			r.Put("/", handlers.UpdateTopic)
-			r.Delete("/", handlers.DeleteTopic)
+			r.Get("/", postHandler.ReadPost)
+			r.Get("/comments", postHandler.ReadPostComments)
+			r.Put("/", postHandler.UpdatePost)
+			r.Delete("/", postHandler.DeletePost)
+		})
+	}
+}
+
+func CommentRoutes(conn *sqlx.DB) func(r chi.Router) {
+	commentRepo := repository.NewCommentRepository(conn)
+	commentService := service.NewCommentService(commentRepo)
+	commentHandler := handlers.CommentHandler{
+		Service: commentService,
+	}
+
+	return func(r chi.Router) {
+		r.Route("/", func(r chi.Router) {
+			r.Get("/", commentHandler.ReadComments)
+			r.Post("/", commentHandler.CreateComment)
+		})
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", commentHandler.ReadComment)
+			r.Put("/", commentHandler.UpdateComment)
+			r.Delete("/", commentHandler.DeleteComment)
 		})
 	}
 }

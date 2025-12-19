@@ -1,29 +1,19 @@
-/* eslint-disable import/no-named-as-default-member */
 import User from "../types/User";
-import axios from "axios";
+import axiosInstance from "../utils/axios";
 
-const addr = process.env.REACT_APP_API_BASE_URL;
-
-const createUser = async (newUserData: User) => {
-    try {
-        const response = await axios.post(addr + "/users", newUserData);
-        return response.data;
-    } catch (err) {
-        if (axios.isAxiosError(err)) {
-            throw new Error(err.response?.data);
-        }
-    }
+const createUser = async (user: User) => {
+    const response = await axiosInstance.post("/auth/signup", user);
+    return response.data;
 };
 
-const verifyUser = async (userData: User) => {
-    try {
-        const response = await axios.post(addr + "/auth/login", userData);
-        return response.data;
-    } catch (err) {
-        if (axios.isAxiosError(err)) {
-            throw new Error(err.response?.data);
-        }
-    }
+const verifyUser = async (user: User) => {
+    const response = await axiosInstance.post("/auth/login", user);
+    return response.data;
 };
 
-export { createUser, verifyUser };
+const logoutUser = async () => {
+    const response = await axiosInstance.post("/auth/logout");
+    return response.data;
+};
+
+export { createUser, verifyUser, logoutUser };

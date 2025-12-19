@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/CVWO/sample-go-app/internal/database"
+	"github.com/cvwo_assignment/backend/internal/database"
 )
 
 // respondJSON sends a JSON response with the given status code

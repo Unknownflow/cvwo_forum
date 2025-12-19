@@ -1,0 +1,131 @@
+package repository
+
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+
+	"github.com/cvwo_assignment/backend/internal/models"
+	"github.com/jmoiron/sqlx"
+)
+
+type TopicRepository interface {
+	ReadAll() ([]models.Topic, error)
+	ReadByID(id int) (models.Topic, error)
+	ReadPostsByTopicID(id int) ([]models.Post, error)
+	Create(topic models.Topic) error
+	Update(topic models.Topic) (rowsAffected int64, err error)
+	Delete(id int) (rowsAffected int64, err error)
+}
+
+type topicRepository struct {
+	db *sqlx.DB
+}
+
+func NewTopicRepository(db *sqlx.DB) TopicRepository {
+	return &topicRepository{db: db}
+}
+
+func (r *topicRepository) ReadAll() ([]models.Topic, error) {
+	var topics []models.Topic
+	query := "SELECT * FROM topics"
+	err := r.db.Select(&topics, query)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		}
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	return topics, nil
+}
+
+func (r *topicRepository) ReadByID(id int) (models.Topic, error) {
+	var topic models.Topic
+	query := "SELECT * FROM topics WHERE id = $1"
+	err := r.db.QueryRowx(query, id).StructScan(&topic)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Topic{}, sql.ErrNoRows
+		}
+		return models.Topic{}, fmt.Errorf("failed to execute query: %w", err)
+	}
+	return topic, nil
+}
+
+func (r *topicRepository) ReadPostsByTopicID(id int) ([]models.Post, error) {
+	var posts []models.Post
+	query := "SELECT * FROM posts WHERE topic_id = $1"
+	err := r.db.Select(&posts, query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		}
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	return posts, nil
+}
+
+func (r *topicRepository) Create(topic models.Topic) error {
+	query := `INSERT INTO topics (title, author) 
+			  VALUES (:title, :author)`
+
+	tx := r.db.MustBegin()
+	_, err := tx.NamedExec(query, topic)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (r *topicRepository) Update(topic models.Topic) (int64, error) {
+	query := `UPDATE topics 
+			  SET title = :title 
+			  WHERE id = :id`
+
+	tx := r.db.MustBegin()
+	result, err := tx.NamedExec(query, topic)
+
+	if err != nil {
+		tx.Rollback()
+		return 0, fmt.Errorf("failed to execute update topic query: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return 0, fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return 0, nil
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit update transaction: %w", err)
+	}
+
+	return rowsAffected, nil
+}
+
+func (r *topicRepository) Delete(id int) (int64, error) {
+	query := "DELETE FROM topics WHERE id = $1"
+	result, err := r.db.Exec(query, id)
+
+	if err != nil {
+		return 0, fmt.Errorf("failed to execute delete topic query: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	return rowsAffected, nil
+}

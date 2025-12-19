@@ -1,31 +1,36 @@
 import Topic from "../types/Topic";
-import axios from "axios";
+import axiosInstance from "../utils/axios";
 
-const addr = process.env.REACT_APP_API_BASE_URL + "/topics/";
+const route = "/topics/";
 
 const readTopics = async () => {
-    const response = await axios.get(addr);
+    const response = await axiosInstance.get(route);
     return response.data;
 };
 
 const readTopic = async (id: number) => {
-    const response = await axios.get(addr + id);
+    const response = await axiosInstance.get(route + id);
     return response.data;
 };
 
-const createTopic = async (title: string) => {
-    const response = await axios.post(addr, { title });
+const readTopicPosts = async (id: number) => {
+    const response = await axiosInstance.get(route + id + "/posts");
+    return response.data;
+};
+
+const createTopic = async (topic: Topic) => {
+    const response = await axiosInstance.post(route, topic);
     return response.data;
 };
 
 const updateTopic = async (newTopicData: Topic) => {
-    const response = await axios.put(addr + newTopicData.id, newTopicData);
+    const response = await axiosInstance.put(route + newTopicData.id, newTopicData);
     return response.data;
 };
 
 const deleteTopic = async (id: number) => {
-    const response = await axios.delete(addr + id);
+    const response = await axiosInstance.delete(route + id);
     return response.data;
 };
 
-export { readTopics, readTopic, createTopic, updateTopic, deleteTopic };
+export { readTopics, readTopic, readTopicPosts, createTopic, updateTopic, deleteTopic };
