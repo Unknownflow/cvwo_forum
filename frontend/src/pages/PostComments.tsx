@@ -49,7 +49,7 @@ const PostComments: React.FC = () => {
     const resetForm = () => {
         setNewCommentRequest({
             body: "",
-            author: "username",
+            author: user,
             post_id: postIdNumber,
         });
     };

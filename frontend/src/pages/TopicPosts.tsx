@@ -50,7 +50,7 @@ const TopicPosts: React.FC = () => {
         setNewPostRequest({
             header: "",
             body: "",
-            author: "username",
+            author: user,
             topic_id: topicIdNumber,
         });
     };
