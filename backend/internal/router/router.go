@@ -17,7 +17,7 @@ func Setup(conn *sqlx.DB) chi.Router {
 
 	// Basic CORS
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{frontendURL},
+		AllowedOrigins:   []string{frontendURL, "http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
