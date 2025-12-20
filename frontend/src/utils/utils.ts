@@ -6,8 +6,6 @@ export function capitalizeFirstLetter(str: string): string {
 }
 
 export function formatDateTime(isoString: string): string {
-    console.log("isostring", isoString);
-    console.log("currenttime", new Date(isoString));
     return new Date(isoString).toLocaleString(undefined, {
         year: "numeric",
         month: "short",
