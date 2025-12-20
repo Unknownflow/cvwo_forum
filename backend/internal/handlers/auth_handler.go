@@ -30,7 +30,7 @@ func SetTokenCookies(w http.ResponseWriter, accessToken, refreshToken string) {
 		Secure:   secure, // TRUE In production, FALSE in development
 		Path:     "/",
 		Expires:  time.Now().Add(15 * time.Minute), // Expires in 15 minutes
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -40,7 +40,7 @@ func SetTokenCookies(w http.ResponseWriter, accessToken, refreshToken string) {
 		Secure:   secure, // TRUE In production, FALSE in development
 		Path:     "/",
 		Expires:  time.Now().Add(7 * 24 * time.Hour), // Expires in 1 week
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	})
 }
 
