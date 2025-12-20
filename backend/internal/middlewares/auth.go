@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"slices"
 
 	"github.com/cvwo_assignment/backend/internal/handlers"
 	"github.com/cvwo_assignment/backend/internal/repository"
@@ -17,12 +16,6 @@ type ContextKey string
 
 const UserContextKey ContextKey = "user"
 
-var allowedOrigins = []string{
-	"http://localhost:3000",
-	"https://nus-forum.vercel.app/",
-	"https://nus-forum.onrender.com/",
-}
-
 func CreateAuthMiddleware(conn *sqlx.DB) func(http.Handler) http.Handler {
 	authRepo := repository.NewAuthRepository(conn)
 	authService := service.NewAuthService(authRepo)
@@ -34,14 +27,6 @@ func CreateAuthMiddleware(conn *sqlx.DB) func(http.Handler) http.Handler {
 
 func authMiddleware(next http.HandlerFunc, authService service.AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Print("origin", r.Header.Get("Origin"))
-
-		origin := r.Header.Get("Origin")
-		if slices.Contains(allowedOrigins, origin) {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			fmt.Println("origin allowed")
-		}
-
 		accessTokenCookie, err := r.Cookie("access_token")
 		if err != nil {
 			// Missing / expired access token
