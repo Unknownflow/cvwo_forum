@@ -13,7 +13,7 @@ axiosInstance.defaults.withCredentials = true;
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
+        // console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
         return config;
     },
     (error) => {
@@ -23,14 +23,14 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
     (response) => {
-        console.log("response", response);
+        // console.log("response", response);
         return response;
     },
     (error) => {
         if (axios.isAxiosError(error)) {
             // Handle 401 Unauthorized globally
             if (error.response?.status === 401) {
-                console.log("Unauthorized - redirecting to login");
+                // console.log("Unauthorized - redirecting to login");
             }
 
             // Extract error message from response
