@@ -12,9 +12,10 @@ import { useNavigate } from "react-router-dom";
 type Props = {
     post: Post;
     topicID: string;
+    editable: boolean;
 };
 
-const PostItem: React.FC<Props> = ({ post, topicID }) => {
+const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedPost, setEditedPost] = useState<{ header: string; body: string }>({ header: "", body: "" });
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
@@ -22,7 +23,7 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
     const updatePostMutation = useUpdatePost(topicID);
     const deletePostMutation = useDeletePost(topicID);
     const { user } = useUser();
-    const isEditable = post.author == user;
+    const isEditable = editable && post.author == user;
 
     const handleNavigate = () => {
         navigate("/topics/" + topicID + "/posts/" + post.id + "/comments");
@@ -87,7 +88,7 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                 }}
             >
                 {isEditing ? (
-                    <CardContent>
+                    <CardContent sx={{ width: "100%" }}>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <TextField
                                 value={editedPost.header}

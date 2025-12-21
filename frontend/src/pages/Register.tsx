@@ -13,7 +13,7 @@ const Register: React.FC = () => {
                 <AuthForm mutation={createUserMutation} label="sign up" />
                 <Box>
                     <Link component={RouterLink} to="/" underline="hover">
-                        Back to home
+                        Back to Home
                     </Link>
                 </Box>
             </Paper>

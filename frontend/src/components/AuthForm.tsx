@@ -51,7 +51,7 @@ const AuthForm: React.FC<Props> = ({ mutation, label }) => {
 
     return (
         <>
-            <Typography variant="h5" sx={{ mb: 2 }}>
+            <Typography variant="h5" sx={{ mb: 2, display: "flex", justifyContent: "center", alignItems: "center" }}>
                 {capitalizeFirstLetter(label)}
             </Typography>
             <Box

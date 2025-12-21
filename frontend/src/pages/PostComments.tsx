@@ -41,7 +41,7 @@ const PostComments: React.FC = () => {
         isError: isPostError,
         data: postData,
     } = useQuery({
-        queryKey: ["post", postID],
+        queryKey: ["posts", postID],
         queryFn: () => readPost(postIdNumber),
         enabled: !!postID,
     });
@@ -122,7 +122,7 @@ const PostComments: React.FC = () => {
             >
                 {!isPostLoading && !isPostError && (
                     <Box sx={{ mb: 3 }}>
-                        <PostItem post={postData} topicID={topicID ? topicID : ""} />
+                        <PostItem post={postData} topicID={topicID ? topicID : ""} editable={false} />
                     </Box>
                 )}
 
@@ -133,7 +133,7 @@ const PostComments: React.FC = () => {
                 {commentsData?.map((comment: Comment) => (
                     <CommentItem key={comment.id} postID={postID ? postID : ""} comment={comment} />
                 ))}
-                <Button onClick={handleModalOpen} disabled={isCommentsLoading}>
+                <Button variant="outlined" onClick={handleModalOpen} disabled={isCommentsLoading}>
                     Create comment
                 </Button>
 
@@ -161,7 +161,7 @@ const PostComments: React.FC = () => {
                 </Modal>
 
                 <Link component={RouterLink} to={prevPageLink} underline="hover">
-                    Back to posts page
+                    Back to Posts
                 </Link>
                 <Snackbar
                     open={snackBar.open}

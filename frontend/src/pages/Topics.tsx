@@ -81,7 +81,7 @@ const Topics: React.FC = () => {
                 {data == null && <Typography>No topics yet.</Typography>}
 
                 {data?.map((topic: Topic) => (
-                    <TopicItem key={topic.id} topic={topic} />
+                    <TopicItem key={topic.id} topic={topic} editable={true} />
                 ))}
                 <Button onClick={handleModalOpen} disabled={isLoading} variant="outlined">
                     Create topic
@@ -107,7 +107,7 @@ const Topics: React.FC = () => {
                 </Modal>
 
                 <Link component={RouterLink} to="/" underline="hover">
-                    Back to home page
+                    Back to Home
                 </Link>
                 <Snackbar
                     open={snackBar.open}

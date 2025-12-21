@@ -122,16 +122,16 @@ const TopicPosts: React.FC = () => {
             >
                 {!isTopicLoading && !isTopicError && (
                     <Box sx={{ mb: 3 }}>
-                        <TopicItem topic={topicData} />
+                        <TopicItem topic={topicData} editable={false} />
                     </Box>
                 )}
 
                 {!isPostError && !isPostLoading && postsData == null && <Typography>No posts yet.</Typography>}
 
                 {postsData?.map((post: Post) => (
-                    <PostItem key={post.id} topicID={id ? id : ""} post={post} />
+                    <PostItem key={post.id} topicID={id ? id : ""} post={post} editable={true} />
                 ))}
-                <Button onClick={handleModalOpen} disabled={isPostLoading}>
+                <Button variant="outlined" onClick={handleModalOpen} disabled={isPostLoading}>
                     Create post
                 </Button>
 
@@ -165,7 +165,7 @@ const TopicPosts: React.FC = () => {
                 </Modal>
 
                 <Link component={RouterLink} to="/topics" underline="hover">
-                    Back to topics page
+                    Back to Topics
                 </Link>
                 <Snackbar
                     open={snackBar.open}
