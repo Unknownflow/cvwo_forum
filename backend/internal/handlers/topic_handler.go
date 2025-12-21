@@ -60,9 +60,9 @@ func (h *TopicHandler) ReadTopicPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TopicHandler) CreateTopic(w http.ResponseWriter, r *http.Request) {
-	var newTopic models.Topic
+	var newTopicReq models.TopicRequest
 
-	err := json.NewDecoder(r.Body).Decode(&newTopic)
+	err := json.NewDecoder(r.Body).Decode(&newTopicReq)
 	defer r.Body.Close()
 
 	if err != nil {
@@ -70,17 +70,17 @@ func (h *TopicHandler) CreateTopic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.CreateTopic(newTopic)
+	err = h.Service.CreateTopic(newTopicReq)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	RespondJSON(w, http.StatusCreated, newTopic)
+	RespondJSON(w, http.StatusCreated, newTopicReq)
 }
 
 func (h *TopicHandler) UpdateTopic(w http.ResponseWriter, r *http.Request) {
-	var newTopic models.Topic
+	var newTopic models.TopicRequest
 	err := json.NewDecoder(r.Body).Decode(&newTopic)
 	defer r.Body.Close()
 
@@ -128,7 +128,7 @@ func (h *TopicHandler) DeleteTopic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4. Success Response
+	// Success Response
 	RespondJSON(w, http.StatusOK, map[string]string{
 		"message": "Topic deleted successfully",
 		"id":      topicID,

@@ -9,26 +9,27 @@ import (
 )
 
 type PostService interface {
-	GetAllPosts() ([]models.Post, error)
-	GetPostByID(id int) (models.Post, error)
-	GetAllCommentsByPostID(id int) ([]models.Comment, error)
+	GetAllPosts() ([]models.PostResponse, error)
+	GetPostByID(id int) (models.PostResponse, error)
+	GetAllCommentsByPostID(id int) ([]models.CommentResponse, error)
 	CreatePost(post models.PostRequest) error
 	UpdatePost(post models.PostRequest) error
 	DeletePost(id int) error
 }
 
 type postService struct {
-	repo repository.PostRepository
+	postRepo repository.PostRepository
+	userRepo repository.UserRepository
 }
 
 var ErrNotFound = errors.New("record not found")
 
-func NewPostService(repo repository.PostRepository) PostService {
-	return &postService{repo: repo}
+func NewPostService(postRepo repository.PostRepository, userRepo repository.UserRepository) PostService {
+	return &postService{postRepo: postRepo, userRepo: userRepo}
 }
 
-func (s *postService) GetAllPosts() ([]models.Post, error) {
-	posts, err := s.repo.ReadAll()
+func (s *postService) GetAllPosts() ([]models.PostResponse, error) {
+	posts, err := s.postRepo.ReadAll()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve posts: %w", err)
@@ -37,18 +38,18 @@ func (s *postService) GetAllPosts() ([]models.Post, error) {
 	return posts, nil
 }
 
-func (s *postService) GetPostByID(id int) (models.Post, error) {
-	post, err := s.repo.ReadByID(id)
+func (s *postService) GetPostByID(id int) (models.PostResponse, error) {
+	post, err := s.postRepo.ReadByID(id)
 
 	if err != nil {
-		return models.Post{}, fmt.Errorf("failed to retrieve post: %w", err)
+		return models.PostResponse{}, fmt.Errorf("failed to retrieve post: %w", err)
 	}
 
 	return post, nil
 }
 
-func (s *postService) GetAllCommentsByPostID(id int) ([]models.Comment, error) {
-	comments, err := s.repo.ReadCommentsByPostID(id)
+func (s *postService) GetAllCommentsByPostID(id int) ([]models.CommentResponse, error) {
+	comments, err := s.postRepo.ReadCommentsByPostID(id)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve comments: %w", err)
@@ -57,12 +58,27 @@ func (s *postService) GetAllCommentsByPostID(id int) ([]models.Comment, error) {
 	return comments, nil
 }
 
-func (s *postService) CreatePost(post models.PostRequest) error {
-	if err := validatePost(&post); err != nil {
+func (s *postService) CreatePost(postReq models.PostRequest) error {
+	var post models.Post
+	if err := validatePost(&postReq); err != nil {
 		return err
 	}
 
-	if err := s.repo.Create(post); err != nil {
+	userID, err := s.userRepo.GetUserIDByUsername(postReq.Author)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("userid", userID)
+
+	post = models.Post{
+		Header:  postReq.Header,
+		Body:    postReq.Body,
+		TopicID: postReq.TopicID,
+		UserID:  userID,
+	}
+
+	if err := s.postRepo.Create(post); err != nil {
 		return fmt.Errorf("could not create post in database: %w", err)
 	}
 
@@ -74,7 +90,7 @@ func (s *postService) UpdatePost(post models.PostRequest) error {
 		return err
 	}
 
-	rowsAffected, err := s.repo.Update(post)
+	rowsAffected, err := s.postRepo.Update(post)
 
 	if err != nil {
 		return fmt.Errorf("could not update post in database: %w", err)
@@ -88,7 +104,7 @@ func (s *postService) UpdatePost(post models.PostRequest) error {
 }
 
 func (s *postService) DeletePost(id int) error {
-	rowsAffected, err := s.repo.Delete(id)
+	rowsAffected, err := s.postRepo.Delete(id)
 
 	if err != nil {
 		return fmt.Errorf("could not delete post from database: %w", err)
@@ -107,9 +123,6 @@ func validatePost(post *models.PostRequest) error {
 	}
 	if post.Body == "" {
 		return fmt.Errorf("body field is required")
-	}
-	if post.Author == "" {
-		return fmt.Errorf("author field is required")
 	}
 	return nil
 }

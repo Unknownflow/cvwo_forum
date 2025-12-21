@@ -59,14 +59,15 @@ func (s *authService) VerifyUser(userReq models.UserRequest) bool {
 
 func (s *authService) GenerateRefreshExpiry(username string, refreshToken string) error {
 	// revoke previous refresh tokens
-	err := s.repo.RevokeAllUserTokens(username)
+	user_id := s.repo.GetUserID(username)
+	err := s.repo.RevokeAllUserTokens(user_id)
 	if err != nil {
 		return err
 	}
 
 	// refresh token expire in 7 days
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	err = s.repo.SaveRefreshToken(username, refreshToken, expiresAt)
+	err = s.repo.SaveRefreshToken(user_id, refreshToken, expiresAt)
 	return err
 }
 
@@ -77,8 +78,9 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 		return nil, errors.New("invalid refresh token format")
 	}
 
+	user_id := s.repo.GetUserID(claims.Username)
 	// Check that the refresh token is not revoked
-	storedToken, err := s.repo.GetRefreshToken(claims.Username)
+	storedToken, err := s.repo.GetRefreshToken(user_id)
 	if err != nil {
 		return nil, errors.New("user session not found")
 	}
@@ -104,7 +106,8 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 }
 
 func (s *authService) EndPreviousUserSessions(username string) error {
-	err := s.repo.RevokeAllUserTokens(username)
+	user_id := s.repo.GetUserID(username)
+	err := s.repo.RevokeAllUserTokens(user_id)
 	return err
 }
 

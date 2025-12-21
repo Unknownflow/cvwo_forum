@@ -23,7 +23,8 @@ func AuthRoutes(conn *sqlx.DB) func(r chi.Router) {
 
 func TopicsRoutes(conn *sqlx.DB) func(r chi.Router) {
 	topicRepo := repository.NewTopicRepository(conn)
-	topicService := service.NewTopicService(topicRepo)
+	userRepo := repository.NewUserRepository(conn)
+	topicService := service.NewTopicService(topicRepo, userRepo)
 	topicHandler := handlers.TopicHandler{
 		Service: topicService,
 	}
@@ -43,7 +44,8 @@ func TopicsRoutes(conn *sqlx.DB) func(r chi.Router) {
 
 func PostsRoutes(conn *sqlx.DB) func(r chi.Router) {
 	postRepo := repository.NewPostRepository(conn)
-	postService := service.NewPostService(postRepo)
+	userRepo := repository.NewUserRepository(conn)
+	postService := service.NewPostService(postRepo, userRepo)
 	postHandler := handlers.PostHandler{
 		Service: postService,
 	}
@@ -64,7 +66,8 @@ func PostsRoutes(conn *sqlx.DB) func(r chi.Router) {
 
 func CommentRoutes(conn *sqlx.DB) func(r chi.Router) {
 	commentRepo := repository.NewCommentRepository(conn)
-	commentService := service.NewCommentService(commentRepo)
+	userRepo := repository.NewUserRepository(conn)
+	commentService := service.NewCommentService(commentRepo, userRepo)
 	commentHandler := handlers.CommentHandler{
 		Service: commentService,
 	}

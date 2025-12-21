@@ -44,7 +44,7 @@ func (h *CommentHandler) ReadComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
-	var newComment models.Comment
+	var newComment models.CommentRequest
 	err := json.NewDecoder(r.Body).Decode(&newComment)
 	defer r.Body.Close()
 
@@ -63,7 +63,7 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
-	var newComment models.Comment
+	var newComment models.CommentRequest
 	err := json.NewDecoder(r.Body).Decode(&newComment)
 	defer r.Body.Close()
 

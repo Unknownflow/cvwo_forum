@@ -8,23 +8,24 @@ import (
 )
 
 type CommentService interface {
-	GetAllComments() ([]models.Comment, error)
-	GetCommentByID(id int) (models.Comment, error)
-	CreateComment(comment models.Comment) error
-	UpdateComment(comment models.Comment) error
+	GetAllComments() ([]models.CommentResponse, error)
+	GetCommentByID(id int) (models.CommentResponse, error)
+	CreateComment(comment models.CommentRequest) error
+	UpdateComment(comment models.CommentRequest) error
 	DeleteComment(id int) error
 }
 
 type commentService struct {
-	repo repository.CommentRepository
+	commentRepo repository.CommentRepository
+	userRepo    repository.UserRepository
 }
 
-func NewCommentService(repo repository.CommentRepository) CommentService {
-	return &commentService{repo: repo}
+func NewCommentService(commentRepo repository.CommentRepository, userRepo repository.UserRepository) CommentService {
+	return &commentService{commentRepo: commentRepo, userRepo: userRepo}
 }
 
-func (s *commentService) GetAllComments() ([]models.Comment, error) {
-	comments, err := s.repo.ReadAll()
+func (s *commentService) GetAllComments() ([]models.CommentResponse, error) {
+	comments, err := s.commentRepo.ReadAll()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve comments: %w", err)
@@ -33,34 +34,59 @@ func (s *commentService) GetAllComments() ([]models.Comment, error) {
 	return comments, nil
 }
 
-func (s *commentService) GetCommentByID(id int) (models.Comment, error) {
-	comment, err := s.repo.ReadByID(id)
+func (s *commentService) GetCommentByID(id int) (models.CommentResponse, error) {
+	comment, err := s.commentRepo.ReadByID(id)
 
 	if err != nil {
-		return models.Comment{}, fmt.Errorf("failed to retrieve comment: %w", err)
+		return models.CommentResponse{}, fmt.Errorf("failed to retrieve comment: %w", err)
 	}
 
 	return comment, nil
 }
 
-func (s *commentService) CreateComment(comment models.Comment) error {
-	if err := validateComment(&comment); err != nil {
+func (s *commentService) CreateComment(commentReq models.CommentRequest) error {
+	var comment models.Comment
+	if err := validateComment(&commentReq); err != nil {
 		return err
 	}
 
-	if err := s.repo.Create(comment); err != nil {
+	userID, err := s.userRepo.GetUserIDByUsername(commentReq.Author)
+	if err != nil {
+		return err
+	}
+
+	comment = models.Comment{
+		Body:   commentReq.Body,
+		PostID: commentReq.PostID,
+		UserID: userID,
+	}
+
+	if err := s.commentRepo.Create(comment); err != nil {
 		return fmt.Errorf("could not create comment in database: %w", err)
 	}
 
 	return nil
 }
 
-func (s *commentService) UpdateComment(comment models.Comment) error {
-	if err := validateComment(&comment); err != nil {
+func (s *commentService) UpdateComment(commentReq models.CommentRequest) error {
+	var comment models.Comment
+	if err := validateComment(&commentReq); err != nil {
 		return err
 	}
 
-	rowsAffected, err := s.repo.Update(comment)
+	userID, err := s.userRepo.GetUserIDByUsername(commentReq.Author)
+	if err != nil {
+		return err
+	}
+
+	comment = models.Comment{
+		ID:     commentReq.ID,
+		Body:   commentReq.Body,
+		PostID: commentReq.PostID,
+		UserID: userID,
+	}
+
+	rowsAffected, err := s.commentRepo.Update(comment)
 
 	if err != nil {
 		return fmt.Errorf("could not update comment in database: %w", err)
@@ -74,7 +100,7 @@ func (s *commentService) UpdateComment(comment models.Comment) error {
 }
 
 func (s *commentService) DeleteComment(id int) error {
-	rowsAffected, err := s.repo.Delete(id)
+	rowsAffected, err := s.commentRepo.Delete(id)
 
 	if err != nil {
 		return fmt.Errorf("could not delete comment from database: %w", err)
@@ -87,11 +113,11 @@ func (s *commentService) DeleteComment(id int) error {
 	return nil
 }
 
-func validateComment(comment *models.Comment) error {
-	if comment.Body == "" {
+func validateComment(commentReq *models.CommentRequest) error {
+	if commentReq.Body == "" {
 		return fmt.Errorf("body field is required")
 	}
-	if comment.Author == "" {
+	if commentReq.Author == "" {
 		return fmt.Errorf("author field is required")
 	}
 	return nil
