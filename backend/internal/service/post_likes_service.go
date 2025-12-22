@@ -12,6 +12,7 @@ type PostLikesService interface {
 	GetPostLike(userID int, postID int) (models.PostLikesResponse, error)
 	CreatePostLike(userID int, postLikesReq models.PostLikesRequest) error
 	DeletePostLike(userID int, postID int) error
+	GetPostLikesCount(postID int) (int64, error)
 }
 
 type postLikesService struct {
@@ -23,13 +24,13 @@ func NewPostLikesService(postLikesRepo repository.PostLikesRepository) PostLikes
 }
 
 func (s *postLikesService) GetAllPostLikes() ([]models.PostLikesResponse, error) {
-	comments, err := s.postLikesRepo.ReadAll()
+	postLikes, err := s.postLikesRepo.ReadAll()
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve comments: %w", err)
+		return nil, fmt.Errorf("failed to retrieve post likes: %w", err)
 	}
 
-	return comments, nil
+	return postLikes, nil
 }
 
 func (s *postLikesService) GetPostLike(userID int, postID int) (models.PostLikesResponse, error) {
@@ -40,13 +41,13 @@ func (s *postLikesService) GetPostLike(userID int, postID int) (models.PostLikes
 		UserID: userID,
 	}
 
-	comment, err := s.postLikesRepo.ReadByID(postLikes)
+	postLike, err := s.postLikesRepo.ReadByID(postLikes)
 
 	if err != nil {
-		return models.PostLikesResponse{}, fmt.Errorf("failed to retrieve comment: %w", err)
+		return models.PostLikesResponse{}, fmt.Errorf("failed to retrieve post likes: %w", err)
 	}
 
-	return comment, nil
+	return postLike, nil
 }
 
 func (s *postLikesService) CreatePostLike(userID int, postLikesReq models.PostLikesRequest) error {
@@ -76,7 +77,7 @@ func (s *postLikesService) DeletePostLike(userID int, postID int) error {
 	rowsAffected, err := s.postLikesRepo.Delete(postLike)
 
 	if err != nil {
-		return fmt.Errorf("could not delete comment from database: %w", err)
+		return fmt.Errorf("could not delete post likes from database: %w", err)
 	}
 
 	if rowsAffected == 0 {
@@ -84,4 +85,17 @@ func (s *postLikesService) DeletePostLike(userID int, postID int) error {
 	}
 
 	return nil
+}
+
+func (s *postLikesService) GetPostLikesCount(postID int) (int64, error) {
+	var postLikes models.PostLikes
+
+	postLikes = models.PostLikes{PostID: postID}
+	count, err := s.postLikesRepo.ReadLikesCount(postLikes)
+
+	if err != nil {
+		return 0, fmt.Errorf("failed to retrieve likes count: %w", err)
+	}
+
+	return count, nil
 }

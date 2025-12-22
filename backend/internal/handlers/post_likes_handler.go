@@ -103,3 +103,20 @@ func (h *PostLikesHandler) DeletePostLike(w http.ResponseWriter, r *http.Request
 		"id":      postID,
 	})
 }
+
+func (h *PostLikesHandler) ReadPostLikesCount(w http.ResponseWriter, r *http.Request) {
+	postID := chi.URLParam(r, "id")
+	postIDInt, err := strconv.Atoi(postID)
+	if err != nil {
+		RespondError(w, http.StatusBadRequest, "Invalid request param")
+		return
+	}
+
+	post, err := h.Service.GetPostLikesCount(postIDInt)
+
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	RespondJSON(w, http.StatusOK, post)
+}

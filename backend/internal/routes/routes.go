@@ -97,6 +97,7 @@ func PostLikesRoutes(conn *sqlx.DB) func(r chi.Router) {
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", postLikesHandler.ReadPostLike)
 			r.Delete("/", postLikesHandler.DeletePostLike)
+			r.Get("/count", postLikesHandler.ReadPostLikesCount)
 		})
 	}
 }

@@ -10,7 +10,6 @@ const readPostsLikes = async () => {
 
 const readPostLikes = async (id: number) => {
     const response = await axiosInstance.get(route + id);
-    console.log("response", response.data);
     return response.data;
 };
 
@@ -24,4 +23,9 @@ const deletePostLike = async (id: number) => {
     return response.data;
 };
 
-export { readPostsLikes, readPostLikes, createPostLike, deletePostLike };
+const readPostLikesCount = async (id: number) => {
+    const response = await axiosInstance.get(route + id + "/count");
+    return response.data;
+};
+
+export { readPostsLikes, readPostLikes, createPostLike, deletePostLike, readPostLikesCount };

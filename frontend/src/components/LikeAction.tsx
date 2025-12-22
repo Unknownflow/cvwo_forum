@@ -1,4 +1,4 @@
-import { readPostLikes } from "../api/postLikes";
+import { readPostLikes, readPostLikesCount } from "../api/postLikes";
 import { useUser } from "../context/userContext";
 import { useCreatePostLike, useDeletePostLike } from "../hooks/postLikes";
 import { Box, IconButton } from "@mui/material";
@@ -13,22 +13,24 @@ type Props = {
 
 const LikeAction: React.FC<Props> = ({ postID }) => {
     const { user } = useUser();
-    const { data } = useQuery({
+    const createPostLikeMutation = useCreatePostLike(postID, user);
+    const deletePostLikeMutation = useDeletePostLike(postID, user);
+    const [likeStatus, setLikeStatus] = useState<-1 | 0 | 1>(0);
+    const { data: postLikesData } = useQuery({
         queryKey: ["postLikes", postID, user],
         queryFn: () => readPostLikes(postID),
     });
-
-    const createPostLikeMutation = useCreatePostLike(postID, user);
-    const deletePostLikeMutation = useDeletePostLike(postID, user);
-
-    const [likeStatus, setLikeStatus] = useState<-1 | 0 | 1>(0);
+    const { data: postLikesCount } = useQuery({
+        queryKey: ["postLikesCount", postID],
+        queryFn: () => readPostLikesCount(postID),
+    });
 
     // Sync likeStatus with query data
     useEffect(() => {
-        if (data) {
-            setLikeStatus(data.like_type);
+        if (postLikesData) {
+            setLikeStatus(postLikesData.like_type);
         }
-    }, [data]);
+    }, [postLikesData]);
 
     const likeColor = likeStatus === 1 ? "primary" : "default";
     const dislikeColor = likeStatus === -1 ? "primary" : "default";
@@ -68,6 +70,7 @@ const LikeAction: React.FC<Props> = ({ postID }) => {
             <IconButton onClick={handleLikeUpdate} color={likeColor}>
                 <ThumbUpIcon />
             </IconButton>
+            {postLikesCount}
             <IconButton onClick={handleDislikeUpdate} color={dislikeColor}>
                 <ThumbDownIcon />
             </IconButton>

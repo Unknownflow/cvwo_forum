@@ -14,6 +14,7 @@ type PostLikesRepository interface {
 	ReadByID(likePost models.PostLikes) (models.PostLikesResponse, error)
 	Create(likePost models.PostLikes) error
 	Delete(likePost models.PostLikes) (rowsAffected int64, err error)
+	ReadLikesCount(likePost models.PostLikes) (int64, error)
 }
 
 type postLikesRepository struct {
@@ -51,13 +52,13 @@ func (r *postLikesRepository) ReadByID(postLikes models.PostLikes) (models.PostL
 	return postLikesResp, nil
 }
 
-func (r *postLikesRepository) Create(likePost models.PostLikes) error {
+func (r *postLikesRepository) Create(postLikes models.PostLikes) error {
 	query := `INSERT INTO post_likes (user_id, post_id, like_type) 
 			  VALUES (:user_id, :post_id, :like_type) RETURNING id`
 	// like_type is 1 or -1 depending on whether it is a like / dislike
 
 	tx := r.db.MustBegin()
-	_, err := tx.NamedExec(query, likePost)
+	_, err := tx.NamedExec(query, postLikes)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to execute query: %w", err)
@@ -70,9 +71,9 @@ func (r *postLikesRepository) Create(likePost models.PostLikes) error {
 	return nil
 }
 
-func (r *postLikesRepository) Delete(likePost models.PostLikes) (int64, error) {
+func (r *postLikesRepository) Delete(postLikes models.PostLikes) (int64, error) {
 	query := "DELETE FROM post_likes WHERE user_id = :user_id AND post_id = :post_id"
-	result, err := r.db.NamedExec(query, likePost)
+	result, err := r.db.NamedExec(query, postLikes)
 
 	if err != nil {
 		return 0, fmt.Errorf("failed to execute delete like post query: %w", err)
@@ -84,4 +85,19 @@ func (r *postLikesRepository) Delete(likePost models.PostLikes) (int64, error) {
 	}
 
 	return rowsAffected, nil
+}
+
+func (r *postLikesRepository) ReadLikesCount(postLikes models.PostLikes) (int64, error) {
+	var likesCount int64
+	query := `SELECT SUM(like_type) FROM post_likes
+			  WHERE post_id = $1`
+
+	err := r.db.Get(&likesCount, query, postLikes.PostID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("failed to execute query: %w", err)
+	}
+	return likesCount, nil
 }
