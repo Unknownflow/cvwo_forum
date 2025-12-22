@@ -1,8 +1,10 @@
-CREATE TABLE IF NOT EXISTS likes 
+CREATE TABLE IF NOT EXISTS post_likes
 (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    post_id INT NOT NULL,	
+    post_id INT NOT NULL,
+    like_type INT NOT NULL,
+	liked_at TIMESTAMPTZ DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
 	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 )

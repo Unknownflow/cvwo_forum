@@ -14,7 +14,7 @@ import (
 
 type AuthRepository interface {
 	ValidateUser(userReq models.UserRequest) (bool, error)
-	SaveUser(user models.User) (models.User, error)
+	SaveUser(user models.User) (models.UserResponse, error)
 	GetPassword(userReq models.UserRequest) string
 	GetUserID(username string) int
 	SaveRefreshToken(user_id int, token string, expiresAt time.Time) error
@@ -60,24 +60,26 @@ func (r *authRepository) ValidateUser(userReq models.UserRequest) (bool, error) 
 	return true, nil
 }
 
-func (r *authRepository) SaveUser(user models.User) (models.User, error) {
+func (r *authRepository) SaveUser(user models.User) (models.UserResponse, error) {
+	var userResp models.UserResponse
 	user.Role = os.Getenv("DB_DEFAULT_ROLE")
 	query := `INSERT INTO users (username, password, role)
-			  VALUES (:username, :password, :role)`
+			  VALUES ($1, $2, $3)
+			  RETURNING id, username`
 
 	tx := r.db.MustBegin()
-	_, err := tx.NamedExec(query, user)
+	err := tx.QueryRowx(query, user.Username, user.Password, user.Role).StructScan(&userResp)
 
 	if err != nil {
 		tx.Rollback()
-		return models.User{}, fmt.Errorf("failed to insert user: %w", err)
+		return models.UserResponse{}, fmt.Errorf("failed to insert user: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {
-		return models.User{}, fmt.Errorf("failed to commit transaction: %w", err)
+		return models.UserResponse{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return user, nil
+	return userResp, nil
 }
 
 func (r *authRepository) GetPassword(userReq models.UserRequest) string {

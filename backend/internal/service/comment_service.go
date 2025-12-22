@@ -10,18 +10,17 @@ import (
 type CommentService interface {
 	GetAllComments() ([]models.CommentResponse, error)
 	GetCommentByID(id int) (models.CommentResponse, error)
-	CreateComment(comment models.CommentRequest) error
+	CreateComment(userID int, comment models.CommentRequest) error
 	UpdateComment(comment models.CommentRequest) error
 	DeleteComment(id int) error
 }
 
 type commentService struct {
 	commentRepo repository.CommentRepository
-	userRepo    repository.UserRepository
 }
 
-func NewCommentService(commentRepo repository.CommentRepository, userRepo repository.UserRepository) CommentService {
-	return &commentService{commentRepo: commentRepo, userRepo: userRepo}
+func NewCommentService(commentRepo repository.CommentRepository) CommentService {
+	return &commentService{commentRepo: commentRepo}
 }
 
 func (s *commentService) GetAllComments() ([]models.CommentResponse, error) {
@@ -44,14 +43,9 @@ func (s *commentService) GetCommentByID(id int) (models.CommentResponse, error) 
 	return comment, nil
 }
 
-func (s *commentService) CreateComment(commentReq models.CommentRequest) error {
+func (s *commentService) CreateComment(userID int, commentReq models.CommentRequest) error {
 	var comment models.Comment
 	if err := validateComment(&commentReq); err != nil {
-		return err
-	}
-
-	userID, err := s.userRepo.GetUserIDByUsername(commentReq.Author)
-	if err != nil {
 		return err
 	}
 
@@ -74,16 +68,9 @@ func (s *commentService) UpdateComment(commentReq models.CommentRequest) error {
 		return err
 	}
 
-	userID, err := s.userRepo.GetUserIDByUsername(commentReq.Author)
-	if err != nil {
-		return err
-	}
-
 	comment = models.Comment{
-		ID:     commentReq.ID,
-		Body:   commentReq.Body,
-		PostID: commentReq.PostID,
-		UserID: userID,
+		ID:   commentReq.ID,
+		Body: commentReq.Body,
 	}
 
 	rowsAffected, err := s.commentRepo.Update(comment)

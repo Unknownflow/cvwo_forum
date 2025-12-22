@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cvwo_assignment/backend/internal/auth"
 	"github.com/cvwo_assignment/backend/internal/models"
 	"github.com/cvwo_assignment/backend/internal/service"
 	"github.com/go-chi/chi/v5"
@@ -60,8 +61,12 @@ func (h *PostHandler) ReadPostComments(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	var newPost models.PostRequest
+	claims, ok := auth.GetUserFromContext(r.Context())
+	if !ok {
+		return
+	}
 
+	var newPost models.PostRequest
 	err := json.NewDecoder(r.Body).Decode(&newPost)
 	defer r.Body.Close()
 
@@ -70,7 +75,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.CreatePost(newPost)
+	err = h.Service.CreatePost(claims.ID, newPost)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
 		return

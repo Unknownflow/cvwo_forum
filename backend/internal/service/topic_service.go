@@ -11,18 +11,17 @@ type TopicService interface {
 	GetAllTopics() ([]models.TopicResponse, error)
 	GetTopicByID(id int) (models.TopicResponse, error)
 	GetAllPostsByTopicID(id int) ([]models.PostResponse, error)
-	CreateTopic(topic models.TopicRequest) error
+	CreateTopic(userID int, topic models.TopicRequest) error
 	UpdateTopic(topic models.TopicRequest) error
 	DeleteTopic(id int) error
 }
 
 type topicService struct {
 	topicRepo repository.TopicRepository
-	userRepo  repository.UserRepository
 }
 
-func NewTopicService(topicRepo repository.TopicRepository, userRepo repository.UserRepository) TopicService {
-	return &topicService{topicRepo: topicRepo, userRepo: userRepo}
+func NewTopicService(topicRepo repository.TopicRepository) TopicService {
+	return &topicService{topicRepo: topicRepo}
 }
 
 func (s *topicService) GetAllTopics() ([]models.TopicResponse, error) {
@@ -55,19 +54,13 @@ func (s *topicService) GetAllPostsByTopicID(id int) ([]models.PostResponse, erro
 	return posts, nil
 }
 
-func (s *topicService) CreateTopic(topicReq models.TopicRequest) error {
+func (s *topicService) CreateTopic(userID int, topicReq models.TopicRequest) error {
 	var topic models.Topic
 	if err := validateTopic(&topicReq); err != nil {
 		return err
 	}
 
-	userID, err := s.userRepo.GetUserIDByUsername(topicReq.Author)
-	if err != nil {
-		return err
-	}
-
 	topic = models.Topic{
-		ID:     -1,
 		Title:  topicReq.Title,
 		UserID: userID,
 	}
@@ -85,15 +78,9 @@ func (s *topicService) UpdateTopic(topicReq models.TopicRequest) error {
 		return err
 	}
 
-	userID, err := s.userRepo.GetUserIDByUsername(topicReq.Author)
-	if err != nil {
-		return err
-	}
-
 	topic = models.Topic{
-		ID:     topicReq.ID,
-		Title:  topicReq.Title,
-		UserID: userID,
+		ID:    topicReq.ID,
+		Title: topicReq.Title,
 	}
 
 	rowsAffected, err := s.topicRepo.Update(topic)

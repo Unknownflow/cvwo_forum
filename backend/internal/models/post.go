@@ -15,7 +15,6 @@ type PostRequest struct {
 	ID      int    `db:"id" json:"id"`
 	Header  string `db:"header" json:"header"`
 	Body    string `db:"body" json:"body"`
-	Author  string `json:"author"`
 	TopicID int    `db:"topic_id" json:"topic_id"`
 }
 

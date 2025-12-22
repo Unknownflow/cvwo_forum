@@ -38,7 +38,7 @@ func (r *postRepository) ReadAll() ([]models.PostResponse, error) {
 		}
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
-	fmt.Print("posts", posts)
+
 	return posts, nil
 }
 

@@ -12,20 +12,19 @@ type PostService interface {
 	GetAllPosts() ([]models.PostResponse, error)
 	GetPostByID(id int) (models.PostResponse, error)
 	GetAllCommentsByPostID(id int) ([]models.CommentResponse, error)
-	CreatePost(post models.PostRequest) error
+	CreatePost(userID int, post models.PostRequest) error
 	UpdatePost(post models.PostRequest) error
 	DeletePost(id int) error
 }
 
 type postService struct {
 	postRepo repository.PostRepository
-	userRepo repository.UserRepository
 }
 
 var ErrNotFound = errors.New("record not found")
 
-func NewPostService(postRepo repository.PostRepository, userRepo repository.UserRepository) PostService {
-	return &postService{postRepo: postRepo, userRepo: userRepo}
+func NewPostService(postRepo repository.PostRepository) PostService {
+	return &postService{postRepo: postRepo}
 }
 
 func (s *postService) GetAllPosts() ([]models.PostResponse, error) {
@@ -58,18 +57,11 @@ func (s *postService) GetAllCommentsByPostID(id int) ([]models.CommentResponse, 
 	return comments, nil
 }
 
-func (s *postService) CreatePost(postReq models.PostRequest) error {
+func (s *postService) CreatePost(userID int, postReq models.PostRequest) error {
 	var post models.Post
 	if err := validatePost(&postReq); err != nil {
 		return err
 	}
-
-	userID, err := s.userRepo.GetUserIDByUsername(postReq.Author)
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("userid", userID)
 
 	post = models.Post{
 		Header:  postReq.Header,

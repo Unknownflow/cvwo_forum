@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cvwo_assignment/backend/internal/auth"
 	"github.com/cvwo_assignment/backend/internal/models"
 	"github.com/cvwo_assignment/backend/internal/service"
 	"github.com/go-chi/chi/v5"
@@ -53,7 +54,12 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.CreateComment(newComment)
+	claims, ok := auth.GetUserFromContext(r.Context())
+	if !ok {
+		return
+	}
+
+	err = h.Service.CreateComment(claims.ID, newComment)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
 		return

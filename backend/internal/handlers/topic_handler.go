@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cvwo_assignment/backend/internal/auth"
 	"github.com/cvwo_assignment/backend/internal/models"
 	"github.com/cvwo_assignment/backend/internal/service"
 	"github.com/go-chi/chi/v5"
@@ -70,7 +71,12 @@ func (h *TopicHandler) CreateTopic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.CreateTopic(newTopicReq)
+	claims, ok := auth.GetUserFromContext(r.Context())
+	if !ok {
+		return
+	}
+
+	err = h.Service.CreateTopic(claims.ID, newTopicReq)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
