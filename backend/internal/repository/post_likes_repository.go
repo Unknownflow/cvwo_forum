@@ -41,10 +41,10 @@ func (r *postLikesRepository) ReadByID(postLikes models.PostLikes) (models.PostL
 	var postLikesResp models.PostLikesResponse
 	query := `SELECT * FROM post_likes
 			  WHERE user_id = $1 AND post_id = $2`
-	err := r.db.QueryRowx(query, postLikes).StructScan(&postLikesResp)
+	err := r.db.QueryRowx(query, postLikes.UserID, postLikes.PostID).StructScan(&postLikesResp)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.PostLikesResponse{}, sql.ErrNoRows
+			return models.PostLikesResponse{}, nil
 		}
 		return models.PostLikesResponse{}, fmt.Errorf("failed to execute query: %w", err)
 	}
@@ -71,7 +71,7 @@ func (r *postLikesRepository) Create(likePost models.PostLikes) error {
 }
 
 func (r *postLikesRepository) Delete(likePost models.PostLikes) (int64, error) {
-	query := "DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2"
+	query := "DELETE FROM post_likes WHERE user_id = :user_id AND post_id = :post_id"
 	result, err := r.db.NamedExec(query, likePost)
 
 	if err != nil {

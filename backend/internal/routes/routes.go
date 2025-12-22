@@ -81,3 +81,22 @@ func CommentRoutes(conn *sqlx.DB) func(r chi.Router) {
 		})
 	}
 }
+
+func PostLikesRoutes(conn *sqlx.DB) func(r chi.Router) {
+	postLikesRepo := repository.NewPostLikesRepository(conn)
+	postLikesService := service.NewPostLikesService(postLikesRepo)
+	postLikesHandler := handlers.PostLikesHandler{
+		Service: postLikesService,
+	}
+
+	return func(r chi.Router) {
+		r.Route("/", func(r chi.Router) {
+			r.Get("/", postLikesHandler.ReadPostLikes)
+			r.Post("/", postLikesHandler.CreatePostLike)
+		})
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", postLikesHandler.ReadPostLike)
+			r.Delete("/", postLikesHandler.DeletePostLike)
+		})
+	}
+}

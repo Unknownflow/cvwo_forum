@@ -7,6 +7,7 @@ import { HomeFilled } from "@mui/icons-material";
 import TopicIcon from "@mui/icons-material/Topic";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 const NavBar: React.FC = () => {
     const { user, logout } = useUser();
@@ -23,6 +24,10 @@ const NavBar: React.FC = () => {
 
     const handleLogin = () => {
         navigate("/login");
+    };
+
+    const handleLikes = () => {
+        navigate("/likes");
     };
 
     const handleLogout = () => {
@@ -42,6 +47,10 @@ const NavBar: React.FC = () => {
                         <Button color="inherit" onClick={handleTopics}>
                             <TopicIcon />
                             &nbsp;Topics
+                        </Button>
+                        <Button color="inherit" onClick={handleLikes}>
+                            <FavoriteBorderIcon />
+                            &nbsp;Likes
                         </Button>
                     </Box>
                     <Box>

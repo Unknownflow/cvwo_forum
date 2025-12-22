@@ -1,5 +1,6 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
+import LikeAction from "./LikeAction";
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
@@ -126,25 +127,37 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                     </CardActionArea>
                 )}
 
-                {isEditable && (
-                    <CardActions>
-                        {isEditing ? (
-                            <EditModeAction
-                                handleCancelEdit={handleCancelEdit}
-                                handleConfirmEdit={handleConfirmEdit}
-                                isLoading={isLoading}
-                            />
-                        ) : (
-                            <ViewModeAction
-                                handleStartEdit={handleStartEdit}
-                                handleDelete={handleDelete}
-                                isLoading={isLoading}
-                                isPending={deletePostMutation.isPending}
-                                type="post"
-                            />
-                        )}
-                    </CardActions>
-                )}
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                        px: 2,
+                        py: 1,
+                    }}
+                >
+                    <LikeAction postID={post.id} />
+                    {isEditable && (
+                        <CardActions>
+                            {isEditing ? (
+                                <EditModeAction
+                                    handleCancelEdit={handleCancelEdit}
+                                    handleConfirmEdit={handleConfirmEdit}
+                                    isLoading={isLoading}
+                                />
+                            ) : (
+                                <ViewModeAction
+                                    handleStartEdit={handleStartEdit}
+                                    handleDelete={handleDelete}
+                                    isLoading={isLoading}
+                                    isPending={deletePostMutation.isPending}
+                                    type="post"
+                                />
+                            )}
+                        </CardActions>
+                    )}
+                </Box>
             </Box>
             <Snackbar
                 open={snackBar.open}
