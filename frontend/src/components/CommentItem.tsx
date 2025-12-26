@@ -54,16 +54,14 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
     };
 
     const handleDelete = () => {
-        if (window.confirm("Are you sure you want to delete this comment?")) {
-            deleteCommentMutation.mutate(comment.id, {
-                onSuccess: () => {
-                    showSnackBar("Comment deleted successfully!");
-                },
-                onError: () => {
-                    showSnackBar("Failed to delete comment");
-                },
-            });
-        }
+        deleteCommentMutation.mutate(comment.id, {
+            onSuccess: () => {
+                showSnackBar("Comment deleted successfully!");
+            },
+            onError: () => {
+                showSnackBar("Failed to delete comment");
+            },
+        });
     };
 
     const isLoading = updateCommentMutation.isPending || deleteCommentMutation.isPending;

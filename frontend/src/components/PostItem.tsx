@@ -63,16 +63,14 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
     };
 
     const handleDelete = () => {
-        if (window.confirm("Are you sure you want to delete this post?")) {
-            deletePostMutation.mutate(post.id, {
-                onSuccess: () => {
-                    showSnackBar("Post deleted successfully!");
-                },
-                onError: () => {
-                    showSnackBar("Failed to delete post");
-                },
-            });
-        }
+        deletePostMutation.mutate(post.id, {
+            onSuccess: () => {
+                showSnackBar("Post deleted successfully!");
+            },
+            onError: () => {
+                showSnackBar("Failed to delete post");
+            },
+        });
     };
 
     const isLoading = updatePostMutation.isPending || deletePostMutation.isPending;
