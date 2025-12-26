@@ -8,7 +8,7 @@ import (
 )
 
 type PostLikesService interface {
-	GetAllPostLikes() ([]models.PostLikesResponse, error)
+	GetAllPostLikesByUser(userID int) ([]models.PostResponse, error)
 	GetPostLike(userID int, postID int) (models.PostLikesResponse, error)
 	CreatePostLike(userID int, postLikesReq models.PostLikesRequest) error
 	DeletePostLike(userID int, postID int) error
@@ -23,8 +23,8 @@ func NewPostLikesService(postLikesRepo repository.PostLikesRepository) PostLikes
 	return &postLikesService{postLikesRepo: postLikesRepo}
 }
 
-func (s *postLikesService) GetAllPostLikes() ([]models.PostLikesResponse, error) {
-	postLikes, err := s.postLikesRepo.ReadAll()
+func (s *postLikesService) GetAllPostLikesByUser(userID int) ([]models.PostResponse, error) {
+	postLikes, err := s.postLikesRepo.ReadPostsLikedByUser(userID)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve post likes: %w", err)

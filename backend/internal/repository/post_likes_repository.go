@@ -10,7 +10,7 @@ import (
 )
 
 type PostLikesRepository interface {
-	ReadAll() ([]models.PostLikesResponse, error)
+	ReadPostsLikedByUser(userID int) ([]models.PostResponse, error)
 	ReadByID(likePost models.PostLikes) (models.PostLikesResponse, error)
 	Create(likePost models.PostLikes) error
 	Delete(likePost models.PostLikes) (rowsAffected int64, err error)
@@ -25,17 +25,21 @@ func NewPostLikesRepository(db *sqlx.DB) PostLikesRepository {
 	return &postLikesRepository{db: db}
 }
 
-func (r *postLikesRepository) ReadAll() ([]models.PostLikesResponse, error) {
-	var likes []models.PostLikesResponse
-	query := `SELECT * FROM post_likes`
-	err := r.db.Select(&likes, query)
+func (r *postLikesRepository) ReadPostsLikedByUser(userID int) ([]models.PostResponse, error) {
+	var postLikesResp []models.PostResponse
+	query := `SELECT posts.id, posts.header, posts.body, posts.created_at,
+			  posts.topic_id, users.username AS "author" FROM posts
+			  LEFT JOIN post_likes ON posts.id = post_likes.post_id
+			  LEFT JOIN users ON post_likes.user_id = users.id
+			  WHERE post_likes.user_id = $1 AND post_likes.like_type = 1`
+	err := r.db.Select(&postLikesResp, query, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
-	return likes, nil
+	return postLikesResp, nil
 }
 
 func (r *postLikesRepository) ReadByID(postLikes models.PostLikes) (models.PostLikesResponse, error) {

@@ -18,7 +18,11 @@ type PostLikesHandler struct {
 }
 
 func (h *PostLikesHandler) ReadPostLikes(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.Service.GetAllPostLikes()
+	claims, ok := auth.GetUserFromContext(r.Context())
+	if !ok {
+		return
+	}
+	posts, err := h.Service.GetAllPostLikesByUser(claims.ID)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
