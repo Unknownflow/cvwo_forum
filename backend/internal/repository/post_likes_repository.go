@@ -93,7 +93,7 @@ func (r *postLikesRepository) Delete(postLikes models.PostLikes) (int64, error) 
 
 func (r *postLikesRepository) ReadLikesCount(postLikes models.PostLikes) (int64, error) {
 	var likesCount int64
-	query := `SELECT SUM(like_type) FROM post_likes
+	query := `SELECT COALESCE(SUM(like_type), 0) FROM post_likes
 			  WHERE post_id = $1`
 
 	err := r.db.Get(&likesCount, query, postLikes.PostID)
