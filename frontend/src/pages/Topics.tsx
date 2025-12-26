@@ -6,9 +6,11 @@ import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
 import ModalActions from "../components/ModalActions";
 import modalStyle from "../styles/ModalStyle";
+import LoadingDisplay from "../components/LoadingDisplay";
+import ErrorDisplay from "../components/ErrorDisplay";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import TopicIcon from "@mui/icons-material/Topic";
 import Modal from "@mui/material/Modal";
@@ -58,17 +60,8 @@ const Topics: React.FC = () => {
                 Topics <TopicIcon />
             </Typography>
 
-            {isLoading && (
-                <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-                    <CircularProgress />
-                </Box>
-            )}
-
-            {isError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    Error loading topics.
-                </Alert>
-            )}
+            {isLoading && <LoadingDisplay />}
+            {isError && <ErrorDisplay type="topics" />}
 
             <Box
                 sx={{

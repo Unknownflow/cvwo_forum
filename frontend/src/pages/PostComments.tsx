@@ -8,10 +8,12 @@ import { useUser } from "../context/userContext";
 import PostItem from "../components/PostItem";
 import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
+import LoadingDisplay from "../components/LoadingDisplay";
+import ErrorDisplay from "../components/ErrorDisplay";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import CommentIcon from "@mui/icons-material/Comment";
 
@@ -92,23 +94,11 @@ const PostComments: React.FC = () => {
                 Comments <CommentIcon />
             </Typography>
 
-            {isPostLoading && isCommentsLoading && (
-                <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-                    <CircularProgress />
-                </Box>
-            )}
+            {isPostLoading && isCommentsLoading && <LoadingDisplay />}
 
-            {isPostError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    Error loading post.
-                </Alert>
-            )}
+            {isPostError && <ErrorDisplay type="posts" />}
 
-            {isCommentsError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    Error loading comments.
-                </Alert>
-            )}
+            {isCommentsError && <ErrorDisplay type="comments" />}
 
             <Box
                 sx={{

@@ -8,9 +8,11 @@ import { useUser } from "../context/userContext";
 import TopicItem from "../components/TopicItem";
 import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
+import LoadingDisplay from "../components/LoadingDisplay";
+import ErrorDisplay from "../components/ErrorDisplay";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -92,23 +94,9 @@ const TopicPosts: React.FC = () => {
                 Posts <ArticleIcon />
             </Typography>
 
-            {isTopicLoading && isPostLoading && (
-                <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-                    <CircularProgress />
-                </Box>
-            )}
-
-            {isTopicError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    Error loading topic.
-                </Alert>
-            )}
-
-            {isPostError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    Error loading posts.
-                </Alert>
-            )}
+            {isTopicLoading && isPostLoading && <LoadingDisplay />}
+            {isTopicError && <ErrorDisplay type="topics" />}
+            {isPostError && <ErrorDisplay type="posts" />}
 
             <Box
                 sx={{

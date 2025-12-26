@@ -2,6 +2,8 @@ import { useUser } from "../context/userContext";
 import { readPostsLikes } from "../api/postLikes";
 import PostItem from "../components/PostItem";
 import Post from "../types/Post";
+import LoadingDisplay from "../components/LoadingDisplay";
+import ErrorDisplay from "../components/ErrorDisplay";
 import { Box, Typography } from "@mui/material";
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -21,8 +23,9 @@ const Likes: React.FC = () => {
             <Typography variant="h6" component="h1" gutterBottom>
                 Liked Posts
             </Typography>
-            {isError && <>Error loading</>}
-            {isLoading && <>Currently loading</>}
+
+            {isLoading && <LoadingDisplay />}
+            {isError && <ErrorDisplay type="liked posts" />}
 
             <Box
                 sx={{
