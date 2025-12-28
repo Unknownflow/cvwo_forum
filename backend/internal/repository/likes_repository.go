@@ -35,7 +35,7 @@ func (r *likesRepository) ReadPostsLikedByUser(userID int) ([]models.PostRespons
 	query := `SELECT posts.id, posts.header, posts.body, posts.created_at,
 			  posts.topic_id, users.username AS "author" FROM posts
 			  LEFT JOIN likes ON posts.id = likes.post_id
-			  LEFT JOIN users ON likes.user_id = users.id
+			  LEFT JOIN users ON posts.user_id = users.id
 			  WHERE likes.user_id = $1 AND likes.like_type = 1`
 	err := r.db.Select(&resp, query, userID)
 	if err != nil {
@@ -50,9 +50,9 @@ func (r *likesRepository) ReadPostsLikedByUser(userID int) ([]models.PostRespons
 func (r *likesRepository) ReadCommentsLikedByUser(userID int) ([]models.CommentResponse, error) {
 	var resp []models.CommentResponse
 	query := `SELECT comments.id, comments.body, comments.created_at,
-			  comments.post_id, users.username AS "author" FROM posts
+			  comments.post_id, users.username AS "author" FROM comments
 			  LEFT JOIN likes ON comments.id = likes.comment_id
-			  LEFT JOIN users ON likes.user_id = users.id
+			  LEFT JOIN users ON comments.user_id = users.id
 			  WHERE likes.user_id = $1 AND likes.like_type = 1`
 	err := r.db.Select(&resp, query, userID)
 	if err != nil {
