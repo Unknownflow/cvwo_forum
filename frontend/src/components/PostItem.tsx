@@ -1,6 +1,6 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
-import LikeAction from "./LikeAction";
+import PostLikeAction from "./PostLikeAction";
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
@@ -135,9 +135,9 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                         py: 1,
                     }}
                 >
-                    <LikeAction postID={post.id} />
+                    <PostLikeAction postID={post.id} />
                     {isEditable && (
-                        <CardActions>
+                        <CardActions sx={{ py: 0 }}>
                             {isEditing ? (
                                 <EditModeAction
                                     handleCancelEdit={handleCancelEdit}

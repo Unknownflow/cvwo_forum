@@ -35,6 +35,6 @@ func setUpRoutes(r chi.Router, conn *sqlx.DB) {
 		r.Route("/posts", routes.PostsRoutes(conn))
 		r.Route("/comments", routes.CommentRoutes(conn))
 		r.Route("/posts/likes", routes.PostLikesRoutes(conn))
+		r.Route("/comments/likes", routes.CommentLikesRoutes(conn))
 	})
-
 }

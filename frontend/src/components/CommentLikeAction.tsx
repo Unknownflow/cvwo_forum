@@ -1,36 +1,38 @@
-import { readPostLikes, readPostLikesCount } from "../api/postLikes";
+import { readCommentLikes, readCommentLikesCount } from "../api/commentLikes";
 import { useUser } from "../context/userContext";
-import { useCreatePostLike, useDeletePostLike } from "../hooks/postLikes";
+import { useCreateCommentLike, useDeleteCommentLike } from "../hooks/commentLikes";
 import { Box, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 
+type LikeType = -1 | 0 | 1;
+
 type Props = {
-    postID: number;
+    commentID: number;
 };
 
-const LikeAction: React.FC<Props> = ({ postID }) => {
+const CommentLikeAction: React.FC<Props> = ({ commentID }) => {
     const { user } = useUser();
-    const createPostLikeMutation = useCreatePostLike(postID, user);
-    const deletePostLikeMutation = useDeletePostLike(postID, user);
-    const [likeStatus, setLikeStatus] = useState<-1 | 0 | 1>(0);
-    const { data: postLikesData } = useQuery({
-        queryKey: ["postLikes", postID, user],
-        queryFn: () => readPostLikes(postID),
+    const createCommentLikeMutation = useCreateCommentLike(commentID, user);
+    const deleteCommentLikeMutation = useDeleteCommentLike(commentID, user);
+    const [likeStatus, setLikeStatus] = useState<LikeType>(0);
+    const { data: commentLikesData } = useQuery({
+        queryKey: ["commentLikes", commentID, user],
+        queryFn: () => readCommentLikes(commentID),
     });
-    const { data: postLikesCount } = useQuery({
-        queryKey: ["postLikesCount", postID],
-        queryFn: () => readPostLikesCount(postID),
+    const { data: commentLikesCount } = useQuery({
+        queryKey: ["commentLikesCount", commentID],
+        queryFn: () => readCommentLikesCount(commentID),
     });
 
     // Sync likeStatus with query data
     useEffect(() => {
-        if (postLikesData) {
-            setLikeStatus(postLikesData.like_type);
+        if (commentLikesData) {
+            setLikeStatus(commentLikesData.like_type);
         }
-    }, [postLikesData]);
+    }, [commentLikesData]);
 
     const likeColor = likeStatus === 1 ? "primary" : "default";
     const dislikeColor = likeStatus === -1 ? "primary" : "default";
@@ -38,14 +40,14 @@ const LikeAction: React.FC<Props> = ({ postID }) => {
     const handleLikeUpdate = () => {
         if (likeStatus === 1) {
             // Already liked, remove like
-            deletePostLikeMutation.mutate(postID);
+            deleteCommentLikeMutation.mutate(commentID);
             setLikeStatus(0);
         } else {
             // Not liked or disliked, add like
             if (likeStatus === -1) {
-                deletePostLikeMutation.mutate(postID);
+                deleteCommentLikeMutation.mutate(commentID);
             }
-            createPostLikeMutation.mutate({ id: -1, post_id: postID, like_type: 1 });
+            createCommentLikeMutation.mutate({ id: -1, comment_id: commentID, like_type: 1 });
             setLikeStatus(1);
         }
     };
@@ -53,14 +55,14 @@ const LikeAction: React.FC<Props> = ({ postID }) => {
     const handleDislikeUpdate = () => {
         if (likeStatus === -1) {
             // Already disliked, remove dislike
-            deletePostLikeMutation.mutate(postID);
+            deleteCommentLikeMutation.mutate(commentID);
             setLikeStatus(0);
         } else {
             // Not disliked or liked, add dislike
             if (likeStatus === 1) {
-                deletePostLikeMutation.mutate(postID);
+                deleteCommentLikeMutation.mutate(commentID);
             }
-            createPostLikeMutation.mutate({ id: -1, post_id: postID, like_type: -1 });
+            createCommentLikeMutation.mutate({ id: -1, comment_id: commentID, like_type: -1 });
             setLikeStatus(-1);
         }
     };
@@ -70,11 +72,11 @@ const LikeAction: React.FC<Props> = ({ postID }) => {
             <IconButton onClick={handleLikeUpdate} color={likeColor}>
                 <ThumbUpIcon />
             </IconButton>
-            {postLikesCount}
+            {commentLikesCount}
             <IconButton onClick={handleDislikeUpdate} color={dislikeColor}>
                 <ThumbDownIcon />
             </IconButton>
         </Box>
     );
 };
-export default LikeAction;
+export default CommentLikeAction;

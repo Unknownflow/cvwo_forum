@@ -104,7 +104,7 @@ const TopicItem: React.FC<Props> = ({ topic, editable }) => {
                     </CardActionArea>
                 )}
                 {isEditable && (
-                    <CardActions sx={{ flexShrink: 0 }}>
+                    <CardActions sx={{ flexShrink: 0, py: 0 }}>
                         {isEditing ? (
                             <EditModeAction
                                 handleCancelEdit={handleCancelEdit}

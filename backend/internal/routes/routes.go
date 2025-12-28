@@ -83,21 +83,41 @@ func CommentRoutes(conn *sqlx.DB) func(r chi.Router) {
 }
 
 func PostLikesRoutes(conn *sqlx.DB) func(r chi.Router) {
-	postLikesRepo := repository.NewPostLikesRepository(conn)
-	postLikesService := service.NewPostLikesService(postLikesRepo)
-	postLikesHandler := handlers.PostLikesHandler{
-		Service: postLikesService,
+	likesRepo := repository.NewLikesRepository(conn)
+	likesService := service.NewLikesService(likesRepo)
+	likesHandler := handlers.LikesHandler{
+		Service: likesService,
 	}
 
 	return func(r chi.Router) {
 		r.Route("/", func(r chi.Router) {
-			r.Get("/", postLikesHandler.ReadPostLikes)
-			r.Post("/", postLikesHandler.CreatePostLike)
+			r.Get("/", likesHandler.ReadPostLikes)
+			r.Post("/", likesHandler.CreatePostLike)
 		})
 		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", postLikesHandler.ReadPostLike)
-			r.Delete("/", postLikesHandler.DeletePostLike)
-			r.Get("/count", postLikesHandler.ReadPostLikesCount)
+			r.Get("/", likesHandler.ReadPostLike)
+			r.Delete("/", likesHandler.DeletePostLike)
+			r.Get("/count", likesHandler.ReadPostLikesCount)
+		})
+	}
+}
+
+func CommentLikesRoutes(conn *sqlx.DB) func(r chi.Router) {
+	likesRepo := repository.NewLikesRepository(conn)
+	likesService := service.NewLikesService(likesRepo)
+	likesHandler := handlers.LikesHandler{
+		Service: likesService,
+	}
+
+	return func(r chi.Router) {
+		r.Route("/", func(r chi.Router) {
+			r.Get("/", likesHandler.ReadCommentLikes)
+			r.Post("/", likesHandler.CreateCommentLike)
+		})
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", likesHandler.ReadCommentLike)
+			r.Delete("/", likesHandler.DeleteCommentLike)
+			r.Get("/count", likesHandler.ReadCommentLikesCount)
 		})
 	}
 }
