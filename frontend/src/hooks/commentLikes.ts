@@ -3,7 +3,7 @@ import CommentLike from "../types/CommentLike";
 import { createCommentLike, deleteCommentLike } from "../api/commentLikes";
 import { useMutation } from "@tanstack/react-query";
 
-const useCreateCommentLike = (commentID: number, username: string) => {
+const useCreateCommentLike = (commentID: number, postID: string, username: string) => {
     return useMutation({
         mutationFn: createCommentLike,
         onMutate: async (newLike: CommentLike) => {
@@ -22,6 +22,7 @@ const useCreateCommentLike = (commentID: number, username: string) => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["commentLikesCount", commentID] });
             queryClient.invalidateQueries({ queryKey: ["commentLikes", username] });
+            queryClient.invalidateQueries({ queryKey: ["postComments", postID] });
         },
         onError: (error, newPost, context) => {
             // Rollback to previous state
@@ -34,7 +35,7 @@ const useCreateCommentLike = (commentID: number, username: string) => {
     });
 };
 
-const useDeleteCommentLike = (commentID: number, username: string) => {
+const useDeleteCommentLike = (commentID: number, postID: string, username: string) => {
     return useMutation({
         mutationFn: deleteCommentLike,
         onMutate: async () => {
@@ -54,6 +55,7 @@ const useDeleteCommentLike = (commentID: number, username: string) => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["commentLikesCount", commentID] });
             queryClient.invalidateQueries({ queryKey: ["commentLikes", username] });
+            queryClient.invalidateQueries({ queryKey: ["postComments", postID] });
         },
         onError: (err, commentID, context) => {
             queryClient.setQueryData(["commentLikes", commentID, username], context?.previousCommentLike);

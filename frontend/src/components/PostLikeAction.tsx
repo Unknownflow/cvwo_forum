@@ -11,12 +11,13 @@ type LikeType = -1 | 0 | 1;
 
 type Props = {
     postID: number;
+    topicID: string;
 };
 
-const PostLikeAction: React.FC<Props> = ({ postID }) => {
+const PostLikeAction: React.FC<Props> = ({ postID, topicID }) => {
     const { user } = useUser();
-    const createPostLikeMutation = useCreatePostLike(postID, user);
-    const deletePostLikeMutation = useDeletePostLike(postID, user);
+    const createPostLikeMutation = useCreatePostLike(postID, topicID, user);
+    const deletePostLikeMutation = useDeletePostLike(postID, topicID, user);
     const [likeStatus, setLikeStatus] = useState<LikeType>(0);
     const { data: postLikesData } = useQuery({
         queryKey: ["postLikes", postID, user],

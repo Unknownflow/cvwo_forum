@@ -60,7 +60,10 @@ func (r *topicRepository) ReadPostsByTopicID(id int) ([]models.PostResponse, err
 	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, 
 			  posts.topic_id, username AS "author" FROM posts
 			  INNER JOIN users ON users.id = posts.user_id
-			  WHERE posts.topic_id = $1`
+			  LEFT JOIN likes ON likes.post_id = posts.id
+			  WHERE posts.topic_id = $1
+			  GROUP BY posts.id, users.id
+			  ORDER BY COALESCE(SUM(like_type), 0) DESC, created_at DESC`
 	err := r.db.Select(&posts, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

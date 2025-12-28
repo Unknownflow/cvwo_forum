@@ -11,12 +11,13 @@ type LikeType = -1 | 0 | 1;
 
 type Props = {
     commentID: number;
+    postID: string;
 };
 
-const CommentLikeAction: React.FC<Props> = ({ commentID }) => {
+const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {
     const { user } = useUser();
-    const createCommentLikeMutation = useCreateCommentLike(commentID, user);
-    const deleteCommentLikeMutation = useDeleteCommentLike(commentID, user);
+    const createCommentLikeMutation = useCreateCommentLike(commentID, postID, user);
+    const deleteCommentLikeMutation = useDeleteCommentLike(commentID, postID, user);
     const [likeStatus, setLikeStatus] = useState<LikeType>(0);
     const { data: commentLikesData } = useQuery({
         queryKey: ["commentLikes", commentID, user],

@@ -36,7 +36,8 @@ func (r *likesRepository) ReadPostsLikedByUser(userID int) ([]models.PostRespons
 			  posts.topic_id, users.username AS "author" FROM posts
 			  LEFT JOIN likes ON posts.id = likes.post_id
 			  LEFT JOIN users ON posts.user_id = users.id
-			  WHERE likes.user_id = $1 AND likes.like_type = 1`
+			  WHERE likes.user_id = $1 AND likes.like_type = 1
+			  ORDER BY created_at DESC`
 	err := r.db.Select(&resp, query, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -53,7 +54,8 @@ func (r *likesRepository) ReadCommentsLikedByUser(userID int) ([]models.CommentR
 			  comments.post_id, users.username AS "author" FROM comments
 			  LEFT JOIN likes ON comments.id = likes.comment_id
 			  LEFT JOIN users ON comments.user_id = users.id
-			  WHERE likes.user_id = $1 AND likes.like_type = 1`
+			  WHERE likes.user_id = $1 AND likes.like_type = 1
+			  ORDER BY created_at DESC`
 	err := r.db.Select(&resp, query, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

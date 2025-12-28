@@ -119,7 +119,7 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                         py: 1,
                     }}
                 >
-                    <CommentLikeAction commentID={comment.id} />
+                    <CommentLikeAction commentID={comment.id} postID={postID} />
                     {isEditable && (
                         <CardActions sx={{ flexShrink: 0, py: 0 }}>
                             {isEditing ? (
