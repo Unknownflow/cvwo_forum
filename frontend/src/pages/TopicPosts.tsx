@@ -19,8 +19,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 
 const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const topicId = id ?? "";
-    const topicIdNumber = Number(topicId);
+    const topicID = Number(id);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
@@ -28,24 +27,24 @@ const TopicPosts: React.FC = () => {
         header: "",
         body: "",
         author: user,
-        topic_id: topicIdNumber,
+        topic_id: topicID,
     });
     const {
         isLoading: isPostLoading,
         isError: isPostError,
         data: postsData,
     } = useQuery({
-        queryKey: ["topicPosts", id],
-        queryFn: () => readTopicPosts(topicIdNumber),
-        enabled: !!topicId,
+        queryKey: ["topicPosts", topicID],
+        queryFn: () => readTopicPosts(topicID),
+        enabled: !!id,
     });
     const {
         isLoading: isTopicLoading,
         isError: isTopicError,
         data: topicData,
     } = useQuery({
-        queryKey: ["topic", topicIdNumber],
-        queryFn: () => readTopic(topicIdNumber),
+        queryKey: ["topic", topicID],
+        queryFn: () => readTopic(topicID),
     });
 
     const resetForm = () => {
@@ -53,10 +52,10 @@ const TopicPosts: React.FC = () => {
             header: "",
             body: "",
             author: user,
-            topic_id: topicIdNumber,
+            topic_id: topicID,
         });
     };
-    const createPostMutation = useCreatePost(topicId);
+    const createPostMutation = useCreatePost(topicID);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -117,7 +116,7 @@ const TopicPosts: React.FC = () => {
                 {!isPostError && !isPostLoading && postsData == null && <Typography>No posts yet.</Typography>}
 
                 {postsData?.map((post: Post) => (
-                    <PostItem key={post.id} topicID={id ? id : ""} post={post} editable={true} />
+                    <PostItem key={post.id} topicID={topicID} post={post} editable={true} />
                 ))}
                 <Button variant="outlined" onClick={handleModalOpen} disabled={isPostLoading}>
                     Create post

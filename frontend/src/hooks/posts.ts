@@ -4,7 +4,7 @@ import { queryClient } from "../App";
 import Post from "../types/Post";
 import { useMutation } from "@tanstack/react-query";
 
-const useCreatePost = (topicID: string) => {
+const useCreatePost = (topicID: number) => {
     return useMutation({
         mutationFn: createPost,
         onMutate: async (post: PostRequest) => {
@@ -33,7 +33,7 @@ const useCreatePost = (topicID: string) => {
     });
 };
 
-const useUpdatePost = (topicID: string) => {
+const useUpdatePost = (topicID: number) => {
     return useMutation({
         mutationFn: updatePost,
         // Optimistically update UI before server responds
@@ -65,7 +65,7 @@ const useUpdatePost = (topicID: string) => {
     });
 };
 
-const useDeletePost = (topicID: string) => {
+const useDeletePost = (topicID: number) => {
     return useMutation({
         mutationFn: deletePost,
         // Optimistically update UI before server responds

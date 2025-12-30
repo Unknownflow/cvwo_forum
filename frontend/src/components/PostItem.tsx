@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
     post: Post;
-    topicID: string;
+    topicID: number;
     editable: boolean;
 };
 

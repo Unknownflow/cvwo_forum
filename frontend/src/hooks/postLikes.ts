@@ -3,7 +3,7 @@ import PostLike from "../types/PostLike";
 import { createPostLike, deletePostLike } from "../api/postLikes";
 import { useMutation } from "@tanstack/react-query";
 
-const useCreatePostLike = (postID: number, topicID: string, username: string) => {
+const useCreatePostLike = (postID: number, topicID: number, username: string) => {
     return useMutation({
         mutationFn: createPostLike,
         onMutate: async (newLike: PostLike) => {
@@ -35,7 +35,7 @@ const useCreatePostLike = (postID: number, topicID: string, username: string) =>
     });
 };
 
-const useDeletePostLike = (postID: number, topicID: string, username: string) => {
+const useDeletePostLike = (postID: number, topicID: number, username: string) => {
     return useMutation({
         mutationFn: deletePostLike,
         onMutate: async () => {

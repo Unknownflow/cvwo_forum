@@ -55,7 +55,7 @@ const Likes: React.FC = () => {
                 {!isPostLikesLoading &&
                     !isPostLikesError &&
                     postData?.map((post: Post) => (
-                        <PostItem key={post.id} post={post} topicID={post.topic_id.toString()} editable={true} />
+                        <PostItem key={post.id} post={post} topicID={post.topic_id} editable={true} />
                     ))}
             </Box>
 

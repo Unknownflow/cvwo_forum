@@ -20,6 +20,7 @@ import CommentIcon from "@mui/icons-material/Comment";
 const PostComments: React.FC = () => {
     const { topicID, postID } = useParams<{ topicID: string; postID: string }>();
     const postIdNumber = Number(postID);
+    const topicIdNumber = Number(topicID);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
@@ -112,7 +113,7 @@ const PostComments: React.FC = () => {
             >
                 {!isPostLoading && !isPostError && (
                     <Box sx={{ mb: 3 }}>
-                        <PostItem post={postData} topicID={topicID ? topicID : ""} editable={false} />
+                        <PostItem post={postData} topicID={topicIdNumber} editable={false} />
                     </Box>
                 )}
 
