@@ -10,57 +10,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var schema = `
-CREATE TABLE IF NOT EXISTS users
-(
-	username TEXT PRIMARY KEY,
-	password TEXT NOT NULL,
-	role TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS topics
-(
-	id SERIAL PRIMARY KEY,
-	title TEXT NOT NULL,
-	author TEXT NOT NULL,
-	FOREIGN KEY (author) REFERENCES users(username) ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS posts
-(
-	id SERIAL PRIMARY KEY,
-	header TEXT NOT NULL,
-	body TEXT NOT NULL, 
-	author TEXT NOT NULL, 
-	created_at TIMESTAMPTZ DEFAULT NOW(),
-	topic_id INT NOT NULL,
-	FOREIGN KEY (author) REFERENCES users(username) ON DELETE SET NULL,
-	FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS comments
-(
-	id SERIAL PRIMARY KEY,
-	body TEXT NOT NULL,
-	author TEXT NOT NULL,
-	created_at TIMESTAMPTZ DEFAULT NOW(),
-	post_id INT NOT NULL,
-	FOREIGN KEY (author) REFERENCES users(username) ON DELETE SET NULL,
-	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS refresh_tokens 
-(
-	id SERIAL PRIMARY KEY,
-	username TEXT NOT NULL,
-	token VARCHAR(255) NOT NULL UNIQUE,
-	expires_at TIMESTAMP NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	is_revoked BOOLEAN DEFAULT FALSE,
-	FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
-);
-`
-
 func main() {
 	// load environment variables on startup
 	err := godotenv.Load("../.env")
@@ -75,10 +24,14 @@ func main() {
 		return
 	}
 
-	r := router.Setup(db.Conn)
+	// Run migrations
+	if err := database.RunMigrations(db.Conn); err != nil {
+		log.Fatal("failed to run migrations: %w", err)
+		return
+	}
 
-	// execute database schema
-	db.Conn.MustExec(schema)
+	// Set up router
+	r := router.Setup(db.Conn)
 
 	fmt.Print("Listening on port 8000 at http://localhost:8000!")
 

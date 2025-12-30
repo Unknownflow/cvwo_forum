@@ -3,5 +3,17 @@ package models
 type Topic struct {
 	ID     int    `db:"id" json:"id"`
 	Title  string `db:"title" json:"title"`
-	Author string `db:"author" json:"author"`
+	UserID int    `db:"user_id" json:"user_id"`
+}
+
+type TopicRequest struct {
+	ID     int    `db:"id" json:"id"`
+	Title  string `db:"title" json:"title"`
+	Author string `json:"author"`
+}
+
+type TopicResponse struct {
+	ID     int    `db:"id" json:"id"`
+	Title  string `db:"title" json:"title"`
+	Author string `json:"author"`
 }

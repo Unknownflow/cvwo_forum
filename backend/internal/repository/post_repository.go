@@ -10,10 +10,10 @@ import (
 )
 
 type PostRepository interface {
-	ReadAll() ([]models.Post, error)
-	ReadByID(id int) (models.Post, error)
-	ReadCommentsByPostID(id int) ([]models.Comment, error)
-	Create(post models.PostRequest) error
+	ReadAll() ([]models.PostResponse, error)
+	ReadByID(id int) (models.PostResponse, error)
+	ReadCommentsByPostID(id int) ([]models.CommentResponse, error)
+	Create(post models.Post) error
 	Update(post models.PostRequest) (rowsAffected int64, err error)
 	Delete(id int) (rowsAffected int64, err error)
 }
@@ -26,9 +26,11 @@ func NewPostRepository(db *sqlx.DB) PostRepository {
 	return &postRepository{db: db}
 }
 
-func (r *postRepository) ReadAll() ([]models.Post, error) {
-	var posts []models.Post
-	query := "SELECT * FROM posts"
+func (r *postRepository) ReadAll() ([]models.PostResponse, error) {
+	var posts []models.PostResponse
+	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, 
+			  posts.topic_id, username AS "author" FROM posts
+			  INNER JOIN users ON users.id = posts.user_id`
 	err := r.db.Select(&posts, query)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -36,25 +38,35 @@ func (r *postRepository) ReadAll() ([]models.Post, error) {
 		}
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
+
 	return posts, nil
 }
 
-func (r *postRepository) ReadByID(id int) (models.Post, error) {
-	var post models.Post
-	query := "SELECT * FROM posts WHERE id = $1"
+func (r *postRepository) ReadByID(id int) (models.PostResponse, error) {
+	var post models.PostResponse
+	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, 
+			  posts.topic_id, username AS "author" FROM posts
+			  INNER JOIN users ON users.id = posts.user_id
+			  WHERE posts.id = $1`
 	err := r.db.QueryRowx(query, id).StructScan(&post)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.Post{}, sql.ErrNoRows
+			return models.PostResponse{}, sql.ErrNoRows
 		}
-		return models.Post{}, fmt.Errorf("failed to execute query: %w", err)
+		return models.PostResponse{}, fmt.Errorf("failed to execute query: %w", err)
 	}
 	return post, nil
 }
 
-func (r *postRepository) ReadCommentsByPostID(id int) ([]models.Comment, error) {
-	var comments []models.Comment
-	query := "SELECT * FROM comments WHERE post_id = $1"
+func (r *postRepository) ReadCommentsByPostID(id int) ([]models.CommentResponse, error) {
+	var comments []models.CommentResponse
+	query := `SELECT comments.id, comments.body, comments.created_at,
+			  comments.post_id, username AS "author" FROM comments
+			  INNER JOIN users ON users.id = comments.user_id
+			  LEFT JOIN likes ON likes.comment_id = comments.id
+			  WHERE comments.post_id = $1
+			  GROUP BY comments.id, users.id
+			  ORDER BY COALESCE(SUM(like_type), 0) DESC, created_at DESC`
 	err := r.db.Select(&comments, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -65,9 +77,9 @@ func (r *postRepository) ReadCommentsByPostID(id int) ([]models.Comment, error) 
 	return comments, nil
 }
 
-func (r *postRepository) Create(post models.PostRequest) error {
-	query := `INSERT INTO posts (header, body, author, topic_id) 
-			  VALUES (:header, :body, :author, :topic_id) RETURNING id`
+func (r *postRepository) Create(post models.Post) error {
+	query := `INSERT INTO posts (header, body, user_id, topic_id) 
+			  VALUES (:header, :body, :user_id, :topic_id) RETURNING id`
 
 	tx := r.db.MustBegin()
 	_, err := tx.NamedExec(query, post)

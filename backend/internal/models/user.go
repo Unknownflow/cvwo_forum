@@ -12,3 +12,8 @@ type UserRequest struct {
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
+
+type UserResponse struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+}

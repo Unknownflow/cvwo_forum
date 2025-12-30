@@ -55,9 +55,9 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call handler to verify login info
-	response := h.Service.VerifyUser(user)
+	success, response := h.Service.VerifyUser(user)
 
-	if !response {
+	if !success {
 		RespondError(w, http.StatusUnauthorized, "incorrect username or password")
 		return
 	}
@@ -68,7 +68,7 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenPair, err := token.GenerateTokenPair(user.Username, user.Role)
+	tokenPair, err := token.GenerateTokenPair(response.ID, user.Username, user.Role)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, "failed to generate tokens")
 		return
@@ -98,14 +98,14 @@ func (h *AuthHandler) HandleSignUp(w http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 
 	// call handler to create new user
-	_, err = h.Service.CreateUser(user)
+	resp, err := h.Service.CreateUser(user)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	tokenPair, err := token.GenerateTokenPair(user.Username, user.Role)
+	tokenPair, err := token.GenerateTokenPair(resp.ID, resp.Username, user.Role)
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, "failed to generate tokens")
 		return

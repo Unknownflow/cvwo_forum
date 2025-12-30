@@ -12,8 +12,8 @@ import (
 )
 
 type AuthService interface {
-	CreateUser(userReq models.UserRequest) (*models.User, error)
-	VerifyUser(userReq models.UserRequest) bool
+	CreateUser(userReq models.UserRequest) (models.UserResponse, error)
+	VerifyUser(userReq models.UserRequest) (bool, models.UserResponse)
 	GenerateRefreshExpiry(username string, refreshToken string) error
 	RefreshSession(oldRefreshToken string) (*token.TokenPair, error)
 	EndPreviousUserSessions(username string) error
@@ -28,45 +28,54 @@ func NewAuthService(repo repository.AuthRepository) AuthService {
 	return &authService{repo: repo}
 }
 
-func (s *authService) CreateUser(userReq models.UserRequest) (*models.User, error) {
+func (s *authService) CreateUser(userReq models.UserRequest) (models.UserResponse, error) {
 	// Validate user input
 	_, err := s.repo.ValidateUser(userReq)
 	if err != nil {
-		return nil, err
+		return models.UserResponse{}, err
 	}
 
 	hashedPassword, err := hashPassword(userReq.Password)
 	if err != nil {
-		return nil, err
+		return models.UserResponse{}, err
 	}
 	newUser := models.User{
 		Username: strings.TrimSpace(userReq.Username),
 		Password: hashedPassword,
 	}
 
-	_, err = s.repo.SaveUser(newUser)
+	resp, err := s.repo.SaveUser(newUser)
+
 	if err != nil {
-		return nil, err
+		return models.UserResponse{}, err
 	}
 
-	return &newUser, nil
+	return resp, nil
 }
 
-func (s *authService) VerifyUser(userReq models.UserRequest) bool {
+func (s *authService) VerifyUser(userReq models.UserRequest) (bool, models.UserResponse) {
+	var userResp models.UserResponse
 	origPassword := s.repo.GetPassword(userReq)
-	return verifyPassword(userReq.Password, origPassword)
+	success := verifyPassword(userReq.Password, origPassword)
+	userID := s.repo.GetUserID(userReq.Username)
+	userResp = models.UserResponse{
+		ID:       userID,
+		Username: userReq.Username,
+	}
+	return success, userResp
 }
 
 func (s *authService) GenerateRefreshExpiry(username string, refreshToken string) error {
 	// revoke previous refresh tokens
-	err := s.repo.RevokeAllUserTokens(username)
+	user_id := s.repo.GetUserID(username)
+	err := s.repo.RevokeAllUserTokens(user_id)
 	if err != nil {
 		return err
 	}
 
 	// refresh token expire in 7 days
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	err = s.repo.SaveRefreshToken(username, refreshToken, expiresAt)
+	err = s.repo.SaveRefreshToken(user_id, refreshToken, expiresAt)
 	return err
 }
 
@@ -77,8 +86,9 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 		return nil, errors.New("invalid refresh token format")
 	}
 
+	user_id := s.repo.GetUserID(claims.Username)
 	// Check that the refresh token is not revoked
-	storedToken, err := s.repo.GetRefreshToken(claims.Username)
+	storedToken, err := s.repo.GetRefreshToken(user_id)
 	if err != nil {
 		return nil, errors.New("user session not found")
 	}
@@ -89,7 +99,7 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 	}
 
 	// Generate a new Token Pair
-	newTokenPair, err := token.GenerateTokenPair(claims.Username, claims.Role)
+	newTokenPair, err := token.GenerateTokenPair(claims.ID, claims.Username, claims.Role)
 	if err != nil {
 		return nil, errors.New("failed to generate new tokens")
 	}
@@ -104,7 +114,8 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 }
 
 func (s *authService) EndPreviousUserSessions(username string) error {
-	err := s.repo.RevokeAllUserTokens(username)
+	user_id := s.repo.GetUserID(username)
+	err := s.repo.RevokeAllUserTokens(user_id)
 	return err
 }
 

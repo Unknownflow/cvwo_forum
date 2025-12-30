@@ -10,9 +10,10 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
     topic: Topic;
+    editable: boolean;
 };
 
-const TopicItem: React.FC<Props> = ({ topic }) => {
+const TopicItem: React.FC<Props> = ({ topic, editable }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [newTitle, setNewTitle] = useState<string>("");
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
@@ -20,7 +21,7 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
     const updateTopicMutation = useUpdateTopic();
     const deleteTopicMutation = useDeleteTopic();
     const { user } = useUser();
-    const isEditable = topic.author == user;
+    const isEditable = editable && topic.author == user;
 
     const handleNavigate = () => {
         navigate("/topics/" + topic.id + "/posts");
@@ -103,7 +104,7 @@ const TopicItem: React.FC<Props> = ({ topic }) => {
                     </CardActionArea>
                 )}
                 {isEditable && (
-                    <CardActions sx={{ flexShrink: 0 }}>
+                    <CardActions sx={{ flexShrink: 0, py: 0 }}>
                         {isEditing ? (
                             <EditModeAction
                                 handleCancelEdit={handleCancelEdit}

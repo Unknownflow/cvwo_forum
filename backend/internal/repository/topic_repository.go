@@ -10,9 +10,9 @@ import (
 )
 
 type TopicRepository interface {
-	ReadAll() ([]models.Topic, error)
-	ReadByID(id int) (models.Topic, error)
-	ReadPostsByTopicID(id int) ([]models.Post, error)
+	ReadAll() ([]models.TopicResponse, error)
+	ReadByID(id int) (models.TopicResponse, error)
+	ReadPostsByTopicID(id int) ([]models.PostResponse, error)
 	Create(topic models.Topic) error
 	Update(topic models.Topic) (rowsAffected int64, err error)
 	Delete(id int) (rowsAffected int64, err error)
@@ -26,9 +26,10 @@ func NewTopicRepository(db *sqlx.DB) TopicRepository {
 	return &topicRepository{db: db}
 }
 
-func (r *topicRepository) ReadAll() ([]models.Topic, error) {
-	var topics []models.Topic
-	query := "SELECT * FROM topics"
+func (r *topicRepository) ReadAll() ([]models.TopicResponse, error) {
+	var topics []models.TopicResponse
+	query := `SELECT topics.id, title, username AS "author" FROM topics
+			  INNER JOIN users ON users.id = topics.user_id`
 	err := r.db.Select(&topics, query)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -39,22 +40,30 @@ func (r *topicRepository) ReadAll() ([]models.Topic, error) {
 	return topics, nil
 }
 
-func (r *topicRepository) ReadByID(id int) (models.Topic, error) {
-	var topic models.Topic
-	query := "SELECT * FROM topics WHERE id = $1"
+func (r *topicRepository) ReadByID(id int) (models.TopicResponse, error) {
+	var topic models.TopicResponse
+	query := `SELECT topics.id, title, username AS "author" FROM topics 
+			  INNER JOIN users ON users.id = topics.user_id
+	          WHERE topics.id = $1`
 	err := r.db.QueryRowx(query, id).StructScan(&topic)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.Topic{}, sql.ErrNoRows
+			return models.TopicResponse{}, sql.ErrNoRows
 		}
-		return models.Topic{}, fmt.Errorf("failed to execute query: %w", err)
+		return models.TopicResponse{}, fmt.Errorf("failed to execute query: %w", err)
 	}
 	return topic, nil
 }
 
-func (r *topicRepository) ReadPostsByTopicID(id int) ([]models.Post, error) {
-	var posts []models.Post
-	query := "SELECT * FROM posts WHERE topic_id = $1"
+func (r *topicRepository) ReadPostsByTopicID(id int) ([]models.PostResponse, error) {
+	var posts []models.PostResponse
+	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, 
+			  posts.topic_id, username AS "author" FROM posts
+			  INNER JOIN users ON users.id = posts.user_id
+			  LEFT JOIN likes ON likes.post_id = posts.id
+			  WHERE posts.topic_id = $1
+			  GROUP BY posts.id, users.id
+			  ORDER BY COALESCE(SUM(like_type), 0) DESC, created_at DESC`
 	err := r.db.Select(&posts, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -66,8 +75,8 @@ func (r *topicRepository) ReadPostsByTopicID(id int) ([]models.Post, error) {
 }
 
 func (r *topicRepository) Create(topic models.Topic) error {
-	query := `INSERT INTO topics (title, author) 
-			  VALUES (:title, :author)`
+	query := `INSERT INTO topics (title, user_id) 
+			  VALUES (:title, :user_id)`
 
 	tx := r.db.MustBegin()
 	_, err := tx.NamedExec(query, topic)

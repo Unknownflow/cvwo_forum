@@ -5,16 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cvwo_assignment/backend/internal/auth"
 	"github.com/cvwo_assignment/backend/internal/handlers"
 	"github.com/cvwo_assignment/backend/internal/repository"
 	"github.com/cvwo_assignment/backend/internal/service"
 	"github.com/cvwo_assignment/backend/internal/token"
 	"github.com/jmoiron/sqlx"
 )
-
-type ContextKey string
-
-const UserContextKey ContextKey = "user"
 
 func CreateAuthMiddleware(conn *sqlx.DB) func(http.Handler) http.Handler {
 	authRepo := repository.NewAuthRepository(conn)
@@ -43,7 +40,7 @@ func authMiddleware(next http.HandlerFunc, authService service.AuthService) http
 		}
 
 		// Token is valid, attach user info to context
-		ctx := context.WithValue(r.Context(), UserContextKey, claims)
+		ctx := context.WithValue(r.Context(), auth.UserContextKey, claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
@@ -74,6 +71,6 @@ func handleRefresh(w http.ResponseWriter, r *http.Request, next http.HandlerFunc
 	}
 
 	// Attach new user info to context and proceed to the original handler
-	ctx := context.WithValue(r.Context(), UserContextKey, newClaims)
+	ctx := context.WithValue(r.Context(), auth.UserContextKey, newClaims)
 	next.ServeHTTP(w, r.WithContext(ctx))
 }

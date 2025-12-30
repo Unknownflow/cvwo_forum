@@ -1,5 +1,6 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
+import CommentLikeAction from "./CommentLikeAction";
 import Comment from "../types/Comment";
 import { useDeleteComment, useUpdateComment } from "../hooks/comments";
 import useSnackBar from "../hooks/useSnackBar";
@@ -54,24 +55,30 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
     };
 
     const handleDelete = () => {
-        if (window.confirm("Are you sure you want to delete this comment?")) {
-            deleteCommentMutation.mutate(comment.id, {
-                onSuccess: () => {
-                    showSnackBar("Comment deleted successfully!");
-                },
-                onError: () => {
-                    showSnackBar("Failed to delete comment");
-                },
-            });
-        }
+        deleteCommentMutation.mutate(comment.id, {
+            onSuccess: () => {
+                showSnackBar("Comment deleted successfully!");
+            },
+            onError: () => {
+                showSnackBar("Failed to delete comment");
+            },
+        });
     };
 
     const isLoading = updateCommentMutation.isPending || deleteCommentMutation.isPending;
 
     return (
         <Card key={comment.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
-            <Box sx={{ display: "flex" }}>
-                <CardContent sx={{ flex: 1 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    textAlign: "left",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                }}
+            >
+                <CardContent sx={{ width: "100%" }}>
                     {isEditing ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <TextField
@@ -101,25 +108,38 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                         </Box>
                     )}
                 </CardContent>
-                {isEditable && (
-                    <CardActions sx={{ flexShrink: 0 }}>
-                        {isEditing ? (
-                            <EditModeAction
-                                handleCancelEdit={handleCancelEdit}
-                                handleConfirmEdit={handleConfirmEdit}
-                                isLoading={isLoading}
-                            />
-                        ) : (
-                            <ViewModeAction
-                                handleStartEdit={handleStartEdit}
-                                handleDelete={handleDelete}
-                                isLoading={isLoading}
-                                isPending={deleteCommentMutation.isPending}
-                                type="comment"
-                            />
-                        )}
-                    </CardActions>
-                )}
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                        px: 2,
+                        py: 1,
+                    }}
+                >
+                    <CommentLikeAction commentID={comment.id} postID={postID} />
+                    {isEditable && (
+                        <CardActions sx={{ flexShrink: 0, py: 0 }}>
+                            {isEditing ? (
+                                <EditModeAction
+                                    handleCancelEdit={handleCancelEdit}
+                                    handleConfirmEdit={handleConfirmEdit}
+                                    isLoading={isLoading}
+                                />
+                            ) : (
+                                <ViewModeAction
+                                    handleStartEdit={handleStartEdit}
+                                    handleDelete={handleDelete}
+                                    isLoading={isLoading}
+                                    isPending={deleteCommentMutation.isPending}
+                                    type="comment"
+                                />
+                            )}
+                        </CardActions>
+                    )}
+                </Box>
             </Box>
             <Snackbar
                 open={snackBar.open}

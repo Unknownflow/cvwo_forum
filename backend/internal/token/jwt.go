@@ -9,6 +9,7 @@ import (
 )
 
 type Claims struct {
+	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Role     string `json:"Role"`
 	jwt.RegisteredClaims
@@ -19,13 +20,13 @@ type TokenPair struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func GenerateTokenPair(username string, role string) (*TokenPair, error) {
-	accessToken, err := generateAccessToken(username, role)
+func GenerateTokenPair(id int, username string, role string) (*TokenPair, error) {
+	accessToken, err := generateAccessToken(id, username, role)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := generateRefreshToken(username)
+	refreshToken, err := generateRefreshToken(id, username)
 	if err != nil {
 		return nil, err
 	}
@@ -36,13 +37,14 @@ func GenerateTokenPair(username string, role string) (*TokenPair, error) {
 	}, nil
 }
 
-func generateAccessToken(username string, role string) (string, error) {
+func generateAccessToken(id int, username string, role string) (string, error) {
 	secret := os.Getenv("JWT_ACCESS_TOKEN_SECRET")
 	if secret == "" {
 		return "", fmt.Errorf("secret key not found")
 	}
 
 	claims := Claims{
+		ID:       id,
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -61,13 +63,14 @@ func generateAccessToken(username string, role string) (string, error) {
 	return tokenStr, nil
 }
 
-func generateRefreshToken(username string) (string, error) {
+func generateRefreshToken(id int, username string) (string, error) {
 	secret := os.Getenv("JWT_REFRESH_TOKEN_SECRET")
 	if secret == "" {
 		return "", fmt.Errorf("secret key not found")
 	}
 
 	claims := Claims{
+		ID:       id,
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 7 * time.Hour)),

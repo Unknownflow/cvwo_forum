@@ -5,6 +5,7 @@ import Register from "../pages/Register";
 import Topics from "../pages/Topics";
 import TopicPosts from "../pages/TopicPosts";
 import PostComments from "../pages/PostComments";
+import Likes from "../pages/Likes";
 import { Route, Routes } from "react-router-dom";
 import React from "react";
 
@@ -15,6 +16,7 @@ const AppRoutes: React.FC = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route element={<PrivateRoutes />}>
+                <Route path="/likes" element={<Likes />} />
                 <Route path="/topics" element={<Topics />} />
                 <Route path="/topics/:id/posts" element={<TopicPosts />} />
                 <Route path="/topics/:topicID/posts/:postID/comments" element={<PostComments />} />

@@ -1,5 +1,6 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
+import PostLikeAction from "./PostLikeAction";
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
@@ -12,9 +13,10 @@ import { useNavigate } from "react-router-dom";
 type Props = {
     post: Post;
     topicID: string;
+    editable: boolean;
 };
 
-const PostItem: React.FC<Props> = ({ post, topicID }) => {
+const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedPost, setEditedPost] = useState<{ header: string; body: string }>({ header: "", body: "" });
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
@@ -22,7 +24,7 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
     const updatePostMutation = useUpdatePost(topicID);
     const deletePostMutation = useDeletePost(topicID);
     const { user } = useUser();
-    const isEditable = post.author == user;
+    const isEditable = editable && post.author == user;
 
     const handleNavigate = () => {
         navigate("/topics/" + topicID + "/posts/" + post.id + "/comments");
@@ -61,16 +63,14 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
     };
 
     const handleDelete = () => {
-        if (window.confirm("Are you sure you want to delete this post?")) {
-            deletePostMutation.mutate(post.id, {
-                onSuccess: () => {
-                    showSnackBar("Post deleted successfully!");
-                },
-                onError: () => {
-                    showSnackBar("Failed to delete post");
-                },
-            });
-        }
+        deletePostMutation.mutate(post.id, {
+            onSuccess: () => {
+                showSnackBar("Post deleted successfully!");
+            },
+            onError: () => {
+                showSnackBar("Failed to delete post");
+            },
+        });
     };
 
     const isLoading = updatePostMutation.isPending || deletePostMutation.isPending;
@@ -87,7 +87,7 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                 }}
             >
                 {isEditing ? (
-                    <CardContent>
+                    <CardContent sx={{ width: "100%" }}>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <TextField
                                 value={editedPost.header}
@@ -125,25 +125,37 @@ const PostItem: React.FC<Props> = ({ post, topicID }) => {
                     </CardActionArea>
                 )}
 
-                {isEditable && (
-                    <CardActions>
-                        {isEditing ? (
-                            <EditModeAction
-                                handleCancelEdit={handleCancelEdit}
-                                handleConfirmEdit={handleConfirmEdit}
-                                isLoading={isLoading}
-                            />
-                        ) : (
-                            <ViewModeAction
-                                handleStartEdit={handleStartEdit}
-                                handleDelete={handleDelete}
-                                isLoading={isLoading}
-                                isPending={deletePostMutation.isPending}
-                                type="post"
-                            />
-                        )}
-                    </CardActions>
-                )}
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                        px: 2,
+                        py: 1,
+                    }}
+                >
+                    <PostLikeAction postID={post.id} topicID={topicID} />
+                    {isEditable && (
+                        <CardActions sx={{ py: 0 }}>
+                            {isEditing ? (
+                                <EditModeAction
+                                    handleCancelEdit={handleCancelEdit}
+                                    handleConfirmEdit={handleConfirmEdit}
+                                    isLoading={isLoading}
+                                />
+                            ) : (
+                                <ViewModeAction
+                                    handleStartEdit={handleStartEdit}
+                                    handleDelete={handleDelete}
+                                    isLoading={isLoading}
+                                    isPending={deletePostMutation.isPending}
+                                    type="post"
+                                />
+                            )}
+                        </CardActions>
+                    )}
+                </Box>
             </Box>
             <Snackbar
                 open={snackBar.open}

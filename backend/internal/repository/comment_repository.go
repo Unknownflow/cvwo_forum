@@ -10,8 +10,8 @@ import (
 )
 
 type CommentRepository interface {
-	ReadAll() ([]models.Comment, error)
-	ReadByID(id int) (models.Comment, error)
+	ReadAll() ([]models.CommentResponse, error)
+	ReadByID(id int) (models.CommentResponse, error)
 	Create(comment models.Comment) error
 	Update(comment models.Comment) (rowsAffected int64, err error)
 	Delete(id int) (rowsAffected int64, err error)
@@ -25,9 +25,11 @@ func NewCommentRepository(db *sqlx.DB) CommentRepository {
 	return &commentRepository{db: db}
 }
 
-func (r *commentRepository) ReadAll() ([]models.Comment, error) {
-	var comments []models.Comment
-	query := "SELECT * FROM comments"
+func (r *commentRepository) ReadAll() ([]models.CommentResponse, error) {
+	var comments []models.CommentResponse
+	query := `SELECT comments.id, comments.body, comments.created_at,
+			  comments.post_id, username AS "author" FROM comments
+			  INNER JOIN users ON users.id = comments.user_id`
 	err := r.db.Select(&comments, query)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -38,22 +40,25 @@ func (r *commentRepository) ReadAll() ([]models.Comment, error) {
 	return comments, nil
 }
 
-func (r *commentRepository) ReadByID(id int) (models.Comment, error) {
-	var comment models.Comment
-	query := "SELECT * FROM comments WHERE id = $1"
+func (r *commentRepository) ReadByID(id int) (models.CommentResponse, error) {
+	var comment models.CommentResponse
+	query := `SELECT comments.id, comments.body, comments.created_at,
+			  comments.post_id, username AS "author" FROM comments
+			  INNER JOIN users ON users.id = comments.user_id
+			  WHERE comments.id = $1`
 	err := r.db.QueryRowx(query, id).StructScan(&comment)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.Comment{}, sql.ErrNoRows
+			return models.CommentResponse{}, sql.ErrNoRows
 		}
-		return models.Comment{}, fmt.Errorf("failed to execute query: %w", err)
+		return models.CommentResponse{}, fmt.Errorf("failed to execute query: %w", err)
 	}
 	return comment, nil
 }
 
 func (r *commentRepository) Create(comment models.Comment) error {
-	query := `INSERT INTO comments (body, author, post_id) 
-			  VALUES (:body, :author, :post_id) RETURNING id`
+	query := `INSERT INTO comments (body, user_id, post_id) 
+			  VALUES (:body, :user_id, :post_id) RETURNING id`
 
 	tx := r.db.MustBegin()
 	_, err := tx.NamedExec(query, comment)

@@ -8,10 +8,12 @@ import { useUser } from "../context/userContext";
 import PostItem from "../components/PostItem";
 import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
+import LoadingDisplay from "../components/LoadingDisplay";
+import ErrorDisplay from "../components/ErrorDisplay";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import { Alert, Box, Button, CircularProgress, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import CommentIcon from "@mui/icons-material/Comment";
 
@@ -41,7 +43,7 @@ const PostComments: React.FC = () => {
         isError: isPostError,
         data: postData,
     } = useQuery({
-        queryKey: ["post", postID],
+        queryKey: ["posts", postID],
         queryFn: () => readPost(postIdNumber),
         enabled: !!postID,
     });
@@ -92,23 +94,11 @@ const PostComments: React.FC = () => {
                 Comments <CommentIcon />
             </Typography>
 
-            {isPostLoading && isCommentsLoading && (
-                <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-                    <CircularProgress />
-                </Box>
-            )}
+            {isPostLoading && isCommentsLoading && <LoadingDisplay />}
 
-            {isPostError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    Error loading post.
-                </Alert>
-            )}
+            {isPostError && <ErrorDisplay type="posts" />}
 
-            {isCommentsError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    Error loading comments.
-                </Alert>
-            )}
+            {isCommentsError && <ErrorDisplay type="comments" />}
 
             <Box
                 sx={{
@@ -122,7 +112,7 @@ const PostComments: React.FC = () => {
             >
                 {!isPostLoading && !isPostError && (
                     <Box sx={{ mb: 3 }}>
-                        <PostItem post={postData} topicID={topicID ? topicID : ""} />
+                        <PostItem post={postData} topicID={topicID ? topicID : ""} editable={false} />
                     </Box>
                 )}
 
@@ -133,7 +123,7 @@ const PostComments: React.FC = () => {
                 {commentsData?.map((comment: Comment) => (
                     <CommentItem key={comment.id} postID={postID ? postID : ""} comment={comment} />
                 ))}
-                <Button onClick={handleModalOpen} disabled={isCommentsLoading}>
+                <Button variant="outlined" onClick={handleModalOpen} disabled={isCommentsLoading}>
                     Create comment
                 </Button>
 
@@ -161,7 +151,7 @@ const PostComments: React.FC = () => {
                 </Modal>
 
                 <Link component={RouterLink} to={prevPageLink} underline="hover">
-                    Back to posts page
+                    Back to Posts
                 </Link>
                 <Snackbar
                     open={snackBar.open}

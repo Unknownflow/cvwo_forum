@@ -14,12 +14,13 @@ import (
 
 type AuthRepository interface {
 	ValidateUser(userReq models.UserRequest) (bool, error)
-	SaveUser(user models.User) (models.User, error)
+	SaveUser(user models.User) (models.UserResponse, error)
 	GetPassword(userReq models.UserRequest) string
-	SaveRefreshToken(username string, token string, expiresAt time.Time) error
-	GetRefreshToken(username string) (*models.RefreshToken, error)
+	GetUserID(username string) int
+	SaveRefreshToken(user_id int, token string, expiresAt time.Time) error
+	GetRefreshToken(user_id int) (*models.RefreshToken, error)
 	RevokeRefreshToken(tokenString string) error
-	RevokeAllUserTokens(username string) error
+	RevokeAllUserTokens(user_id int) error
 	DeleteExpiredTokens() error
 }
 
@@ -59,24 +60,26 @@ func (r *authRepository) ValidateUser(userReq models.UserRequest) (bool, error) 
 	return true, nil
 }
 
-func (r *authRepository) SaveUser(user models.User) (models.User, error) {
+func (r *authRepository) SaveUser(user models.User) (models.UserResponse, error) {
+	var userResp models.UserResponse
 	user.Role = os.Getenv("DB_DEFAULT_ROLE")
 	query := `INSERT INTO users (username, password, role)
-			  VALUES (:username, :password, :role)`
+			  VALUES ($1, $2, $3)
+			  RETURNING id, username`
 
 	tx := r.db.MustBegin()
-	_, err := tx.NamedExec(query, user)
+	err := tx.QueryRowx(query, user.Username, user.Password, user.Role).StructScan(&userResp)
 
 	if err != nil {
 		tx.Rollback()
-		return models.User{}, fmt.Errorf("failed to insert user: %w", err)
+		return models.UserResponse{}, fmt.Errorf("failed to insert user: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {
-		return models.User{}, fmt.Errorf("failed to commit transaction: %w", err)
+		return models.UserResponse{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return user, nil
+	return userResp, nil
 }
 
 func (r *authRepository) GetPassword(userReq models.UserRequest) string {
@@ -86,23 +89,30 @@ func (r *authRepository) GetPassword(userReq models.UserRequest) string {
 	return origPassword
 }
 
-func (r *authRepository) SaveRefreshToken(username string, token string, expiresAt time.Time) error {
+func (r *authRepository) GetUserID(username string) int {
+	var userID int
+	query := `SELECT id FROM users WHERE username = $1`
+	r.db.QueryRow(query, username).Scan(&userID)
+	return userID
+}
+
+func (r *authRepository) SaveRefreshToken(user_id int, token string, expiresAt time.Time) error {
 	query := `
-        INSERT INTO refresh_tokens (username, token, expires_at)
+        INSERT INTO refresh_tokens (user_id, token, expires_at)
         VALUES ($1, $2, $3)
     `
-	_, err := r.db.Exec(query, username, token, expiresAt)
+	_, err := r.db.Exec(query, user_id, token, expiresAt)
 	return err
 }
 
-func (r *authRepository) GetRefreshToken(username string) (*models.RefreshToken, error) {
+func (r *authRepository) GetRefreshToken(user_id int) (*models.RefreshToken, error) {
 	query := `
         SELECT *
         FROM refresh_tokens
-        WHERE username = $1 AND is_revoked = FALSE AND expires_at > NOW()
+        WHERE user_id = $1 AND is_revoked = FALSE AND expires_at > NOW()
     `
 	var token models.RefreshToken
-	err := r.db.QueryRowx(query, username).StructScan(&token)
+	err := r.db.QueryRowx(query, user_id).StructScan(&token)
 
 	if err != nil {
 		return nil, err
@@ -117,9 +127,9 @@ func (r *authRepository) RevokeRefreshToken(tokenString string) error {
 	return err
 }
 
-func (r *authRepository) RevokeAllUserTokens(username string) error {
-	query := `UPDATE refresh_tokens SET is_revoked = TRUE WHERE username = $1`
-	_, err := r.db.Exec(query, username)
+func (r *authRepository) RevokeAllUserTokens(user_id int) error {
+	query := `UPDATE refresh_tokens SET is_revoked = TRUE WHERE user_id = $1`
+	_, err := r.db.Exec(query, user_id)
 	return err
 }
 
