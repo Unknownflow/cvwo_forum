@@ -8,8 +8,8 @@ import (
 )
 
 type LikesService interface {
-	GetAllPostLikesByUser(userID int) ([]models.PostResponse, error)
-	GetAllCommentLikesByUser(userID int) ([]models.CommentResponse, error)
+	GetAllPostLikesByUser(userID int, order string) ([]models.PostResponse, error)
+	GetAllCommentLikesByUser(userID int, order string) ([]models.CommentResponse, error)
 	GetPostLike(userID int, postID int) (models.PostLikesResponse, error)
 	GetCommentLike(userID int, commentID int) (models.CommentLikesResponse, error)
 	CreatePostLike(userID int, postLikesReq models.PostLikesRequest) error
@@ -28,8 +28,8 @@ func NewLikesService(likesRepo repository.LikesRepository) LikesService {
 	return &likesService{likesRepo: likesRepo}
 }
 
-func (s *likesService) GetAllPostLikesByUser(userID int) ([]models.PostResponse, error) {
-	postLikes, err := s.likesRepo.ReadPostsLikedByUser(userID)
+func (s *likesService) GetAllPostLikesByUser(userID int, order string) ([]models.PostResponse, error) {
+	postLikes, err := s.likesRepo.ReadPostsLikedByUser(userID, order)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve post likes: %w", err)
@@ -38,8 +38,8 @@ func (s *likesService) GetAllPostLikesByUser(userID int) ([]models.PostResponse,
 	return postLikes, nil
 }
 
-func (s *likesService) GetAllCommentLikesByUser(userID int) ([]models.CommentResponse, error) {
-	postLikes, err := s.likesRepo.ReadCommentsLikedByUser(userID)
+func (s *likesService) GetAllCommentLikesByUser(userID int, order string) ([]models.CommentResponse, error) {
+	postLikes, err := s.likesRepo.ReadCommentsLikedByUser(userID, order)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve post likes: %w", err)

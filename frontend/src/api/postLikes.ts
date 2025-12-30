@@ -3,8 +3,8 @@ import axiosInstance from "../utils/axios";
 
 const route = "/posts/likes/";
 
-const readPostsLikes = async () => {
-    const response = await axiosInstance.get(route);
+const readPostsLikes = async (order: string) => {
+    const response = await axiosInstance.get(route + "?order=" + order);
     return response.data;
 };
 

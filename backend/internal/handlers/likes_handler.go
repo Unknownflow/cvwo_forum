@@ -22,7 +22,14 @@ func (h *LikesHandler) ReadPostLikes(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	posts, err := h.Service.GetAllPostLikesByUser(claims.ID)
+
+	order := r.URL.Query().Get("order")
+	if order != "asc" && order != "desc" {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	posts, err := h.Service.GetAllPostLikesByUser(claims.ID, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
@@ -37,7 +44,14 @@ func (h *LikesHandler) ReadCommentLikes(w http.ResponseWriter, r *http.Request) 
 	if !ok {
 		return
 	}
-	posts, err := h.Service.GetAllCommentLikesByUser(claims.ID)
+
+	order := r.URL.Query().Get("order")
+	if order != "asc" && order != "desc" {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	posts, err := h.Service.GetAllCommentLikesByUser(claims.ID, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
