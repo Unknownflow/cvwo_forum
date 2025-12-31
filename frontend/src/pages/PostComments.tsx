@@ -15,9 +15,10 @@ import SortButton from "../components/SortButton";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import CommentIcon from "@mui/icons-material/Comment";
+import AddIcon from "@mui/icons-material/Add";
 
 const PostComments: React.FC = () => {
     const { topicID, postID } = useParams<{ topicID: string; postID: string }>();
@@ -115,7 +116,7 @@ const PostComments: React.FC = () => {
                 }}
             >
                 {!isPostLoading && !isPostError && (
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ mb: 1, width: "100%" }}>
                         <PostItem post={postData} topicID={topicIdNumber} editable={false} />
                     </Box>
                 )}
@@ -129,9 +130,15 @@ const PostComments: React.FC = () => {
                 {commentsData?.map((comment: Comment) => (
                     <CommentItem key={comment.id} postID={postIdNumber} comment={comment} />
                 ))}
-                <Button variant="outlined" onClick={handleModalOpen} disabled={isCommentsLoading}>
-                    Create comment
-                </Button>
+
+                <Fab
+                    color="primary"
+                    aria-label="create-comment"
+                    onClick={handleModalOpen}
+                    sx={{ position: "fixed", bottom: 24, right: 24 }}
+                >
+                    <AddIcon />
+                </Fab>
 
                 <Modal open={isModalOpen} onClose={handleModalClose}>
                     <Box sx={modalStyle}>

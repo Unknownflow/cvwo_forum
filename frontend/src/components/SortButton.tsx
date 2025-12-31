@@ -1,5 +1,5 @@
 import SortOrder from "../types/SortOrder";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import React from "react";
 
 type Props = {
@@ -13,13 +13,16 @@ const SortButton: React.FC<Props> = ({ order, setOrder }) => {
     };
 
     return (
-        <FormControl>
-            <InputLabel>Sort by</InputLabel>
-            <Select value={order} label="Sort by" onChange={handleOrderChange}>
-                <MenuItem value="desc">New</MenuItem>
-                <MenuItem value="asc">Old</MenuItem>
-            </Select>
-        </FormControl>
+        <Box sx={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "left", gap: 1 }}>
+            Sort by:
+            <FormControl>
+                <InputLabel>order</InputLabel>
+                <Select value={order} label="Sort by" onChange={handleOrderChange}>
+                    <MenuItem value="desc">newest first</MenuItem>
+                    <MenuItem value="asc">oldest first</MenuItem>
+                </Select>
+            </FormControl>
+        </Box>
     );
 };
 

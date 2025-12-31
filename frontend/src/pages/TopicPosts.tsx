@@ -14,10 +14,11 @@ import SortOrder from "../types/SortOrder";
 import SortButton from "../components/SortButton";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import ArticleIcon from "@mui/icons-material/Article";
+import AddIcon from "@mui/icons-material/Add";
 
 const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -111,7 +112,7 @@ const TopicPosts: React.FC = () => {
                 }}
             >
                 {!isTopicLoading && !isTopicError && (
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ mb: 1, width: "100%" }}>
                         <TopicItem topic={topicData} editable={false} />
                     </Box>
                 )}
@@ -123,9 +124,15 @@ const TopicPosts: React.FC = () => {
                 {postsData?.map((post: Post) => (
                     <PostItem key={post.id} topicID={topicID} post={post} editable={true} />
                 ))}
-                <Button variant="outlined" onClick={handleModalOpen} disabled={isPostLoading}>
-                    Create post
-                </Button>
+
+                <Fab
+                    color="primary"
+                    aria-label="create-post"
+                    onClick={handleModalOpen}
+                    sx={{ position: "fixed", bottom: 24, right: 24 }}
+                >
+                    <AddIcon />
+                </Fab>
 
                 <Modal open={isModalOpen} onClose={handleModalClose}>
                     <Box sx={modalStyle}>

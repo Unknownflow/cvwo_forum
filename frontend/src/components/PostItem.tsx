@@ -119,7 +119,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                                 {post.body}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" component="p">
-                                Created by: {post.author} at {formatDateTime(post.created_at)}
+                                Posted by: {post.author}, {formatDateTime(post.created_at)}
                             </Typography>
                         </CardContent>
                     </CardActionArea>

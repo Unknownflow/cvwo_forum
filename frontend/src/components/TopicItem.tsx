@@ -70,7 +70,7 @@ const TopicItem: React.FC<Props> = ({ topic, editable }) => {
     const isLoading = updateTopicMutation.isPending || deleteTopicMutation.isPending;
 
     return (
-        <Card key={topic.id} sx={{ width: "100%", maxWidth: 600, borderRadius: 2 }}>
+        <Card key={topic.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
             <Box sx={{ display: "flex", width: "100%" }}>
                 {isEditing ? (
                     <CardContent sx={{ flex: 1 }}>
