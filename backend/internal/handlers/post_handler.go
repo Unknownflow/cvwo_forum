@@ -51,7 +51,14 @@ func (h *PostHandler) ReadPostComments(w http.ResponseWriter, r *http.Request) {
 		RespondError(w, http.StatusBadRequest, "Invalid request param")
 		return
 	}
-	comments, err := h.Service.GetAllCommentsByPostID(postIDInt)
+
+	order := r.URL.Query().Get("order")
+	if order != "asc" && order != "desc" {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	comments, err := h.Service.GetAllCommentsByPostID(postIDInt, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())

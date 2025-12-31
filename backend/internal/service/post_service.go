@@ -11,7 +11,7 @@ import (
 type PostService interface {
 	GetAllPosts() ([]models.PostResponse, error)
 	GetPostByID(id int) (models.PostResponse, error)
-	GetAllCommentsByPostID(id int) ([]models.CommentResponse, error)
+	GetAllCommentsByPostID(id int, order string) ([]models.CommentResponse, error)
 	CreatePost(userID int, post models.PostRequest) error
 	UpdatePost(post models.PostRequest) error
 	DeletePost(id int) error
@@ -47,8 +47,8 @@ func (s *postService) GetPostByID(id int) (models.PostResponse, error) {
 	return post, nil
 }
 
-func (s *postService) GetAllCommentsByPostID(id int) ([]models.CommentResponse, error) {
-	comments, err := s.postRepo.ReadCommentsByPostID(id)
+func (s *postService) GetAllCommentsByPostID(id int, order string) ([]models.CommentResponse, error) {
+	comments, err := s.postRepo.ReadCommentsByPostID(id, order)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve comments: %w", err)

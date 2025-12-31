@@ -10,6 +10,8 @@ import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
+import SortOrder from "../types/SortOrder";
+import SortButton from "../components/SortButton";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
@@ -21,6 +23,7 @@ const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const topicID = Number(id);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [order, setOrder] = useState<SortOrder>("desc");
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({
@@ -34,8 +37,8 @@ const TopicPosts: React.FC = () => {
         isError: isPostError,
         data: postsData,
     } = useQuery({
-        queryKey: ["topicPosts", topicID],
-        queryFn: () => readTopicPosts(topicID),
+        queryKey: ["topicPosts", topicID, order],
+        queryFn: () => readTopicPosts(topicID, order),
         enabled: !!id,
     });
     const {
@@ -55,7 +58,7 @@ const TopicPosts: React.FC = () => {
             topic_id: topicID,
         });
     };
-    const createPostMutation = useCreatePost(topicID);
+    const createPostMutation = useCreatePost(topicID, order);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -114,6 +117,8 @@ const TopicPosts: React.FC = () => {
                 )}
 
                 {!isPostError && !isPostLoading && postsData == null && <Typography>No posts yet.</Typography>}
+
+                {postsData != null && <SortButton order={order} setOrder={setOrder} />}
 
                 {postsData?.map((post: Post) => (
                     <PostItem key={post.id} topicID={topicID} post={post} editable={true} />

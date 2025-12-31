@@ -10,6 +10,8 @@ import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
+import SortOrder from "../types/SortOrder";
+import SortButton from "../components/SortButton";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
@@ -23,6 +25,7 @@ const PostComments: React.FC = () => {
     const topicIdNumber = Number(topicID);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [order, setOrder] = useState<SortOrder>("desc");
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
@@ -35,8 +38,8 @@ const PostComments: React.FC = () => {
         isError: isCommentsError,
         data: commentsData,
     } = useQuery({
-        queryKey: ["postComments", postID],
-        queryFn: () => readPostComments(postIdNumber),
+        queryKey: ["postComments", postIdNumber, order],
+        queryFn: () => readPostComments(postIdNumber, order),
         enabled: !!postID,
     });
     const {
@@ -57,7 +60,7 @@ const PostComments: React.FC = () => {
         });
     };
 
-    const createCommentMutation = useCreateComment(postID ? postID : "");
+    const createCommentMutation = useCreateComment(postIdNumber, order);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -121,8 +124,10 @@ const PostComments: React.FC = () => {
                     <Typography>No comments yet.</Typography>
                 )}
 
+                {commentsData != null && <SortButton order={order} setOrder={setOrder} />}
+
                 {commentsData?.map((comment: Comment) => (
-                    <CommentItem key={comment.id} postID={postID ? postID : ""} comment={comment} />
+                    <CommentItem key={comment.id} postID={postIdNumber} comment={comment} />
                 ))}
                 <Button variant="outlined" onClick={handleModalOpen} disabled={isCommentsLoading}>
                     Create comment

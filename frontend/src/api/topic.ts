@@ -13,8 +13,8 @@ const readTopic = async (id: number) => {
     return response.data;
 };
 
-const readTopicPosts = async (id: number) => {
-    const response = await axiosInstance.get(route + id + "/posts");
+const readTopicPosts = async (id: number, order: string) => {
+    const response = await axiosInstance.get(route + id + "/posts?order=" + order);
     return response.data;
 };
 

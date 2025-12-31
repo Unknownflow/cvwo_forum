@@ -14,8 +14,8 @@ const readPost = async (id: number) => {
     return response.data;
 };
 
-const readPostComments = async (id: number) => {
-    const response = await axiosInstance.get(route + id + "/comments");
+const readPostComments = async (id: number, order: string) => {
+    const response = await axiosInstance.get(route + id + "/comments?order=" + order);
     return response.data;
 };
 
