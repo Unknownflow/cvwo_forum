@@ -22,10 +22,12 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {
     const { data: commentLikesData } = useQuery({
         queryKey: ["commentLikes", commentID, user],
         queryFn: () => readCommentLikes(commentID),
+        enabled: commentID > 0, // only query if id is valid
     });
     const { data: commentLikesCount } = useQuery({
         queryKey: ["commentLikesCount", commentID],
         queryFn: () => readCommentLikesCount(commentID),
+        enabled: commentID > 0, // only query if id is valid
     });
 
     // Sync likeStatus with query data

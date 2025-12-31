@@ -22,10 +22,12 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID }) => {
     const { data: postLikesData } = useQuery({
         queryKey: ["postLikes", postID, user],
         queryFn: () => readPostLikes(postID),
+        enabled: postID > 0, // only query if id is valid
     });
     const { data: postLikesCount } = useQuery({
         queryKey: ["postLikesCount", postID],
         queryFn: () => readPostLikesCount(postID),
+        enabled: postID > 0, // only query if id is valid
     });
 
     // Sync likeStatus with query data
