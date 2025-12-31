@@ -11,7 +11,7 @@ import { Box, Card, CardActions, CardContent, Snackbar, TextField, Typography } 
 
 type Props = {
     comment: Comment;
-    postID: string;
+    postID: number;
 };
 
 const CommentItem: React.FC<Props> = ({ comment, postID }) => {

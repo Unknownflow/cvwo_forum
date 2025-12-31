@@ -11,7 +11,7 @@ type LikeType = -1 | 0 | 1;
 
 type Props = {
     commentID: number;
-    postID: string;
+    postID: number;
 };
 
 const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {

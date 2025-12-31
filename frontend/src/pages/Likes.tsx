@@ -76,7 +76,7 @@ const Likes: React.FC = () => {
                 {!isCommentLikesLoading &&
                     !isCommentLikesError &&
                     commentData?.map((comment: Comment) => (
-                        <CommentItem key={comment.id} comment={comment} postID={comment.post_id.toString()} />
+                        <CommentItem key={comment.id} comment={comment} postID={comment.post_id} />
                     ))}
             </Box>
         </Box>
