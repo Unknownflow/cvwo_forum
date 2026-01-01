@@ -18,7 +18,7 @@ const useCreatePost = (topicID: number, order: SortOrder) => {
             // Snapshot prev value
             const previousPosts = queryClient.getQueryData<Post[]>(queryKey);
 
-            const optimisticPost = { ...post, id: -Date.now(), created_at: new Date().toISOString() };
+            const optimisticPost = { ...post, id: -Date.now(), created_at: new Date().toISOString(), likes_count: 0 };
 
             queryClient.setQueryData<Post[]>(queryKey, (old) => [...(old ?? []), optimisticPost]);
 

@@ -32,7 +32,6 @@ const TopicPosts: React.FC = () => {
         body: "",
         author: user,
         topic_id: topicID,
-        likes_count: 0,
     });
     const {
         isLoading: isPostLoading,
@@ -58,7 +57,6 @@ const TopicPosts: React.FC = () => {
             body: "",
             author: user,
             topic_id: topicID,
-            likes_count: 0,
         });
     };
     const createPostMutation = useCreatePost(topicID, order);

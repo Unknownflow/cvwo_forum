@@ -17,7 +17,12 @@ const useCreateComment = (postID: number, order: string) => {
             // Snapshot prevd value
             const previousComments = queryClient.getQueryData<Comment[]>(queryKey);
 
-            const optimisticComment = { ...comment, id: -Date.now(), created_at: new Date().toISOString() };
+            const optimisticComment = {
+                ...comment,
+                id: -Date.now(),
+                created_at: new Date().toISOString(),
+                likes_count: 0,
+            };
 
             queryClient.setQueryData<Comment[]>(queryKey, (old) => [...(old ?? []), optimisticComment]);
 
