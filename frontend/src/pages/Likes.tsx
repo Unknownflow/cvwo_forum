@@ -25,8 +25,8 @@ const style = {
 
 const Likes: React.FC = () => {
     const { user } = useUser();
-    const [postsOrder, setPostsOrder] = useState<SortOrder>("asc");
-    const [commentsOrder, setCommentsOrder] = useState<SortOrder>("asc");
+    const [postsOrder, setPostsOrder] = useState<SortOrder>("likes_count, desc");
+    const [commentsOrder, setCommentsOrder] = useState<SortOrder>("likes_count, desc");
 
     const {
         isLoading: isPostLikesLoading,

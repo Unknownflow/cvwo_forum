@@ -24,7 +24,7 @@ const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const topicID = Number(id);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [order, setOrder] = useState<SortOrder>("desc");
+    const [order, setOrder] = useState<SortOrder>("likes_count, desc");
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({

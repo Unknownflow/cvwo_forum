@@ -23,13 +23,19 @@ func (h *LikesHandler) ReadPostLikes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	key := r.URL.Query().Get("key")
+	if key != "likes_count" && key != "created_at" {
+		RespondError(w, http.StatusInternalServerError, "invalid key")
+		return
+	}
+
 	order := r.URL.Query().Get("order")
 	if order != "asc" && order != "desc" {
 		RespondError(w, http.StatusInternalServerError, "invalid order")
 		return
 	}
 
-	posts, err := h.Service.GetAllPostLikesByUser(claims.ID, order)
+	posts, err := h.Service.GetAllPostLikesByUser(claims.ID, key, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
@@ -45,13 +51,19 @@ func (h *LikesHandler) ReadCommentLikes(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	key := r.URL.Query().Get("key")
+	if key != "likes_count" && key != "created_at" {
+		RespondError(w, http.StatusInternalServerError, "invalid key")
+		return
+	}
+
 	order := r.URL.Query().Get("order")
 	if order != "asc" && order != "desc" {
 		RespondError(w, http.StatusInternalServerError, "invalid order")
 		return
 	}
 
-	posts, err := h.Service.GetAllCommentLikesByUser(claims.ID, order)
+	posts, err := h.Service.GetAllCommentLikesByUser(claims.ID, key, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())

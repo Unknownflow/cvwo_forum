@@ -26,7 +26,7 @@ const PostComments: React.FC = () => {
     const topicIdNumber = Number(topicID);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [order, setOrder] = useState<SortOrder>("desc");
+    const [order, setOrder] = useState<SortOrder>("likes_count, desc");
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({

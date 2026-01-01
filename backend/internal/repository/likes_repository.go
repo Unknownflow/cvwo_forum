@@ -10,8 +10,8 @@ import (
 )
 
 type LikesRepository interface {
-	ReadPostsLikedByUser(userID int, order string) ([]models.PostResponse, error)
-	ReadCommentsLikedByUser(userID int, order string) ([]models.CommentResponse, error)
+	ReadPostsLikedByUser(userID int, key string, order string) ([]models.PostResponse, error)
+	ReadCommentsLikedByUser(userID int, key string, order string) ([]models.CommentResponse, error)
 	ReadByPostID(postLikes models.PostLikes) (models.PostLikesResponse, error)
 	ReadByCommentID(commentLikes models.CommentLikes) (models.CommentLikesResponse, error)
 	CreatePostLike(postLikes models.PostLikes) error
@@ -28,14 +28,14 @@ func NewLikesRepository(db *sqlx.DB) LikesRepository {
 	return &likesRepository{db: db}
 }
 
-func (r *likesRepository) ReadPostsLikedByUser(userID int, order string) ([]models.PostResponse, error) {
+func (r *likesRepository) ReadPostsLikedByUser(userID int, key string, order string) ([]models.PostResponse, error) {
 	var resp []models.PostResponse
 	query := fmt.Sprintf(`SELECT posts.id, posts.header, posts.body, posts.created_at,
-			  posts.topic_id, users.username AS "author" FROM posts
+			  posts.topic_id, posts.likes_count, users.username AS "author" FROM posts
 			  LEFT JOIN likes ON posts.id = likes.post_id
 			  LEFT JOIN users ON posts.user_id = users.id
 			  WHERE likes.user_id = $1 AND likes.like_type = 1
-			  ORDER BY created_at %s`, order)
+			  ORDER BY %s %s`, key, order)
 	err := r.db.Select(&resp, query, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -46,14 +46,14 @@ func (r *likesRepository) ReadPostsLikedByUser(userID int, order string) ([]mode
 	return resp, nil
 }
 
-func (r *likesRepository) ReadCommentsLikedByUser(userID int, order string) ([]models.CommentResponse, error) {
+func (r *likesRepository) ReadCommentsLikedByUser(userID int, key string, order string) ([]models.CommentResponse, error) {
 	var resp []models.CommentResponse
 	query := fmt.Sprintf(`SELECT comments.id, comments.body, comments.created_at,
-			  comments.post_id, users.username AS "author" FROM comments
+			  comments.post_id, comments.likes_count, users.username AS "author" FROM comments
 			  LEFT JOIN likes ON comments.id = likes.comment_id
 			  LEFT JOIN users ON comments.user_id = users.id
 			  WHERE likes.user_id = $1 AND likes.like_type = 1
-			  ORDER BY created_at %s`, order)
+			  ORDER BY %s %s`, key, order)
 	err := r.db.Select(&resp, query, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

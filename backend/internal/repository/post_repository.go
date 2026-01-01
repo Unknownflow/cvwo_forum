@@ -12,7 +12,7 @@ import (
 type PostRepository interface {
 	ReadAll() ([]models.PostResponse, error)
 	ReadByID(id int) (models.PostResponse, error)
-	ReadCommentsByPostID(id int, order string) ([]models.CommentResponse, error)
+	ReadCommentsByPostID(id int, key string, order string) ([]models.CommentResponse, error)
 	Create(post models.Post) error
 	Update(post models.PostRequest) (rowsAffected int64, err error)
 	Delete(id int) (rowsAffected int64, err error)
@@ -58,7 +58,7 @@ func (r *postRepository) ReadByID(id int) (models.PostResponse, error) {
 	return post, nil
 }
 
-func (r *postRepository) ReadCommentsByPostID(id int, order string) ([]models.CommentResponse, error) {
+func (r *postRepository) ReadCommentsByPostID(id int, key string, order string) ([]models.CommentResponse, error) {
 	var comments []models.CommentResponse
 	query := fmt.Sprintf(`SELECT comments.id, comments.body, comments.created_at,
 			  comments.post_id, comments.likes_count, username AS "author" FROM comments
@@ -66,7 +66,7 @@ func (r *postRepository) ReadCommentsByPostID(id int, order string) ([]models.Co
 			  LEFT JOIN likes ON likes.comment_id = comments.id
 			  WHERE comments.post_id = $1
 			  GROUP BY comments.id, users.id
-			  ORDER BY created_at %s`, order)
+			  ORDER BY %s %s`, key, order)
 	err := r.db.Select(&comments, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

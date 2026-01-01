@@ -18,8 +18,9 @@ const SortButton: React.FC<Props> = ({ order, setOrder }) => {
             <FormControl>
                 <InputLabel>order</InputLabel>
                 <Select value={order} label="Sort by" onChange={handleOrderChange}>
-                    <MenuItem value="desc">newest first</MenuItem>
-                    <MenuItem value="asc">oldest first</MenuItem>
+                    <MenuItem value="likes_count, desc">Top</MenuItem>
+                    <MenuItem value="created_at, desc">Newest</MenuItem>
+                    <MenuItem value="created_at, asc">Oldest</MenuItem>
                 </Select>
             </FormControl>
         </Box>

@@ -12,7 +12,7 @@ import (
 type TopicRepository interface {
 	ReadAll() ([]models.TopicResponse, error)
 	ReadByID(id int) (models.TopicResponse, error)
-	ReadPostsByTopicID(id int, order string) ([]models.PostResponse, error)
+	ReadPostsByTopicID(id int, key string, order string) ([]models.PostResponse, error)
 	Create(topic models.Topic) error
 	Update(topic models.Topic) (rowsAffected int64, err error)
 	Delete(id int) (rowsAffected int64, err error)
@@ -55,7 +55,7 @@ func (r *topicRepository) ReadByID(id int) (models.TopicResponse, error) {
 	return topic, nil
 }
 
-func (r *topicRepository) ReadPostsByTopicID(id int, order string) ([]models.PostResponse, error) {
+func (r *topicRepository) ReadPostsByTopicID(id int, key string, order string) ([]models.PostResponse, error) {
 	var posts []models.PostResponse
 	query := fmt.Sprintf(`SELECT posts.id, posts.header, posts.body, posts.created_at, 
 			  posts.topic_id, posts.likes_count, username AS "author" FROM posts
@@ -63,7 +63,7 @@ func (r *topicRepository) ReadPostsByTopicID(id int, order string) ([]models.Pos
 			  LEFT JOIN likes ON likes.post_id = posts.id
 			  WHERE posts.topic_id = $1
 			  GROUP BY posts.id, users.id
-			  ORDER BY created_at %s`, order)
+			  ORDER BY %s %s`, key, order)
 	err := r.db.Select(&posts, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
