@@ -33,6 +33,7 @@ const PostComments: React.FC = () => {
         body: "",
         author: user,
         post_id: postIdNumber,
+        likes_count: 0,
     });
     const {
         isLoading: isCommentsLoading,
@@ -58,6 +59,7 @@ const PostComments: React.FC = () => {
             body: "",
             author: user,
             post_id: postIdNumber,
+            likes_count: 0,
         });
     };
 

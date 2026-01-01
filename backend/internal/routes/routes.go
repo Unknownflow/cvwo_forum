@@ -97,7 +97,6 @@ func PostLikesRoutes(conn *sqlx.DB) func(r chi.Router) {
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", likesHandler.ReadPostLike)
 			r.Delete("/", likesHandler.DeletePostLike)
-			r.Get("/count", likesHandler.ReadPostLikesCount)
 		})
 	}
 }
@@ -117,7 +116,6 @@ func CommentLikesRoutes(conn *sqlx.DB) func(r chi.Router) {
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", likesHandler.ReadCommentLike)
 			r.Delete("/", likesHandler.DeleteCommentLike)
-			r.Get("/count", likesHandler.ReadCommentLikesCount)
 		})
 	}
 }

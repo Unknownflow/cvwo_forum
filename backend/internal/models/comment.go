@@ -18,9 +18,10 @@ type CommentRequest struct {
 }
 
 type CommentResponse struct {
-	ID        int       `db:"id" json:"id"`
-	Body      string    `db:"body" json:"body"`
-	Author    string    `json:"author"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	PostID    int       `db:"post_id" json:"post_id"`
+	ID         int       `db:"id" json:"id"`
+	Body       string    `db:"body" json:"body"`
+	Author     string    `json:"author"`
+	CreatedAt  time.Time `db:"created_at" json:"created_at"`
+	PostID     int       `db:"post_id" json:"post_id"`
+	LikesCount int       `db:"likes_count" json:"likes_count"`
 }

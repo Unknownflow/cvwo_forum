@@ -5,6 +5,7 @@ type Post = {
     author: string;
     created_at: string;
     topic_id: number;
+    likes_count: number;
 };
 
 export default Post;

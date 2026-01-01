@@ -1,4 +1,4 @@
-import { readCommentLikes, readCommentLikesCount } from "../api/commentLikes";
+import { readCommentLikes } from "../api/commentLikes";
 import { useUser } from "../context/userContext";
 import { useCreateCommentLike, useDeleteCommentLike } from "../hooks/commentLikes";
 import { Box, IconButton } from "@mui/material";
@@ -12,9 +12,10 @@ type LikeType = -1 | 0 | 1;
 type Props = {
     commentID: number;
     postID: number;
+    likesCount: number;
 };
 
-const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {
+const CommentLikeAction: React.FC<Props> = ({ commentID, postID, likesCount }) => {
     const { user } = useUser();
     const createCommentLikeMutation = useCreateCommentLike(commentID, postID, user);
     const deleteCommentLikeMutation = useDeleteCommentLike(commentID, postID, user);
@@ -22,11 +23,6 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {
     const { data: commentLikesData } = useQuery({
         queryKey: ["commentLikes", commentID, user],
         queryFn: () => readCommentLikes(commentID),
-        enabled: commentID > 0, // only query if id is valid
-    });
-    const { data: commentLikesCount } = useQuery({
-        queryKey: ["commentLikesCount", commentID],
-        queryFn: () => readCommentLikesCount(commentID),
         enabled: commentID > 0, // only query if id is valid
     });
 
@@ -43,12 +39,12 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {
     const handleLikeUpdate = () => {
         if (likeStatus === 1) {
             // Already liked, remove like
-            deleteCommentLikeMutation.mutate(commentID);
+            deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
             setLikeStatus(0);
         } else {
             // Not liked or disliked, add like
             if (likeStatus === -1) {
-                deleteCommentLikeMutation.mutate(commentID);
+                deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
             }
             createCommentLikeMutation.mutate({ id: -1, comment_id: commentID, like_type: 1 });
             setLikeStatus(1);
@@ -58,12 +54,12 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {
     const handleDislikeUpdate = () => {
         if (likeStatus === -1) {
             // Already disliked, remove dislike
-            deleteCommentLikeMutation.mutate(commentID);
+            deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
             setLikeStatus(0);
         } else {
             // Not disliked or liked, add dislike
             if (likeStatus === 1) {
-                deleteCommentLikeMutation.mutate(commentID);
+                deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
             }
             createCommentLikeMutation.mutate({ id: -1, comment_id: commentID, like_type: -1 });
             setLikeStatus(-1);
@@ -75,7 +71,7 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID }) => {
             <IconButton onClick={handleLikeUpdate} color={likeColor}>
                 <ThumbUpIcon />
             </IconButton>
-            {commentLikesCount}
+            {likesCount}
             <IconButton onClick={handleDislikeUpdate} color={dislikeColor}>
                 <ThumbDownIcon />
             </IconButton>

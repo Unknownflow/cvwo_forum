@@ -14,10 +14,8 @@ type LikesService interface {
 	GetCommentLike(userID int, commentID int) (models.CommentLikesResponse, error)
 	CreatePostLike(userID int, postLikesReq models.PostLikesRequest) error
 	CreateCommentLike(userID int, commentLikesReq models.CommentLikesRequest) error
-	DeletePostLike(userID int, postID int) error
-	DeleteCommentLike(userID int, commentID int) error
-	GetPostLikesCount(postID int) (int64, error)
-	GetCommentLikesCount(commentID int) (int64, error)
+	DeletePostLike(userID int, postID int, likeType int) error
+	DeleteCommentLike(userID int, commentID int, likeType int) error
 }
 
 type likesService struct {
@@ -114,12 +112,13 @@ func (s *likesService) CreateCommentLike(userID int, commentLikesReq models.Comm
 	return nil
 }
 
-func (s *likesService) DeletePostLike(userID int, postID int) error {
+func (s *likesService) DeletePostLike(userID int, postID int, likeType int) error {
 	var postLike models.PostLikes
 
 	postLike = models.PostLikes{
-		PostID: postID,
-		UserID: userID,
+		PostID:   postID,
+		UserID:   userID,
+		LikeType: likeType,
 	}
 
 	rowsAffected, err := s.likesRepo.DeletePostLike(postLike)
@@ -135,12 +134,13 @@ func (s *likesService) DeletePostLike(userID int, postID int) error {
 	return nil
 }
 
-func (s *likesService) DeleteCommentLike(userID int, commentID int) error {
+func (s *likesService) DeleteCommentLike(userID int, commentID int, likeType int) error {
 	var commentLike models.CommentLikes
 
 	commentLike = models.CommentLikes{
 		CommentID: commentID,
 		UserID:    userID,
+		LikeType:  likeType,
 	}
 
 	rowsAffected, err := s.likesRepo.DeleteCommentLike(commentLike)
@@ -154,30 +154,4 @@ func (s *likesService) DeleteCommentLike(userID int, commentID int) error {
 	}
 
 	return nil
-}
-
-func (s *likesService) GetPostLikesCount(postID int) (int64, error) {
-	var postLikes models.PostLikes
-
-	postLikes = models.PostLikes{PostID: postID}
-	count, err := s.likesRepo.ReadPostLikesCount(postLikes)
-
-	if err != nil {
-		return 0, fmt.Errorf("failed to retrieve post likes count: %w", err)
-	}
-
-	return count, nil
-}
-
-func (s *likesService) GetCommentLikesCount(commentID int) (int64, error) {
-	var commentLikes models.CommentLikes
-
-	commentLikes = models.CommentLikes{CommentID: commentID}
-	count, err := s.likesRepo.ReadCommentLikesCount(commentLikes)
-
-	if err != nil {
-		return 0, fmt.Errorf("failed to retrieve comment likes count: %w", err)
-	}
-
-	return count, nil
 }

@@ -135,7 +135,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                         py: 1,
                     }}
                 >
-                    <PostLikeAction postID={post.id} topicID={topicID} />
+                    <PostLikeAction postID={post.id} topicID={topicID} likesCount={post.likes_count} />
                     {isEditable && (
                         <CardActions sx={{ py: 0 }}>
                             {isEditing ? (

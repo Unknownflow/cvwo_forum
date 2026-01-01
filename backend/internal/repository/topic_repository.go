@@ -58,12 +58,12 @@ func (r *topicRepository) ReadByID(id int) (models.TopicResponse, error) {
 func (r *topicRepository) ReadPostsByTopicID(id int, order string) ([]models.PostResponse, error) {
 	var posts []models.PostResponse
 	query := fmt.Sprintf(`SELECT posts.id, posts.header, posts.body, posts.created_at, 
-			  posts.topic_id, username AS "author" FROM posts
+			  posts.topic_id, posts.likes_count, username AS "author" FROM posts
 			  INNER JOIN users ON users.id = posts.user_id
 			  LEFT JOIN likes ON likes.post_id = posts.id
 			  WHERE posts.topic_id = $1
 			  GROUP BY posts.id, users.id
-			  ORDER BY COALESCE(SUM(like_type), 0) DESC, created_at %s`, order)
+			  ORDER BY created_at %s`, order)
 	err := r.db.Select(&posts, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

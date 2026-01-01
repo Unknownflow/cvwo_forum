@@ -4,6 +4,7 @@ type Comment = {
     author: string;
     created_at: string;
     post_id: number;
+    likes_count: number;
 };
 
 export default Comment;

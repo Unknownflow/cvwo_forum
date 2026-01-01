@@ -18,8 +18,6 @@ type LikesRepository interface {
 	CreateCommentLike(commentLikes models.CommentLikes) error
 	DeletePostLike(postLikes models.PostLikes) (int64, error)
 	DeleteCommentLike(commentLikes models.CommentLikes) (int64, error)
-	ReadPostLikesCount(postLikes models.PostLikes) (int64, error)
-	ReadCommentLikesCount(commentLikes models.CommentLikes) (int64, error)
 }
 
 type likesRepository struct {
@@ -95,14 +93,24 @@ func (r *likesRepository) ReadByCommentID(commentLikes models.CommentLikes) (mod
 }
 
 func (r *likesRepository) CreatePostLike(postLikes models.PostLikes) error {
-	query := `INSERT INTO likes (user_id, post_id, like_type) 
-			  VALUES (:user_id, :post_id, :like_type) RETURNING id`
+	insertQuery := `INSERT INTO likes (user_id, post_id, like_type) 
+			  VALUES (:user_id, :post_id, :like_type)`
 	// like_type is 1 or -1 depending on whether it is a like / dislike
 
 	tx := r.db.MustBegin()
-	_, err := tx.NamedExec(query, postLikes)
+	defer tx.Rollback()
+
+	_, err := r.db.NamedExec(insertQuery, postLikes)
 	if err != nil {
-		tx.Rollback()
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	updateQuery := `UPDATE posts
+			 SET likes_count = likes_count + :like_type
+			 WHERE id = :post_id`
+
+	_, err = tx.NamedExec(updateQuery, postLikes)
+	if err != nil {
 		return fmt.Errorf("failed to execute query: %w", err)
 	}
 
@@ -119,9 +127,20 @@ func (r *likesRepository) CreateCommentLike(commentLikes models.CommentLikes) er
 	// like_type is 1 or -1 depending on whether it is a like / dislike
 
 	tx := r.db.MustBegin()
+	defer tx.Rollback()
+
 	_, err := tx.NamedExec(query, commentLikes)
 	if err != nil {
 		tx.Rollback()
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	updateQuery := `UPDATE comments
+			 SET likes_count = likes_count + :like_type
+			 WHERE id = :comment_id`
+
+	_, err = tx.NamedExec(updateQuery, commentLikes)
+	if err != nil {
 		return fmt.Errorf("failed to execute query: %w", err)
 	}
 
@@ -133,8 +152,12 @@ func (r *likesRepository) CreateCommentLike(commentLikes models.CommentLikes) er
 }
 
 func (r *likesRepository) DeletePostLike(postLikes models.PostLikes) (int64, error) {
-	query := "DELETE FROM likes WHERE user_id = :user_id AND post_id = :post_id"
-	result, err := r.db.NamedExec(query, postLikes)
+	deleteQuery := "DELETE FROM likes WHERE user_id = :user_id AND post_id = :post_id"
+
+	tx := r.db.MustBegin()
+	defer tx.Rollback()
+
+	result, err := tx.NamedExec(deleteQuery, postLikes)
 
 	if err != nil {
 		return 0, fmt.Errorf("failed to execute delete like post query: %w", err)
@@ -143,17 +166,34 @@ func (r *likesRepository) DeletePostLike(postLikes models.PostLikes) (int64, err
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	updateQuery := `UPDATE posts
+			 SET likes_count = likes_count - :like_type
+			 WHERE id = :post_id`
+
+	_, err = tx.NamedExec(updateQuery, postLikes)
+	if err != nil {
+		return 0, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	return rowsAffected, nil
 }
 
 func (r *likesRepository) DeleteCommentLike(commentLikes models.CommentLikes) (int64, error) {
-	query := "DELETE FROM likes WHERE user_id = :user_id AND comment_id = :comment_id"
-	result, err := r.db.NamedExec(query, commentLikes)
+	deleteQuery := "DELETE FROM likes WHERE user_id = :user_id AND comment_id = :comment_id"
+
+	tx := r.db.MustBegin()
+	defer tx.Rollback()
+
+	result, err := tx.NamedExec(deleteQuery, commentLikes)
 
 	if err != nil {
-		return 0, fmt.Errorf("failed to execute delete like post query: %w", err)
+		return 0, fmt.Errorf("failed to execute delete like comment query: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -161,35 +201,18 @@ func (r *likesRepository) DeleteCommentLike(commentLikes models.CommentLikes) (i
 		return 0, fmt.Errorf("failed to get rows affected: %w", err)
 	}
 
+	updateQuery := `UPDATE comments
+			 SET likes_count = likes_count - :like_type
+			 WHERE id = :comment_id`
+
+	_, err = tx.NamedExec(updateQuery, commentLikes)
+	if err != nil {
+		return 0, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
 	return rowsAffected, nil
-}
-
-func (r *likesRepository) ReadPostLikesCount(postLikes models.PostLikes) (int64, error) {
-	var likesCount int64
-	query := `SELECT COALESCE(SUM(like_type), 0) FROM likes
-			  WHERE post_id = $1`
-
-	err := r.db.Get(&likesCount, query, postLikes.PostID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 0, nil
-		}
-		return 0, fmt.Errorf("failed to execute query: %w", err)
-	}
-	return likesCount, nil
-}
-
-func (r *likesRepository) ReadCommentLikesCount(commentLikes models.CommentLikes) (int64, error) {
-	var likesCount int64
-	query := `SELECT COALESCE(SUM(like_type), 0) FROM likes
-			  WHERE comment_id = $1`
-
-	err := r.db.Get(&likesCount, query, commentLikes.CommentID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 0, nil
-		}
-		return 0, fmt.Errorf("failed to execute query: %w", err)
-	}
-	return likesCount, nil
 }
