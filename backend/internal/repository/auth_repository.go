@@ -134,7 +134,7 @@ func (r *authRepository) RevokeAllUserTokens(user_id int) error {
 }
 
 func (r *authRepository) DeleteExpiredTokens() error {
-	query := `DELETE FROM refresh_tokens WHERE expires_at < NOW()`
+	query := `DELETE FROM refresh_tokens WHERE expires_at < NOW() OR is_revoked = true`
 	_, err := r.db.Exec(query)
 	return err
 }
