@@ -69,7 +69,7 @@ const PostComments: React.FC = () => {
         const trimmedBody = newCommentRequest.body.trim();
 
         if (!trimmedBody) {
-            showSnackBar("Body msut not be empty!");
+            showSnackBar("Body must not be empty!");
             return;
         }
 
