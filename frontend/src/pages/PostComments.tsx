@@ -48,7 +48,7 @@ const PostComments: React.FC = () => {
         isError: isPostError,
         data: postData,
     } = useQuery({
-        queryKey: ["posts", postID],
+        queryKey: ["posts", postIdNumber],
         queryFn: () => readPost(postIdNumber),
         enabled: !!postID,
     });

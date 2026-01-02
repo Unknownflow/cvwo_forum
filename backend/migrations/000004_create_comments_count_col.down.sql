@@ -1,0 +1,5 @@
+ALTER TABLE posts
+DROP COLUMN IF EXISTS comments_count;
+
+ALTER TABLE topics
+DROP COLUMN IF EXISTS posts_count;

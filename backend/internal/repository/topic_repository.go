@@ -58,7 +58,7 @@ func (r *topicRepository) ReadByID(id int) (models.TopicResponse, error) {
 func (r *topicRepository) ReadPostsByTopicID(id int, key string, order string) ([]models.PostResponse, error) {
 	var posts []models.PostResponse
 	query := fmt.Sprintf(`SELECT posts.id, posts.header, posts.body, posts.created_at, 
-			  posts.topic_id, posts.likes_count, username AS "author" FROM posts
+			  posts.topic_id, posts.likes_count, posts.comments_count, username AS "author" FROM posts
 			  INNER JOIN users ON users.id = posts.user_id
 			  LEFT JOIN likes ON likes.post_id = posts.id
 			  WHERE posts.topic_id = $1

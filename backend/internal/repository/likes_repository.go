@@ -31,7 +31,7 @@ func NewLikesRepository(db *sqlx.DB) LikesRepository {
 func (r *likesRepository) ReadPostsLikedByUser(userID int, key string, order string) ([]models.PostResponse, error) {
 	var resp []models.PostResponse
 	query := fmt.Sprintf(`SELECT posts.id, posts.header, posts.body, posts.created_at,
-			  posts.topic_id, posts.likes_count, users.username AS "author" FROM posts
+			  posts.topic_id, posts.likes_count, posts.comments_count,users.username AS "author" FROM posts
 			  LEFT JOIN likes ON posts.id = likes.post_id
 			  LEFT JOIN users ON posts.user_id = users.id
 			  WHERE likes.user_id = $1 AND likes.like_type = 1

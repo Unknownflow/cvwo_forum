@@ -9,6 +9,7 @@ import { formatDateTime } from "../utils/utils";
 import React, { useState } from "react";
 import { Box, Card, CardActionArea, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import CommentIcon from "@mui/icons-material/Comment";
 
 type Props = {
     post: Post;
@@ -135,7 +136,22 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                         py: 1,
                     }}
                 >
-                    <PostLikeAction postID={post.id} topicID={topicID} likesCount={post.likes_count} />
+                    <Box sx={{ display: "flex", flexDirection: "col", gap: 1 }}>
+                        <PostLikeAction postID={post.id} topicID={topicID} likesCount={post.likes_count} />
+                        <Box
+                            onClick={handleNavigate}
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                padding: 1,
+                                "&:hover": { bgcolor: "background.default", cursor: "pointer" },
+                            }}
+                        >
+                            <CommentIcon /> {post.comments_count}
+                        </Box>
+                    </Box>
+
                     {isEditable && (
                         <CardActions sx={{ py: 0 }}>
                             {isEditing ? (
