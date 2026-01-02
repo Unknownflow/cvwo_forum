@@ -78,13 +78,23 @@ func (r *postRepository) ReadCommentsByPostID(id int, key string, order string) 
 }
 
 func (r *postRepository) Create(post models.Post) error {
-	query := `INSERT INTO posts (header, body, user_id, topic_id) 
+	insertQuery := `INSERT INTO posts (header, body, user_id, topic_id) 
 			  VALUES (:header, :body, :user_id, :topic_id) RETURNING id`
 
 	tx := r.db.MustBegin()
-	_, err := tx.NamedExec(query, post)
+	defer tx.Rollback()
+
+	_, err := tx.NamedExec(insertQuery, post)
 	if err != nil {
 		tx.Rollback()
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	updateQuery := `UPDATE topics
+					SET posts_count = posts_count + 1
+					WHERE id = :topic_id`
+	_, err = tx.NamedExec(updateQuery, post)
+	if err != nil {
 		return fmt.Errorf("failed to execute query: %w", err)
 	}
 
@@ -127,6 +137,16 @@ func (r *postRepository) Update(post models.PostRequest) (int64, error) {
 }
 
 func (r *postRepository) Delete(id int) (int64, error) {
+	var topicID int
+	tx := r.db.MustBegin()
+	defer tx.Rollback()
+
+	searchQuery := `SELECT topic_id FROM posts WHERE id = $1`
+	err := tx.Get(&topicID, searchQuery, id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get topic id: %w", err)
+	}
+
 	query := "DELETE FROM posts WHERE id = $1"
 	result, err := r.db.Exec(query, id)
 
@@ -137,6 +157,18 @@ func (r *postRepository) Delete(id int) (int64, error) {
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	updateQuery := `UPDATE topics
+					SET posts_count = posts_count - 1
+					WHERE id = $1`
+	_, err = tx.Exec(updateQuery, topicID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit update transaction: %w", err)
 	}
 
 	return rowsAffected, nil

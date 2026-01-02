@@ -1,6 +1,6 @@
 import { createTopic, deleteTopic, updateTopic } from "../api/topic";
 import { queryClient } from "../App";
-import Topic from "../types/Topic";
+import Topic, { TopicRequest } from "../types/Topic";
 import { useMutation } from "@tanstack/react-query";
 
 const useCreateTopic = () => {
@@ -8,7 +8,7 @@ const useCreateTopic = () => {
 
     return useMutation({
         mutationFn: createTopic,
-        onMutate: async (topic: Topic) => {
+        onMutate: async (topic: TopicRequest) => {
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey });
 
@@ -19,6 +19,7 @@ const useCreateTopic = () => {
             const optimisticTopic = {
                 ...topic,
                 id: -Date.now(),
+                posts_count: 0,
             };
 
             queryClient.setQueryData<Topic[]>(queryKey, (old) => [...(old ?? []), optimisticTopic]);

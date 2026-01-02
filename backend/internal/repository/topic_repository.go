@@ -28,7 +28,7 @@ func NewTopicRepository(db *sqlx.DB) TopicRepository {
 
 func (r *topicRepository) ReadAll() ([]models.TopicResponse, error) {
 	var topics []models.TopicResponse
-	query := `SELECT topics.id, title, username AS "author" FROM topics
+	query := `SELECT topics.id, title, posts_count, username AS "author" FROM topics
 			  INNER JOIN users ON users.id = topics.user_id`
 	err := r.db.Select(&topics, query)
 	if err != nil {
@@ -42,7 +42,7 @@ func (r *topicRepository) ReadAll() ([]models.TopicResponse, error) {
 
 func (r *topicRepository) ReadByID(id int) (models.TopicResponse, error) {
 	var topic models.TopicResponse
-	query := `SELECT topics.id, title, username AS "author" FROM topics 
+	query := `SELECT topics.id, title, posts_count, username AS "author" FROM topics 
 			  INNER JOIN users ON users.id = topics.user_id
 	          WHERE topics.id = $1`
 	err := r.db.QueryRowx(query, id).StructScan(&topic)

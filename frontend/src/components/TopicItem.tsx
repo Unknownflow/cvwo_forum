@@ -7,6 +7,7 @@ import { useUser } from "../context/userContext";
 import React, { useState } from "react";
 import { Box, Card, CardActionArea, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import ArticleIcon from "@mui/icons-material/Article";
 
 type Props = {
     topic: Topic;
@@ -71,7 +72,7 @@ const TopicItem: React.FC<Props> = ({ topic, editable }) => {
 
     return (
         <Card key={topic.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
-            <Box sx={{ display: "flex", width: "100%" }}>
+            <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
                 {isEditing ? (
                     <CardContent sx={{ flex: 1 }}>
                         <TextField
@@ -103,25 +104,40 @@ const TopicItem: React.FC<Props> = ({ topic, editable }) => {
                         </CardContent>
                     </CardActionArea>
                 )}
-                {isEditable && (
-                    <CardActions sx={{ flexShrink: 0, py: 0 }}>
-                        {isEditing ? (
-                            <EditModeAction
-                                handleCancelEdit={handleCancelEdit}
-                                handleConfirmEdit={handleConfirmEdit}
-                                isLoading={isLoading}
-                            />
-                        ) : (
-                            <ViewModeAction
-                                handleStartEdit={handleStartEdit}
-                                handleDelete={handleDelete}
-                                isLoading={isLoading}
-                                isPending={deleteTopicMutation.isPending}
-                                type="topic"
-                            />
-                        )}
-                    </CardActions>
-                )}
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 2, py: 1 }}>
+                    <Box
+                        onClick={handleNavigate}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            padding: 1,
+                            "&:hover": { bgcolor: "background.default", cursor: "pointer" },
+                        }}
+                    >
+                        <ArticleIcon />
+                        {topic.posts_count}
+                    </Box>
+                    {isEditable && (
+                        <CardActions sx={{ flexShrink: 0, py: 0 }}>
+                            {isEditing ? (
+                                <EditModeAction
+                                    handleCancelEdit={handleCancelEdit}
+                                    handleConfirmEdit={handleConfirmEdit}
+                                    isLoading={isLoading}
+                                />
+                            ) : (
+                                <ViewModeAction
+                                    handleStartEdit={handleStartEdit}
+                                    handleDelete={handleDelete}
+                                    isLoading={isLoading}
+                                    isPending={deleteTopicMutation.isPending}
+                                    type="topic"
+                                />
+                            )}
+                        </CardActions>
+                    )}
+                </Box>
             </Box>
             <Snackbar
                 open={snackBar.open}

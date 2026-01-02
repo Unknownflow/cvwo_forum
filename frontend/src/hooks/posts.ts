@@ -31,6 +31,9 @@ const useCreatePost = (topicID: number, order: SortOrder) => {
             // Return context for rollback
             return { previousPosts };
         },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["topic", topicID] });
+        },
         onError: (error, newPost, context) => {
             // Rollback to previous state
             queryClient.setQueryData(queryKey, context?.previousPosts);
@@ -95,6 +98,9 @@ const useDeletePost = (topicID: number) => {
 
             // Return context with snapshot
             return { previousPosts };
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["topic", topicID] });
         },
         // If mutation fails, rollback to prev value
         onError: (err, postId, context) => {
