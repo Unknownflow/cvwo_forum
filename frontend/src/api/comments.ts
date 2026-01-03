@@ -1,5 +1,4 @@
-import Comment from "../types/Comment";
-import CommentRequest from "../types/CommentRequest";
+import Comment, { CommentRequest } from "../types/Comment";
 import axiosInstance from "../utils/axios";
 
 const route = "/comments/";

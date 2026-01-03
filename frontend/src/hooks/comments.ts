@@ -1,7 +1,6 @@
 import { createComment, deleteComment, updateComment } from "../api/comments";
 import { queryClient } from "../App";
-import Comment from "../types/Comment";
-import CommentRequest from "../types/CommentRequest";
+import Comment, { CommentRequest } from "../types/Comment";
 import { useMutation } from "@tanstack/react-query";
 
 const useCreateComment = (postID: number, order: string) => {

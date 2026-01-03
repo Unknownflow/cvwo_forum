@@ -7,4 +7,6 @@ type Comment = {
     likesCount: number;
 };
 
+export type CommentRequest = Omit<Comment, "id" | "createdAt" | "likesCount">;
+
 export default Comment;

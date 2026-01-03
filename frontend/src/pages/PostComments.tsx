@@ -1,8 +1,7 @@
-import CommentRequest from "../types/CommentRequest";
 import { readPost, readPostComments } from "../api/post";
 import { useCreateComment } from "../hooks/comments";
 import CommentItem from "../components/CommentItem";
-import Comment from "../types/Comment";
+import Comment, { CommentRequest } from "../types/Comment";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
 import PostItem from "../components/PostItem";

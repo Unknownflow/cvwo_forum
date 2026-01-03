@@ -9,4 +9,6 @@ type Post = {
     commentsCount: number;
 };
 
+export type PostRequest = Omit<Post, "id" | "createdAt" | "likesCount" | "commentsCount">;
+
 export default Post;

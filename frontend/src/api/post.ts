@@ -1,5 +1,4 @@
-import Post from "../types/Post";
-import PostRequest from "../types/PostRequest";
+import Post, { PostRequest } from "../types/Post";
 import axiosInstance from "../utils/axios";
 
 const route = "/posts/";

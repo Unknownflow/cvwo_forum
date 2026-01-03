@@ -1,7 +1,6 @@
 import { createPost, deletePost, updatePost } from "../api/post";
-import PostRequest from "../types/PostRequest";
 import { queryClient } from "../App";
-import Post from "../types/Post";
+import Post, { PostRequest } from "../types/Post";
 import SortOrder from "../types/SortOrder";
 import { useMutation } from "@tanstack/react-query";
 
