@@ -11,7 +11,7 @@ import { Box, Card, CardActions, CardContent, Snackbar, TextField, Typography } 
 
 type Props = {
     comment: Comment;
-    postID: string;
+    postID: number;
 };
 
 const CommentItem: React.FC<Props> = ({ comment, postID }) => {
@@ -119,7 +119,7 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                         py: 1,
                     }}
                 >
-                    <CommentLikeAction commentID={comment.id} postID={postID} />
+                    <CommentLikeAction commentID={comment.id} postID={postID} likesCount={comment.likes_count} />
                     {isEditable && (
                         <CardActions sx={{ flexShrink: 0, py: 0 }}>
                             {isEditing ? (

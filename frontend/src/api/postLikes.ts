@@ -3,8 +3,9 @@ import axiosInstance from "../utils/axios";
 
 const route = "/posts/likes/";
 
-const readPostsLikes = async () => {
-    const response = await axiosInstance.get(route);
+const readPostsLikes = async (order: string) => {
+    const orderArr = order.split(", ");
+    const response = await axiosInstance.get(`${route}?key=${orderArr[0]}&order=${orderArr[1]}`);
     return response.data;
 };
 
@@ -18,14 +19,9 @@ const createPostLike = async (newPostLike: PostLike) => {
     return response.data;
 };
 
-const deletePostLike = async (id: number) => {
-    const response = await axiosInstance.delete(route + id);
+const deletePostLike = async (postLike: PostLike) => {
+    const response = await axiosInstance.delete(route + postLike.id + "?like_type=" + postLike.like_type);
     return response.data;
 };
 
-const readPostLikesCount = async (id: number) => {
-    const response = await axiosInstance.get(route + id + "/count");
-    return response.data;
-};
-
-export { readPostsLikes, readPostLikes, createPostLike, deletePostLike, readPostLikesCount };
+export { readPostsLikes, readPostLikes, createPostLike, deletePostLike };

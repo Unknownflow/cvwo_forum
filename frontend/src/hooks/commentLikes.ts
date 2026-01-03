@@ -3,12 +3,13 @@ import CommentLike from "../types/CommentLike";
 import { createCommentLike, deleteCommentLike } from "../api/commentLikes";
 import { useMutation } from "@tanstack/react-query";
 
-const useCreateCommentLike = (commentID: number, postID: string, username: string) => {
+const useCreateCommentLike = (commentID: number, postID: number, username: string) => {
+    const queryKey = ["commentLikes", commentID, username];
+
     return useMutation({
         mutationFn: createCommentLike,
         onMutate: async (newLike: CommentLike) => {
             // Cancel any outgoing refetches
-            const queryKey = ["commentLikes", commentID, username];
             await queryClient.cancelQueries({ queryKey });
 
             // Snapshot prevd value
@@ -26,20 +27,21 @@ const useCreateCommentLike = (commentID: number, postID: string, username: strin
         },
         onError: (error, newPost, context) => {
             // Rollback to previous state
-            queryClient.setQueryData(["commentLikes", commentID, username], context?.previousCommentLike);
+            queryClient.setQueryData(queryKey, context?.previousCommentLike);
         },
         onSettled: () => {
             // Sync with server (replaces temp ID with real ID)
-            queryClient.invalidateQueries({ queryKey: ["commentLikes", commentID, username] });
+            queryClient.invalidateQueries({ queryKey });
         },
     });
 };
 
-const useDeleteCommentLike = (commentID: number, postID: string, username: string) => {
+const useDeleteCommentLike = (commentID: number, postID: number, username: string) => {
+    const queryKey = ["commentLikes", commentID, username];
+
     return useMutation({
         mutationFn: deleteCommentLike,
         onMutate: async () => {
-            const queryKey = ["commentLikes", commentID, username];
             await queryClient.cancelQueries({ queryKey });
 
             // Snapshot previous value (single CommentLike object, not array)
@@ -58,10 +60,10 @@ const useDeleteCommentLike = (commentID: number, postID: string, username: strin
             queryClient.invalidateQueries({ queryKey: ["postComments", postID] });
         },
         onError: (err, commentID, context) => {
-            queryClient.setQueryData(["commentLikes", commentID, username], context?.previousCommentLike);
+            queryClient.setQueryData(queryKey, context?.previousCommentLike);
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["commentLikes", commentID, username] });
+            queryClient.invalidateQueries({ queryKey });
         },
     });
 };

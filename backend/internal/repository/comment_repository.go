@@ -57,13 +57,22 @@ func (r *commentRepository) ReadByID(id int) (models.CommentResponse, error) {
 }
 
 func (r *commentRepository) Create(comment models.Comment) error {
-	query := `INSERT INTO comments (body, user_id, post_id) 
+	insertQuery := `INSERT INTO comments (body, user_id, post_id) 
 			  VALUES (:body, :user_id, :post_id) RETURNING id`
 
 	tx := r.db.MustBegin()
-	_, err := tx.NamedExec(query, comment)
+	defer tx.Rollback()
+
+	_, err := tx.NamedExec(insertQuery, comment)
 	if err != nil {
-		tx.Rollback()
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	updateQuery := `UPDATE posts
+					SET comments_count = comments_count + 1
+					WHERE id = :post_id`
+	_, err = tx.NamedExec(updateQuery, comment)
+	if err != nil {
 		return fmt.Errorf("failed to execute query: %w", err)
 	}
 
@@ -80,21 +89,19 @@ func (r *commentRepository) Update(comment models.Comment) (int64, error) {
 			  WHERE id = :id`
 
 	tx := r.db.MustBegin()
+	defer tx.Rollback()
 	result, err := tx.NamedExec(query, comment)
 
 	if err != nil {
-		tx.Rollback()
 		return 0, fmt.Errorf("failed to execute update comment query: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		tx.Rollback()
 		return 0, fmt.Errorf("failed to get rows affected: %w", err)
 	}
 
 	if rowsAffected == 0 {
-		tx.Rollback()
 		return 0, nil
 	}
 
@@ -106,8 +113,18 @@ func (r *commentRepository) Update(comment models.Comment) (int64, error) {
 }
 
 func (r *commentRepository) Delete(id int) (int64, error) {
+	var postID int
+	tx := r.db.MustBegin()
+	defer tx.Rollback()
+
+	searchQuery := `SELECT post_id FROM comments WHERE id = $1`
+	err := tx.Get(&postID, searchQuery, id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get post id: %w", err)
+	}
+
 	query := "DELETE FROM comments WHERE id = $1"
-	result, err := r.db.Exec(query, id)
+	result, err := tx.Exec(query, id)
 
 	if err != nil {
 		return 0, fmt.Errorf("failed to execute delete comment query: %w", err)
@@ -116,6 +133,18 @@ func (r *commentRepository) Delete(id int) (int64, error) {
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	updateQuery := `UPDATE posts
+					SET comments_count = comments_count - 1
+					WHERE id = $1`
+	_, err = tx.Exec(updateQuery, postID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit update transaction: %w", err)
 	}
 
 	return rowsAffected, nil

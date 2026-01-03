@@ -1,4 +1,4 @@
-import Topic from "../types/Topic";
+import Topic, { TopicRequest } from "../types/Topic";
 import axiosInstance from "../utils/axios";
 
 const route = "/topics/";
@@ -13,12 +13,13 @@ const readTopic = async (id: number) => {
     return response.data;
 };
 
-const readTopicPosts = async (id: number) => {
-    const response = await axiosInstance.get(route + id + "/posts");
+const readTopicPosts = async (id: number, order: string) => {
+    const orderArr = order.split(", ");
+    const response = await axiosInstance.get(`${route}${id}/posts?key=${orderArr[0]}&order=${orderArr[1]}`);
     return response.data;
 };
 
-const createTopic = async (topic: Topic) => {
+const createTopic = async (topic: TopicRequest) => {
     const response = await axiosInstance.post(route, topic);
     return response.data;
 };

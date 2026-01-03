@@ -1,4 +1,4 @@
-import { readPostLikes, readPostLikesCount } from "../api/postLikes";
+import { readPostLikes } from "../api/postLikes";
 import { useUser } from "../context/userContext";
 import { useCreatePostLike, useDeletePostLike } from "../hooks/postLikes";
 import { Box, IconButton } from "@mui/material";
@@ -11,22 +11,21 @@ type LikeType = -1 | 0 | 1;
 
 type Props = {
     postID: number;
-    topicID: string;
+    topicID: number;
+    likesCount: number;
 };
 
-const PostLikeAction: React.FC<Props> = ({ postID, topicID }) => {
+const PostLikeAction: React.FC<Props> = ({ postID, topicID, likesCount }) => {
     const { user } = useUser();
-    const createPostLikeMutation = useCreatePostLike(postID, topicID, user);
-    const deletePostLikeMutation = useDeletePostLike(postID, topicID, user);
     const [likeStatus, setLikeStatus] = useState<LikeType>(0);
     const { data: postLikesData } = useQuery({
         queryKey: ["postLikes", postID, user],
         queryFn: () => readPostLikes(postID),
+        enabled: postID > 0, // only query if id is valid
     });
-    const { data: postLikesCount } = useQuery({
-        queryKey: ["postLikesCount", postID],
-        queryFn: () => readPostLikesCount(postID),
-    });
+
+    const createPostLikeMutation = useCreatePostLike(postID, topicID, user);
+    const deletePostLikeMutation = useDeletePostLike(postID, topicID, user);
 
     // Sync likeStatus with query data
     useEffect(() => {
@@ -41,12 +40,12 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID }) => {
     const handleLikeUpdate = () => {
         if (likeStatus === 1) {
             // Already liked, remove like
-            deletePostLikeMutation.mutate(postID);
+            deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
             setLikeStatus(0);
         } else {
             // Not liked or disliked, add like
             if (likeStatus === -1) {
-                deletePostLikeMutation.mutate(postID);
+                deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
             }
             createPostLikeMutation.mutate({ id: -1, post_id: postID, like_type: 1 });
             setLikeStatus(1);
@@ -56,12 +55,12 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID }) => {
     const handleDislikeUpdate = () => {
         if (likeStatus === -1) {
             // Already disliked, remove dislike
-            deletePostLikeMutation.mutate(postID);
+            deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
             setLikeStatus(0);
         } else {
             // Not disliked or liked, add dislike
             if (likeStatus === 1) {
-                deletePostLikeMutation.mutate(postID);
+                deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
             }
             createPostLikeMutation.mutate({ id: -1, post_id: postID, like_type: -1 });
             setLikeStatus(-1);
@@ -73,7 +72,7 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID }) => {
             <IconButton onClick={handleLikeUpdate} color={likeColor}>
                 <ThumbUpIcon />
             </IconButton>
-            {postLikesCount}
+            {likesCount}
             <IconButton onClick={handleDislikeUpdate} color={dislikeColor}>
                 <ThumbDownIcon />
             </IconButton>

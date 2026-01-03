@@ -19,10 +19,12 @@ type PostRequest struct {
 }
 
 type PostResponse struct {
-	ID        int       `db:"id" json:"id"`
-	Header    string    `db:"header" json:"header"`
-	Body      string    `db:"body" json:"body"`
-	Author    string    `json:"author"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	TopicID   int       `db:"topic_id" json:"topic_id"`
+	ID            int       `db:"id" json:"id"`
+	Header        string    `db:"header" json:"header"`
+	Body          string    `db:"body" json:"body"`
+	Author        string    `json:"author"`
+	CreatedAt     time.Time `db:"created_at" json:"created_at"`
+	TopicID       int       `db:"topic_id" json:"topic_id"`
+	LikesCount    int       `db:"likes_count" json:"likes_count"`
+	CommentsCount int       `db:"comments_count" json:"comments_count"`
 }

@@ -12,7 +12,7 @@ import (
 type PostRepository interface {
 	ReadAll() ([]models.PostResponse, error)
 	ReadByID(id int) (models.PostResponse, error)
-	ReadCommentsByPostID(id int) ([]models.CommentResponse, error)
+	ReadCommentsByPostID(id int, key string, order string) ([]models.CommentResponse, error)
 	Create(post models.Post) error
 	Update(post models.PostRequest) (rowsAffected int64, err error)
 	Delete(id int) (rowsAffected int64, err error)
@@ -45,7 +45,7 @@ func (r *postRepository) ReadAll() ([]models.PostResponse, error) {
 func (r *postRepository) ReadByID(id int) (models.PostResponse, error) {
 	var post models.PostResponse
 	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, 
-			  posts.topic_id, username AS "author" FROM posts
+			  posts.topic_id, posts.comments_count, username AS "author" FROM posts
 			  INNER JOIN users ON users.id = posts.user_id
 			  WHERE posts.id = $1`
 	err := r.db.QueryRowx(query, id).StructScan(&post)
@@ -58,15 +58,15 @@ func (r *postRepository) ReadByID(id int) (models.PostResponse, error) {
 	return post, nil
 }
 
-func (r *postRepository) ReadCommentsByPostID(id int) ([]models.CommentResponse, error) {
+func (r *postRepository) ReadCommentsByPostID(id int, key string, order string) ([]models.CommentResponse, error) {
 	var comments []models.CommentResponse
-	query := `SELECT comments.id, comments.body, comments.created_at,
-			  comments.post_id, username AS "author" FROM comments
+	query := fmt.Sprintf(`SELECT comments.id, comments.body, comments.created_at,
+			  comments.post_id, comments.likes_count, username AS "author" FROM comments
 			  INNER JOIN users ON users.id = comments.user_id
 			  LEFT JOIN likes ON likes.comment_id = comments.id
 			  WHERE comments.post_id = $1
 			  GROUP BY comments.id, users.id
-			  ORDER BY COALESCE(SUM(like_type), 0) DESC, created_at DESC`
+			  ORDER BY %s %s`, key, order)
 	err := r.db.Select(&comments, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -78,13 +78,23 @@ func (r *postRepository) ReadCommentsByPostID(id int) ([]models.CommentResponse,
 }
 
 func (r *postRepository) Create(post models.Post) error {
-	query := `INSERT INTO posts (header, body, user_id, topic_id) 
+	insertQuery := `INSERT INTO posts (header, body, user_id, topic_id) 
 			  VALUES (:header, :body, :user_id, :topic_id) RETURNING id`
 
 	tx := r.db.MustBegin()
-	_, err := tx.NamedExec(query, post)
+	defer tx.Rollback()
+
+	_, err := tx.NamedExec(insertQuery, post)
 	if err != nil {
 		tx.Rollback()
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	updateQuery := `UPDATE topics
+					SET posts_count = posts_count + 1
+					WHERE id = :topic_id`
+	_, err = tx.NamedExec(updateQuery, post)
+	if err != nil {
 		return fmt.Errorf("failed to execute query: %w", err)
 	}
 
@@ -127,6 +137,16 @@ func (r *postRepository) Update(post models.PostRequest) (int64, error) {
 }
 
 func (r *postRepository) Delete(id int) (int64, error) {
+	var topicID int
+	tx := r.db.MustBegin()
+	defer tx.Rollback()
+
+	searchQuery := `SELECT topic_id FROM posts WHERE id = $1`
+	err := tx.Get(&topicID, searchQuery, id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get topic id: %w", err)
+	}
+
 	query := "DELETE FROM posts WHERE id = $1"
 	result, err := r.db.Exec(query, id)
 
@@ -137,6 +157,18 @@ func (r *postRepository) Delete(id int) (int64, error) {
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	updateQuery := `UPDATE topics
+					SET posts_count = posts_count - 1
+					WHERE id = $1`
+	_, err = tx.Exec(updateQuery, topicID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit update transaction: %w", err)
 	}
 
 	return rowsAffected, nil

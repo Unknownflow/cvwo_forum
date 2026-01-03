@@ -7,8 +7,10 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import { readCommentsLikes } from "../api/commentLikes";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
+import SortOrder from "../types/SortOrder";
+import SortButton from "../components/SortButton";
 import { Box, Typography } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 const style = {
@@ -23,14 +25,16 @@ const style = {
 
 const Likes: React.FC = () => {
     const { user } = useUser();
+    const [postsOrder, setPostsOrder] = useState<SortOrder>("likes_count, desc");
+    const [commentsOrder, setCommentsOrder] = useState<SortOrder>("likes_count, desc");
 
     const {
         isLoading: isPostLikesLoading,
         isError: isPostLikesError,
         data: postData,
     } = useQuery({
-        queryKey: ["postLikes", user],
-        queryFn: readPostsLikes,
+        queryKey: ["postLikes", user, postsOrder],
+        queryFn: () => readPostsLikes(postsOrder),
     });
 
     const {
@@ -38,8 +42,8 @@ const Likes: React.FC = () => {
         isError: isCommentLikesError,
         data: commentData,
     } = useQuery({
-        queryKey: ["commentLikes", user],
-        queryFn: readCommentsLikes,
+        queryKey: ["commentLikes", user, commentsOrder],
+        queryFn: () => readCommentsLikes(commentsOrder),
     });
 
     return (
@@ -52,10 +56,11 @@ const Likes: React.FC = () => {
             {!postData && <Typography>No liked posts yet.</Typography>}
 
             <Box sx={style}>
+                {postData != null && <SortButton order={postsOrder} setOrder={setPostsOrder} />}
                 {!isPostLikesLoading &&
                     !isPostLikesError &&
                     postData?.map((post: Post) => (
-                        <PostItem key={post.id} post={post} topicID={post.topic_id.toString()} editable={true} />
+                        <PostItem key={post.id} post={post} topicID={post.topic_id} editable={true} />
                     ))}
             </Box>
 
@@ -67,10 +72,11 @@ const Likes: React.FC = () => {
             {!commentData && <Typography>No liked comments yet.</Typography>}
 
             <Box sx={style}>
+                {commentData != null && <SortButton order={commentsOrder} setOrder={setCommentsOrder} />}
                 {!isCommentLikesLoading &&
                     !isCommentLikesError &&
                     commentData?.map((comment: Comment) => (
-                        <CommentItem key={comment.id} comment={comment} postID={comment.post_id.toString()} />
+                        <CommentItem key={comment.id} comment={comment} postID={comment.post_id} />
                     ))}
             </Box>
         </Box>

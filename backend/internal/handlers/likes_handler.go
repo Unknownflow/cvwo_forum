@@ -22,7 +22,20 @@ func (h *LikesHandler) ReadPostLikes(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	posts, err := h.Service.GetAllPostLikesByUser(claims.ID)
+
+	key := r.URL.Query().Get("key")
+	if key != "likes_count" && key != "created_at" {
+		RespondError(w, http.StatusInternalServerError, "invalid key")
+		return
+	}
+
+	order := r.URL.Query().Get("order")
+	if order != "asc" && order != "desc" {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	posts, err := h.Service.GetAllPostLikesByUser(claims.ID, key, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
@@ -37,7 +50,20 @@ func (h *LikesHandler) ReadCommentLikes(w http.ResponseWriter, r *http.Request) 
 	if !ok {
 		return
 	}
-	posts, err := h.Service.GetAllCommentLikesByUser(claims.ID)
+
+	key := r.URL.Query().Get("key")
+	if key != "likes_count" && key != "created_at" {
+		RespondError(w, http.StatusInternalServerError, "invalid key")
+		return
+	}
+
+	order := r.URL.Query().Get("order")
+	if order != "asc" && order != "desc" {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	posts, err := h.Service.GetAllCommentLikesByUser(claims.ID, key, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
@@ -151,7 +177,14 @@ func (h *LikesHandler) DeletePostLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.DeletePostLike(claims.ID, postIDInt)
+	likeTypeQuery := r.URL.Query().Get("like_type")
+	likeType, err := strconv.Atoi(likeTypeQuery)
+	if likeType > 1 || likeType < -1 {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	err = h.Service.DeletePostLike(claims.ID, postIDInt, likeType)
 
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
@@ -162,7 +195,6 @@ func (h *LikesHandler) DeletePostLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4. Success Response
 	RespondJSON(w, http.StatusOK, map[string]string{
 		"message": "Post deleted successfully",
 		"id":      postID,
@@ -181,7 +213,14 @@ func (h *LikesHandler) DeleteCommentLike(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.Service.DeleteCommentLike(claims.ID, commentIDInt)
+	likeTypeQuery := r.URL.Query().Get("like_type")
+	likeType, err := strconv.Atoi(likeTypeQuery)
+	if likeType > 1 || likeType < -1 {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	err = h.Service.DeleteCommentLike(claims.ID, commentIDInt, likeType)
 
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
@@ -192,43 +231,8 @@ func (h *LikesHandler) DeleteCommentLike(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// 4. Success Response
 	RespondJSON(w, http.StatusOK, map[string]string{
 		"message": "Post deleted successfully",
 		"id":      commentID,
 	})
-}
-
-func (h *LikesHandler) ReadPostLikesCount(w http.ResponseWriter, r *http.Request) {
-	postID := chi.URLParam(r, "id")
-	postIDInt, err := strconv.Atoi(postID)
-	if err != nil {
-		RespondError(w, http.StatusBadRequest, "Invalid request param")
-		return
-	}
-
-	post, err := h.Service.GetPostLikesCount(postIDInt)
-
-	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	RespondJSON(w, http.StatusOK, post)
-}
-
-func (h *LikesHandler) ReadCommentLikesCount(w http.ResponseWriter, r *http.Request) {
-	commentID := chi.URLParam(r, "id")
-	commentIDInt, err := strconv.Atoi(commentID)
-	if err != nil {
-		RespondError(w, http.StatusBadRequest, "Invalid request param")
-		return
-	}
-
-	post, err := h.Service.GetCommentLikesCount(commentIDInt)
-
-	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	RespondJSON(w, http.StatusOK, post)
 }

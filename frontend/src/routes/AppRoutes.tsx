@@ -6,6 +6,7 @@ import Topics from "../pages/Topics";
 import TopicPosts from "../pages/TopicPosts";
 import PostComments from "../pages/PostComments";
 import Likes from "../pages/Likes";
+import PageNotFound from "../pages/PageNotFound";
 import { Route, Routes } from "react-router-dom";
 import React from "react";
 
@@ -21,6 +22,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="/topics/:id/posts" element={<TopicPosts />} />
                 <Route path="/topics/:topicID/posts/:postID/comments" element={<PostComments />} />
             </Route>
+            <Route path="*" element={<PageNotFound />} />
         </Routes>
     );
 };

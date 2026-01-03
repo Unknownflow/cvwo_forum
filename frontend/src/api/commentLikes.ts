@@ -3,8 +3,9 @@ import axiosInstance from "../utils/axios";
 
 const route = "/comments/likes/";
 
-const readCommentsLikes = async () => {
-    const response = await axiosInstance.get(route);
+const readCommentsLikes = async (order: string) => {
+    const orderArr = order.split(", ");
+    const response = await axiosInstance.get(`${route}?key=${orderArr[0]}&order=${orderArr[1]}`);
     return response.data;
 };
 
@@ -18,14 +19,9 @@ const createCommentLike = async (newCommentLike: CommentLike) => {
     return response.data;
 };
 
-const deleteCommentLike = async (id: number) => {
-    const response = await axiosInstance.delete(route + id);
+const deleteCommentLike = async (commentLike: CommentLike) => {
+    const response = await axiosInstance.delete(route + commentLike.id + "?like_type=" + commentLike.like_type);
     return response.data;
 };
 
-const readCommentLikesCount = async (id: number) => {
-    const response = await axiosInstance.get(route + id + "/count");
-    return response.data;
-};
-
-export { readCommentsLikes, readCommentLikes, createCommentLike, deleteCommentLike, readCommentLikesCount };
+export { readCommentsLikes, readCommentLikes, createCommentLike, deleteCommentLike };

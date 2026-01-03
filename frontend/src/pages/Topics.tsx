@@ -1,5 +1,5 @@
 import TopicItem from "../components/TopicItem";
-import Topic from "../types/Topic";
+import Topic, { TopicRequest } from "../types/Topic";
 import { readTopics } from "../api/topic";
 import { useCreateTopic } from "../hooks/topics";
 import useSnackBar from "../hooks/useSnackBar";
@@ -34,7 +34,7 @@ const Topics: React.FC = () => {
             return;
         }
 
-        const topic: Topic = { title: newTitle, author: user, id: -1 };
+        const topic: TopicRequest = { title: newTitle, author: user };
         createTopicMutation.mutate(topic, {
             onSuccess: () => {
                 handleModalClose();

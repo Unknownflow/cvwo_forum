@@ -10,7 +10,7 @@ import (
 type TopicService interface {
 	GetAllTopics() ([]models.TopicResponse, error)
 	GetTopicByID(id int) (models.TopicResponse, error)
-	GetAllPostsByTopicID(id int) ([]models.PostResponse, error)
+	GetAllPostsByTopicID(id int, key string, order string) ([]models.PostResponse, error)
 	CreateTopic(userID int, topic models.TopicRequest) error
 	UpdateTopic(topic models.TopicRequest) error
 	DeleteTopic(id int) error
@@ -44,8 +44,8 @@ func (s *topicService) GetTopicByID(id int) (models.TopicResponse, error) {
 	return topic, nil
 }
 
-func (s *topicService) GetAllPostsByTopicID(id int) ([]models.PostResponse, error) {
-	posts, err := s.topicRepo.ReadPostsByTopicID(id)
+func (s *topicService) GetAllPostsByTopicID(id int, key string, order string) ([]models.PostResponse, error) {
+	posts, err := s.topicRepo.ReadPostsByTopicID(id, key, order)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve posts: %w", err)

@@ -73,6 +73,11 @@ func (s *authService) GenerateRefreshExpiry(username string, refreshToken string
 		return err
 	}
 
+	err = s.repo.DeleteExpiredTokens()
+	if err != nil {
+		return err
+	}
+
 	// refresh token expire in 7 days
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
 	err = s.repo.SaveRefreshToken(user_id, refreshToken, expiresAt)

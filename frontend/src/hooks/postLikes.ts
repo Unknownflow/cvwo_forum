@@ -3,12 +3,13 @@ import PostLike from "../types/PostLike";
 import { createPostLike, deletePostLike } from "../api/postLikes";
 import { useMutation } from "@tanstack/react-query";
 
-const useCreatePostLike = (postID: number, topicID: string, username: string) => {
+const useCreatePostLike = (postID: number, topicID: number, username: string) => {
+    const queryKey = ["postLikes", postID, username];
+
     return useMutation({
         mutationFn: createPostLike,
         onMutate: async (newLike: PostLike) => {
             // Cancel any outgoing refetches
-            const queryKey = ["postLikes", postID, username];
             await queryClient.cancelQueries({ queryKey });
 
             // Snapshot prevd value
@@ -26,20 +27,21 @@ const useCreatePostLike = (postID: number, topicID: string, username: string) =>
         },
         onError: (error, newPost, context) => {
             // Rollback to previous state
-            queryClient.setQueryData(["postLikes", postID, username], context?.previousPostLike);
+            queryClient.setQueryData(queryKey, context?.previousPostLike);
         },
         onSettled: () => {
             // Sync with server (replaces temp ID with real ID)
-            queryClient.invalidateQueries({ queryKey: ["postLikes", postID, username] });
+            queryClient.invalidateQueries({ queryKey });
         },
     });
 };
 
-const useDeletePostLike = (postID: number, topicID: string, username: string) => {
+const useDeletePostLike = (postID: number, topicID: number, username: string) => {
+    const queryKey = ["postLikes", postID, username];
+
     return useMutation({
         mutationFn: deletePostLike,
         onMutate: async () => {
-            const queryKey = ["postLikes", postID, username];
             await queryClient.cancelQueries({ queryKey });
 
             // Snapshot previous value (single PostLike object, not array)
@@ -56,10 +58,10 @@ const useDeletePostLike = (postID: number, topicID: string, username: string) =>
             queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
         },
         onError: (err, postId, context) => {
-            queryClient.setQueryData(["postLikes", postID, username], context?.previousPostLike);
+            queryClient.setQueryData(queryKey, context?.previousPostLike);
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["postLikes", postID, username] });
+            queryClient.invalidateQueries({ queryKey });
         },
     });
 };
