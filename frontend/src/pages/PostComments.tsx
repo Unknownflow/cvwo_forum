@@ -22,8 +22,8 @@ import AddIcon from "@mui/icons-material/Add";
 
 const PostComments: React.FC = () => {
     const { topicID, postID } = useParams<{ topicID: string; postID: string }>();
-    const postIdNumber = Number(postID);
-    const topicIdNumber = Number(topicID);
+    const postIDNumber = Number(postID);
+    const topicIDNumber = Number(topicID);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [order, setOrder] = useState<SortOrder>("likes_count, desc");
@@ -32,15 +32,15 @@ const PostComments: React.FC = () => {
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
         body: "",
         author: user,
-        post_id: postIdNumber,
+        post_id: postIDNumber,
     });
     const {
         isLoading: isCommentsLoading,
         isError: isCommentsError,
         data: commentsData,
     } = useQuery({
-        queryKey: ["postComments", postIdNumber, order],
-        queryFn: () => readPostComments(postIdNumber, order),
+        queryKey: ["postComments", postIDNumber, order],
+        queryFn: () => readPostComments(postIDNumber, order),
         enabled: !!postID,
     });
     const {
@@ -48,8 +48,8 @@ const PostComments: React.FC = () => {
         isError: isPostError,
         data: postData,
     } = useQuery({
-        queryKey: ["posts", postIdNumber],
-        queryFn: () => readPost(postIdNumber),
+        queryKey: ["posts", postIDNumber],
+        queryFn: () => readPost(postIDNumber),
         enabled: !!postID,
     });
 
@@ -57,11 +57,11 @@ const PostComments: React.FC = () => {
         setNewCommentRequest({
             body: "",
             author: user,
-            post_id: postIdNumber,
+            post_id: postIDNumber,
         });
     };
 
-    const createCommentMutation = useCreateComment(postIdNumber, order);
+    const createCommentMutation = useCreateComment(postIDNumber, order);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -117,7 +117,7 @@ const PostComments: React.FC = () => {
             >
                 {!isPostLoading && !isPostError && (
                     <Box sx={{ mb: 1, width: "100%" }}>
-                        <PostItem post={postData} topicID={topicIdNumber} editable={false} />
+                        <PostItem post={postData} topicID={topicIDNumber} editable={false} />
                     </Box>
                 )}
 
@@ -128,7 +128,7 @@ const PostComments: React.FC = () => {
                 {commentsData != null && <SortButton order={order} setOrder={setOrder} />}
 
                 {commentsData?.map((comment: Comment) => (
-                    <CommentItem key={comment.id} postID={postIdNumber} comment={comment} />
+                    <CommentItem key={comment.id} postID={postIDNumber} comment={comment} />
                 ))}
 
                 <Fab

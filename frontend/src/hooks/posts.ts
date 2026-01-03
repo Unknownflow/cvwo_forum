@@ -85,7 +85,7 @@ const useDeletePost = (topicID: number) => {
     return useMutation({
         mutationFn: deletePost,
         // Optimistically update UI before server responds
-        onMutate: async (postId: number) => {
+        onMutate: async (postID: number) => {
             // Cancel any outgoing refetches
 
             await queryClient.cancelQueries({ queryKey });
@@ -94,7 +94,7 @@ const useDeletePost = (topicID: number) => {
             const previousPosts = queryClient.getQueryData<Post[]>(queryKey);
 
             // Optimistically update by removing post
-            queryClient.setQueryData<Post[]>(queryKey, (old) => old?.filter((t) => t.id !== postId) ?? []);
+            queryClient.setQueryData<Post[]>(queryKey, (old) => old?.filter((t) => t.id !== postID) ?? []);
 
             // Return context with snapshot
             return { previousPosts };
@@ -103,7 +103,7 @@ const useDeletePost = (topicID: number) => {
             queryClient.invalidateQueries({ queryKey: ["topic", topicID] });
         },
         // If mutation fails, rollback to prev value
-        onError: (err, postId, context) => {
+        onError: (err, postID, context) => {
             queryClient.setQueryData(queryKey, context?.previousPosts);
         },
         // Always refetch after error or success to sync with server

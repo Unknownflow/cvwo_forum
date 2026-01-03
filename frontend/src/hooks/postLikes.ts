@@ -57,7 +57,7 @@ const useDeletePostLike = (postID: number, topicID: number, username: string) =>
             queryClient.invalidateQueries({ queryKey: ["postLikes", username] });
             queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
         },
-        onError: (err, postId, context) => {
+        onError: (err, postID, context) => {
             queryClient.setQueryData(queryKey, context?.previousPostLike);
         },
         onSettled: () => {
