@@ -45,7 +45,7 @@ func (r *postRepository) ReadAll() ([]models.PostResponse, error) {
 func (r *postRepository) ReadByID(id int) (models.PostResponse, error) {
 	var post models.PostResponse
 	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, 
-			  posts.topic_id, posts.comments_count, username AS "author" FROM posts
+			  posts.topic_id, posts.comments_count, posts.likes_count, username AS "author" FROM posts
 			  INNER JOIN users ON users.id = posts.user_id
 			  WHERE posts.id = $1`
 	err := r.db.QueryRowx(query, id).StructScan(&post)
