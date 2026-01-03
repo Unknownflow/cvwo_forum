@@ -10,10 +10,11 @@ import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Button, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import TopicIcon from "@mui/icons-material/Topic";
 import Modal from "@mui/material/Modal";
+import AddIcon from "@mui/icons-material/Add";
 
 const Topics: React.FC = () => {
     const [newTitle, setNewTitle] = useState<string>("");
@@ -76,9 +77,15 @@ const Topics: React.FC = () => {
                 {data?.map((topic: Topic) => (
                     <TopicItem key={topic.id} topic={topic} editable={true} />
                 ))}
-                <Button onClick={handleModalOpen} disabled={isLoading} variant="outlined">
-                    Create topic
-                </Button>
+
+                <Fab
+                    color="primary"
+                    aria-label="create-topic"
+                    onClick={handleModalOpen}
+                    sx={{ position: "fixed", bottom: 24, right: 24 }}
+                >
+                    <AddIcon />
+                </Fab>
 
                 <Modal open={isModalOpen} onClose={handleModalClose}>
                     <Box sx={modalStyle}>
