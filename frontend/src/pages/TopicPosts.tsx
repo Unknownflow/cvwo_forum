@@ -10,7 +10,7 @@ import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
-import SortOrder from "../types/SortOrder";
+import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -24,14 +24,14 @@ const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const topicID = Number(id);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [order, setOrder] = useState<SortOrder>("likes_count, desc");
+    const [order, setOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newPostRequest, setNewPostRequest] = useState<PostRequest>({
         header: "",
         body: "",
         author: user,
-        topic_id: topicID,
+        topicID: topicID,
     });
     const {
         isLoading: isPostLoading,
@@ -56,7 +56,7 @@ const TopicPosts: React.FC = () => {
             header: "",
             body: "",
             author: user,
-            topic_id: topicID,
+            topicID: topicID,
         });
     };
     const createPostMutation = useCreatePost(topicID, order);

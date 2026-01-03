@@ -1,5 +1,5 @@
 import Comment from "./Comment";
 
-type CommentRequest = Omit<Comment, "id" | "created_at" | "likes_count">;
+type CommentRequest = Omit<Comment, "id" | "createdAt" | "likesCount">;
 
 export default CommentRequest;

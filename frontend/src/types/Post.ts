@@ -3,10 +3,10 @@ type Post = {
     header: string;
     body: string;
     author: string;
-    created_at: string;
-    topic_id: number;
-    likes_count: number;
-    comments_count: number;
+    createdAt: string;
+    topicID: number;
+    likesCount: number;
+    commentsCount: number;
 };
 
 export default Post;

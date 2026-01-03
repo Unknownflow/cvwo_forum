@@ -19,7 +19,7 @@ const useCreateTopic = () => {
             const optimisticTopic = {
                 ...topic,
                 id: -Date.now(),
-                posts_count: 0,
+                postsCount: 0,
             };
 
             queryClient.setQueryData<Topic[]>(queryKey, (old) => [...(old ?? []), optimisticTopic]);

@@ -20,8 +20,8 @@ const useCreateComment = (postID: number, order: string) => {
             const optimisticComment = {
                 ...comment,
                 id: -Date.now(),
-                created_at: new Date().toISOString(),
-                likes_count: 0,
+                createdAt: new Date().toISOString(),
+                likesCount: 0,
             };
 
             queryClient.setQueryData<Comment[]>(queryKey, (old) => [...(old ?? []), optimisticComment]);

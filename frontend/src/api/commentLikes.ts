@@ -20,7 +20,7 @@ const createCommentLike = async (newCommentLike: CommentLike) => {
 };
 
 const deleteCommentLike = async (commentLike: CommentLike) => {
-    const response = await axiosInstance.delete(route + commentLike.id + "?like_type=" + commentLike.like_type);
+    const response = await axiosInstance.delete(route + commentLike.id + "?like_type=" + commentLike.likeType);
     return response.data;
 };
 

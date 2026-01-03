@@ -99,7 +99,7 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                                     {comment.author} ·
                                 </Typography>
                                 <Typography variant="body1" color="text.secondary" component="p">
-                                    &nbsp;{formatDateTime(comment.created_at)}
+                                    &nbsp;{formatDateTime(comment.createdAt)}
                                 </Typography>
                             </Box>
                             <Typography variant="body1" color="textPrimary" component="p">
@@ -119,7 +119,7 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                         py: 1,
                     }}
                 >
-                    <CommentLikeAction commentID={comment.id} postID={postID} likesCount={comment.likes_count} />
+                    <CommentLikeAction commentID={comment.id} postID={postID} likesCount={comment.likesCount} />
                     {isEditable && (
                         <CardActions sx={{ flexShrink: 0, py: 0 }}>
                             {isEditing ? (

@@ -120,7 +120,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                                 {post.body}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" component="p">
-                                Posted by: {post.author}, {formatDateTime(post.created_at)}
+                                Posted by: {post.author}, {formatDateTime(post.createdAt)}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
@@ -137,7 +137,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                     }}
                 >
                     <Box sx={{ display: "flex", flexDirection: "col", gap: 1 }}>
-                        <PostLikeAction postID={post.id} topicID={topicID} likesCount={post.likes_count} />
+                        <PostLikeAction postID={post.id} topicID={topicID} likesCount={post.likesCount} />
                         <Box
                             onClick={handleNavigate}
                             sx={{
@@ -148,7 +148,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                                 "&:hover": { bgcolor: "background.default", cursor: "pointer" },
                             }}
                         >
-                            <CommentIcon /> {post.comments_count}
+                            <CommentIcon /> {post.commentsCount}
                         </Box>
                     </Box>
 

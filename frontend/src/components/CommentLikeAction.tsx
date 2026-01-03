@@ -29,7 +29,7 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID, likesCount }) =
     // Sync likeStatus with query data
     useEffect(() => {
         if (commentLikesData) {
-            setLikeStatus(commentLikesData.like_type);
+            setLikeStatus(commentLikesData.likeType);
         }
     }, [commentLikesData]);
 
@@ -39,14 +39,14 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID, likesCount }) =
     const handleLikeUpdate = () => {
         if (likeStatus === 1) {
             // Already liked, remove like
-            deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
+            deleteCommentLikeMutation.mutate({ id: commentID, commentID, likeType: likeStatus });
             setLikeStatus(0);
         } else {
             // Not liked or disliked, add like
             if (likeStatus === -1) {
-                deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
+                deleteCommentLikeMutation.mutate({ id: commentID, commentID, likeType: likeStatus });
             }
-            createCommentLikeMutation.mutate({ id: -1, comment_id: commentID, like_type: 1 });
+            createCommentLikeMutation.mutate({ id: -1, commentID, likeType: 1 });
             setLikeStatus(1);
         }
     };
@@ -54,14 +54,14 @@ const CommentLikeAction: React.FC<Props> = ({ commentID, postID, likesCount }) =
     const handleDislikeUpdate = () => {
         if (likeStatus === -1) {
             // Already disliked, remove dislike
-            deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
+            deleteCommentLikeMutation.mutate({ id: commentID, commentID, likeType: likeStatus });
             setLikeStatus(0);
         } else {
             // Not disliked or liked, add dislike
             if (likeStatus === 1) {
-                deleteCommentLikeMutation.mutate({ id: commentID, comment_id: commentID, like_type: likeStatus });
+                deleteCommentLikeMutation.mutate({ id: commentID, commentID, likeType: likeStatus });
             }
-            createCommentLikeMutation.mutate({ id: -1, comment_id: commentID, like_type: -1 });
+            createCommentLikeMutation.mutate({ id: -1, commentID, likeType: -1 });
             setLikeStatus(-1);
         }
     };

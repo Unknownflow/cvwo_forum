@@ -1,7 +1,7 @@
 type CommentLike = {
     id: number;
-    comment_id: number;
-    like_type: number;
+    commentID: number;
+    likeType: number;
 };
 
 export default CommentLike;

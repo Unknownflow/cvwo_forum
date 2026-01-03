@@ -48,7 +48,7 @@ const useDeletePostLike = (postID: number, topicID: number, username: string) =>
             const previousPostLike = queryClient.getQueryData<PostLike>(queryKey);
 
             // Optimistically set to null or default state since like is deleted
-            queryClient.setQueryData<PostLike>(queryKey, (old) => (old ? { ...old, like_type: 0 } : previousPostLike));
+            queryClient.setQueryData<PostLike>(queryKey, (old) => (old ? { ...old, likeType: 0 } : previousPostLike));
 
             return { previousPostLike };
         },

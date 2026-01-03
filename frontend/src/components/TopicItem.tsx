@@ -116,7 +116,7 @@ const TopicItem: React.FC<Props> = ({ topic, editable }) => {
                         }}
                     >
                         <ArticleIcon />
-                        {topic.posts_count}
+                        {topic.postsCount}
                     </Box>
                     {isEditable && (
                         <CardActions sx={{ flexShrink: 0, py: 0 }}>

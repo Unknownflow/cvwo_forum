@@ -7,7 +7,7 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import { readCommentsLikes } from "../api/commentLikes";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
-import SortOrder from "../types/SortOrder";
+import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
 import { Box, Typography } from "@mui/material";
 import React, { useState } from "react";
@@ -25,8 +25,8 @@ const style = {
 
 const Likes: React.FC = () => {
     const { user } = useUser();
-    const [postsOrder, setPostsOrder] = useState<SortOrder>("likes_count, desc");
-    const [commentsOrder, setCommentsOrder] = useState<SortOrder>("likes_count, desc");
+    const [postsOrder, setPostsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
+    const [commentsOrder, setCommentsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
 
     const {
         isLoading: isPostLikesLoading,
@@ -60,7 +60,7 @@ const Likes: React.FC = () => {
                 {!isPostLikesLoading &&
                     !isPostLikesError &&
                     postData?.map((post: Post) => (
-                        <PostItem key={post.id} post={post} topicID={post.topic_id} editable={true} />
+                        <PostItem key={post.id} post={post} topicID={post.topicID} editable={true} />
                     ))}
             </Box>
 
@@ -76,7 +76,7 @@ const Likes: React.FC = () => {
                 {!isCommentLikesLoading &&
                     !isCommentLikesError &&
                     commentData?.map((comment: Comment) => (
-                        <CommentItem key={comment.id} comment={comment} postID={comment.post_id} />
+                        <CommentItem key={comment.id} comment={comment} postID={comment.postID} />
                     ))}
             </Box>
         </Box>

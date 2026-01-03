@@ -21,9 +21,9 @@ const useCreatePost = (topicID: number, order: SortOrder) => {
             const optimisticPost = {
                 ...post,
                 id: -Date.now(),
-                created_at: new Date().toISOString(),
-                likes_count: 0,
-                comments_count: 0,
+                createdAt: new Date().toISOString(),
+                likesCount: 0,
+                commentsCount: 0,
             };
 
             queryClient.setQueryData<Post[]>(queryKey, (old) => [...(old ?? []), optimisticPost]);

@@ -30,7 +30,7 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID, likesCount }) => {
     // Sync likeStatus with query data
     useEffect(() => {
         if (postLikesData) {
-            setLikeStatus(postLikesData.like_type);
+            setLikeStatus(postLikesData.likeType);
         }
     }, [postLikesData]);
 
@@ -40,14 +40,14 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID, likesCount }) => {
     const handleLikeUpdate = () => {
         if (likeStatus === 1) {
             // Already liked, remove like
-            deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
+            deletePostLikeMutation.mutate({ id: postID, postID, likeType: likeStatus });
             setLikeStatus(0);
         } else {
             // Not liked or disliked, add like
             if (likeStatus === -1) {
-                deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
+                deletePostLikeMutation.mutate({ id: postID, postID, likeType: likeStatus });
             }
-            createPostLikeMutation.mutate({ id: -1, post_id: postID, like_type: 1 });
+            createPostLikeMutation.mutate({ id: -1, postID, likeType: 1 });
             setLikeStatus(1);
         }
     };
@@ -55,14 +55,14 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID, likesCount }) => {
     const handleDislikeUpdate = () => {
         if (likeStatus === -1) {
             // Already disliked, remove dislike
-            deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
+            deletePostLikeMutation.mutate({ id: postID, postID, likeType: likeStatus });
             setLikeStatus(0);
         } else {
             // Not disliked or liked, add dislike
             if (likeStatus === 1) {
-                deletePostLikeMutation.mutate({ id: postID, post_id: postID, like_type: likeStatus });
+                deletePostLikeMutation.mutate({ id: postID, postID, likeType: likeStatus });
             }
-            createPostLikeMutation.mutate({ id: -1, post_id: postID, like_type: -1 });
+            createPostLikeMutation.mutate({ id: -1, postID, likeType: -1 });
             setLikeStatus(-1);
         }
     };

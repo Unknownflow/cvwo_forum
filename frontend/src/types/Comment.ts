@@ -2,9 +2,9 @@ type Comment = {
     id: number;
     body: string;
     author: string;
-    created_at: string;
-    post_id: number;
-    likes_count: number;
+    createdAt: string;
+    postID: number;
+    likesCount: number;
 };
 
 export default Comment;

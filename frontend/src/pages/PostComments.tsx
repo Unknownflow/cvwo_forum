@@ -10,7 +10,7 @@ import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
-import SortOrder from "../types/SortOrder";
+import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
@@ -26,13 +26,13 @@ const PostComments: React.FC = () => {
     const topicIDNumber = Number(topicID);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [order, setOrder] = useState<SortOrder>("likes_count, desc");
+    const [order, setOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
         body: "",
         author: user,
-        post_id: postIDNumber,
+        postID: postIDNumber,
     });
     const {
         isLoading: isCommentsLoading,
@@ -57,7 +57,7 @@ const PostComments: React.FC = () => {
         setNewCommentRequest({
             body: "",
             author: user,
-            post_id: postIDNumber,
+            postID: postIDNumber,
         });
     };
 

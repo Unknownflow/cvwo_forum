@@ -49,7 +49,7 @@ const useDeleteCommentLike = (commentID: number, postID: number, username: strin
 
             // Optimistically set to null or default state since like is deleted
             queryClient.setQueryData<CommentLike>(queryKey, (old) =>
-                old ? { ...old, like_type: 0 } : previousCommentLike,
+                old ? { ...old, likeType: 0 } : previousCommentLike,
             );
 
             return { previousCommentLike };
