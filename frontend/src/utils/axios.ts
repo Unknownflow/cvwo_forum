@@ -33,6 +33,11 @@ axiosInstance.interceptors.response.use(
                 // console.log("Unauthorized - redirecting to login");
             }
 
+            // Handle server down error
+            if (error.message === "Network Error") {
+                return Promise.reject(new Error("Server is down"));
+            }
+
             // Extract error message from response
             const message = error.response?.data;
             console.error("API Error:", message);
