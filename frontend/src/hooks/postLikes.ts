@@ -23,7 +23,7 @@ const useCreatePostLike = (postID: number, topicID: number, username: string) =>
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["postLikes", username] });
             queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
-            queryClient.invalidateQueries({ queryKey: ["posts", postID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
         onError: (error, newPost, context) => {
             // Rollback to previous state
@@ -55,7 +55,7 @@ const useDeletePostLike = (postID: number, topicID: number, username: string) =>
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["postLikes", username] });
             queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
-            queryClient.invalidateQueries({ queryKey: ["posts", postID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
         onError: (err, postID, context) => {
             queryClient.setQueryData(queryKey, context?.previousPostLike);

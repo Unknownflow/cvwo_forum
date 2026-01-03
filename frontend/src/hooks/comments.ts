@@ -30,7 +30,7 @@ const useCreateComment = (postID: number, order: string) => {
             return { previousComments };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["posts", postID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
         onError: (error, newComment, context) => {
             // Rollback to previous state
@@ -96,7 +96,7 @@ const useDeleteComment = (postID: number) => {
             return { previousComments };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["posts", postID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
         // If mutation fails, rollback to prev value
         onError: (err, commentID, context) => {
