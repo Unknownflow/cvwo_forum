@@ -10,7 +10,6 @@ import (
 )
 
 type CommentRepository interface {
-	ReadAll() ([]models.CommentResponse, error)
 	ReadByID(id int) (models.CommentResponse, error)
 	Create(comment models.Comment) error
 	Update(comment models.Comment) (rowsAffected int64, err error)
@@ -23,21 +22,6 @@ type commentRepository struct {
 
 func NewCommentRepository(db *sqlx.DB) CommentRepository {
 	return &commentRepository{db: db}
-}
-
-func (r *commentRepository) ReadAll() ([]models.CommentResponse, error) {
-	var comments []models.CommentResponse
-	query := `SELECT comments.id, comments.body, comments.created_at,
-			  comments.post_id, username AS "author" FROM comments
-			  INNER JOIN users ON users.id = comments.user_id`
-	err := r.db.Select(&comments, query)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, sql.ErrNoRows
-		}
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-	return comments, nil
 }
 
 func (r *commentRepository) ReadByID(id int) (models.CommentResponse, error) {

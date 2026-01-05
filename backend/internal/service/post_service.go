@@ -9,7 +9,6 @@ import (
 )
 
 type PostService interface {
-	GetAllPosts() ([]models.PostResponse, error)
 	GetPostByID(id int) (models.PostResponse, error)
 	GetAllCommentsByPostID(id int, key string, order string) ([]models.CommentResponse, error)
 	CreatePost(userID int, post models.PostRequest) error
@@ -25,16 +24,6 @@ var ErrNotFound = errors.New("record not found")
 
 func NewPostService(postRepo repository.PostRepository) PostService {
 	return &postService{postRepo: postRepo}
-}
-
-func (s *postService) GetAllPosts() ([]models.PostResponse, error) {
-	posts, err := s.postRepo.ReadAll()
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve posts: %w", err)
-	}
-
-	return posts, nil
 }
 
 func (s *postService) GetPostByID(id int) (models.PostResponse, error) {

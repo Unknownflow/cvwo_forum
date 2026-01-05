@@ -3,11 +3,6 @@ import axiosInstance from "../utils/axios";
 
 const route = "/posts/";
 
-const readPosts = async () => {
-    const response = await axiosInstance.get(route);
-    return response.data;
-};
-
 const readPost = async (id: number) => {
     const response = await axiosInstance.get(route + id);
     return response.data;
@@ -34,4 +29,4 @@ const deletePost = async (id: number) => {
     return response.data;
 };
 
-export { readPosts, readPost, readPostComments, createPost, updatePost, deletePost };
+export { readPost, readPostComments, createPost, updatePost, deletePost };

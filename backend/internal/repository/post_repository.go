@@ -10,7 +10,6 @@ import (
 )
 
 type PostRepository interface {
-	ReadAll() ([]models.PostResponse, error)
 	ReadByID(id int) (models.PostResponse, error)
 	ReadCommentsByPostID(id int, key string, order string) ([]models.CommentResponse, error)
 	Create(post models.Post) error
@@ -24,22 +23,6 @@ type postRepository struct {
 
 func NewPostRepository(db *sqlx.DB) PostRepository {
 	return &postRepository{db: db}
-}
-
-func (r *postRepository) ReadAll() ([]models.PostResponse, error) {
-	var posts []models.PostResponse
-	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, 
-			  posts.topic_id, username AS "author" FROM posts
-			  INNER JOIN users ON users.id = posts.user_id`
-	err := r.db.Select(&posts, query)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, sql.ErrNoRows
-		}
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-
-	return posts, nil
 }
 
 func (r *postRepository) ReadByID(id int) (models.PostResponse, error) {
