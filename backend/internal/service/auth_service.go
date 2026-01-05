@@ -109,6 +109,12 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 		return nil, errors.New("failed to generate new tokens")
 	}
 
+	// Remove token
+	err = s.EndSession(oldRefreshToken)
+	if err != nil {
+		return nil, errors.New("failed to end sessio")
+	}
+
 	// Replace old refrsh token with a new one
 	err = s.GenerateRefreshExpiry(claims.Username, newTokenPair.RefreshToken)
 	if err != nil {
