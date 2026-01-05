@@ -1,5 +1,6 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
+import ErrorDisplay from "./ErrorDisplay";
 import Topic from "../types/Topic";
 import useSnackBar from "../hooks/useSnackBar";
 import { useDeleteTopic, useUpdateTopic } from "../hooks/topics";
@@ -69,6 +70,10 @@ const TopicItem: React.FC<Props> = ({ topic, editable }) => {
     };
 
     const isLoading = updateTopicMutation.isPending || deleteTopicMutation.isPending;
+
+    if (!topic) {
+        return <ErrorDisplay type="topic" />;
+    }
 
     return (
         <Card key={topic.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>

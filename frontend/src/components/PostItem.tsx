@@ -1,6 +1,7 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
 import PostLikeAction from "./PostLikeAction";
+import ErrorDisplay from "./ErrorDisplay";
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
@@ -75,6 +76,10 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
     };
 
     const isLoading = updatePostMutation.isPending || deletePostMutation.isPending;
+
+    if (!post) {
+        return <ErrorDisplay type="post" />;
+    }
 
     return (
         <Card key={post.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>

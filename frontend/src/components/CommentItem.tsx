@@ -1,6 +1,7 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
 import CommentLikeAction from "./CommentLikeAction";
+import ErrorDisplay from "./ErrorDisplay";
 import Comment from "../types/Comment";
 import { useDeleteComment, useUpdateComment } from "../hooks/comments";
 import useSnackBar from "../hooks/useSnackBar";
@@ -66,6 +67,10 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
     };
 
     const isLoading = updateCommentMutation.isPending || deleteCommentMutation.isPending;
+
+    if (!comment) {
+        return <ErrorDisplay type="comment" />;
+    }
 
     return (
         <Card key={comment.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
