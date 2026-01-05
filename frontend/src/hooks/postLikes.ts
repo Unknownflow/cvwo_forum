@@ -1,5 +1,5 @@
 import { queryClient } from "../App";
-import PostLike from "../types/PostLike";
+import PostLike, { PostLikeRequest } from "../types/PostLike";
 import { createPostLike, deletePostLike } from "../api/postLikes";
 import { useMutation } from "@tanstack/react-query";
 
@@ -8,12 +8,17 @@ const useCreatePostLike = (postID: number, topicID: number, username: string) =>
 
     return useMutation({
         mutationFn: createPostLike,
-        onMutate: async (newLike: PostLike) => {
+        onMutate: async (newLikeReq: PostLikeRequest) => {
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey });
 
             // Snapshot prevd value
             const previousPostLike = queryClient.getQueryData<PostLike>(queryKey);
+
+            const newLike = {
+                ...newLikeReq,
+                id: -Date.now(),
+            };
 
             queryClient.setQueryData<PostLike>(queryKey, newLike);
 

@@ -4,4 +4,6 @@ type CommentLike = {
     likeType: number;
 };
 
+export type CommentLikeRequest = Omit<CommentLike, "id">;
+
 export default CommentLike;

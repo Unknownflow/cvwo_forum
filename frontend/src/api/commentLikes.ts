@@ -1,4 +1,4 @@
-import CommentLike from "../types/CommentLike";
+import CommentLike, { CommentLikeRequest } from "../types/CommentLike";
 import axiosInstance from "../utils/axios";
 
 const route = "/comments/likes/";
@@ -14,7 +14,7 @@ const readCommentLikes = async (id: number) => {
     return response.data;
 };
 
-const createCommentLike = async (newCommentLike: CommentLike) => {
+const createCommentLike = async (newCommentLike: CommentLikeRequest) => {
     const response = await axiosInstance.post(route, newCommentLike);
     return response.data;
 };

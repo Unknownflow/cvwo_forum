@@ -47,7 +47,7 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID, likesCount }) => {
             if (likeStatus === -1) {
                 deletePostLikeMutation.mutate({ id: postID, postID, likeType: likeStatus });
             }
-            createPostLikeMutation.mutate({ id: -1, postID, likeType: 1 });
+            createPostLikeMutation.mutate({ postID, likeType: 1 });
             setLikeStatus(1);
         }
     };
@@ -62,7 +62,7 @@ const PostLikeAction: React.FC<Props> = ({ postID, topicID, likesCount }) => {
             if (likeStatus === 1) {
                 deletePostLikeMutation.mutate({ id: postID, postID, likeType: likeStatus });
             }
-            createPostLikeMutation.mutate({ id: -1, postID, likeType: -1 });
+            createPostLikeMutation.mutate({ postID, likeType: -1 });
             setLikeStatus(-1);
         }
     };

@@ -1,4 +1,4 @@
-import PostLike from "../types/PostLike";
+import PostLike, { PostLikeRequest } from "../types/PostLike";
 import axiosInstance from "../utils/axios";
 
 const route = "/posts/likes/";
@@ -14,7 +14,7 @@ const readPostLikes = async (id: number) => {
     return response.data;
 };
 
-const createPostLike = async (newPostLike: PostLike) => {
+const createPostLike = async (newPostLike: PostLikeRequest) => {
     const response = await axiosInstance.post(route, newPostLike);
     return response.data;
 };
