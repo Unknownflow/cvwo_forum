@@ -11,10 +11,11 @@ import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
 import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
+import SearchBox from "../components/SearchBox";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Fab, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import CommentIcon from "@mui/icons-material/Comment";
 import AddIcon from "@mui/icons-material/Add";
@@ -25,6 +26,7 @@ const PostComments: React.FC = () => {
     const topicIDNumber = Number(topicID);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [searchTerm, setSearchTerm] = useState<string>("");
     const [order, setOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
@@ -38,8 +40,8 @@ const PostComments: React.FC = () => {
         isError: isCommentsError,
         data: commentsData,
     } = useQuery({
-        queryKey: ["postComments", postIDNumber, order],
-        queryFn: () => readPostComments(postIDNumber, order),
+        queryKey: ["postComments", postIDNumber, order, searchTerm],
+        queryFn: () => readPostComments(postIDNumber, order, searchTerm),
         enabled: !!postID,
     });
     const {
@@ -120,11 +122,14 @@ const PostComments: React.FC = () => {
                     </Box>
                 )}
 
+                <Stack direction="row" spacing={3} sx={{ width: "100%" }}>
+                    <SortButton order={order} setOrder={setOrder} />
+                    <SearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} type="comments" />
+                </Stack>
+
                 {!isCommentsError && !isCommentsLoading && commentsData == null && (
                     <Typography>No comments yet.</Typography>
                 )}
-
-                {commentsData != null && <SortButton order={order} setOrder={setOrder} />}
 
                 {commentsData?.map((comment: Comment) => (
                     <CommentItem key={comment.id} postID={postIDNumber} comment={comment} />

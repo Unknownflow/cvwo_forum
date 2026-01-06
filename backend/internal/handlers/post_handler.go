@@ -53,7 +53,8 @@ func (h *PostHandler) ReadPostComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comments, err := h.Service.GetAllCommentsByPostID(postIDInt, key, order)
+	searchTerm := r.URL.Query().Get("searchTerm")
+	comments, err := h.Service.GetAllCommentsByPostID(postIDInt, key, order, searchTerm)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())

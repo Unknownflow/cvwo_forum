@@ -11,9 +11,10 @@ import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
 import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
+import SearchBox from "../components/SearchBox";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Fab, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -23,6 +24,7 @@ const TopicPosts: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const topicID = Number(id);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [searchTerm, setSearchTerm] = useState<string>("");
     const [order, setOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
@@ -37,8 +39,8 @@ const TopicPosts: React.FC = () => {
         isError: isPostError,
         data: postsData,
     } = useQuery({
-        queryKey: ["topicPosts", topicID, order],
-        queryFn: () => readTopicPosts(topicID, order),
+        queryKey: ["topicPosts", topicID, order, searchTerm],
+        queryFn: () => readTopicPosts(topicID, order, searchTerm),
         enabled: !!id,
     });
     const {
@@ -116,9 +118,12 @@ const TopicPosts: React.FC = () => {
                     </Box>
                 )}
 
-                {!isPostError && !isPostLoading && postsData == null && <Typography>No posts yet.</Typography>}
+                <Stack direction="row" spacing={3} sx={{ width: "100%" }}>
+                    <SortButton order={order} setOrder={setOrder} />
+                    <SearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} type="posts" />
+                </Stack>
 
-                {postsData != null && <SortButton order={order} setOrder={setOrder} />}
+                {!isPostError && !isPostLoading && postsData == null && <Typography>No posts found.</Typography>}
 
                 {postsData?.map((post: Post) => (
                     <PostItem key={post.id} topicID={topicID} post={post} editable={true} />
