@@ -59,9 +59,7 @@ const Likes: React.FC = () => {
                 {postData != null && <SortButton order={postsOrder} setOrder={setPostsOrder} />}
                 {!isPostLikesLoading &&
                     !isPostLikesError &&
-                    postData?.map((post: Post) => (
-                        <PostItem key={post.id} post={post} topicID={post.topicID} editable={true} />
-                    ))}
+                    postData?.map((post: Post) => <PostItem key={post.id} post={post} editable={true} />)}
             </Box>
 
             <Typography variant="h6" component="h1" gutterBottom>
@@ -75,9 +73,7 @@ const Likes: React.FC = () => {
                 {commentData != null && <SortButton order={commentsOrder} setOrder={setCommentsOrder} />}
                 {!isCommentLikesLoading &&
                     !isCommentLikesError &&
-                    commentData?.map((comment: Comment) => (
-                        <CommentItem key={comment.id} comment={comment} postID={comment.postID} />
-                    ))}
+                    commentData?.map((comment: Comment) => <CommentItem key={comment.id} comment={comment} />)}
             </Box>
         </Box>
     );

@@ -126,7 +126,7 @@ const TopicPosts: React.FC = () => {
                 {!isPostError && !isPostLoading && postsData == null && <Typography>No posts found.</Typography>}
 
                 {postsData?.map((post: Post) => (
-                    <PostItem key={post.id} topicID={topicID} post={post} editable={true} />
+                    <PostItem key={post.id} post={post} editable={true} />
                 ))}
 
                 <Fab

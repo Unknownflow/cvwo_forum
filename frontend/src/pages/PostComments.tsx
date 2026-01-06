@@ -21,9 +21,8 @@ import CommentIcon from "@mui/icons-material/Comment";
 import AddIcon from "@mui/icons-material/Add";
 
 const PostComments: React.FC = () => {
-    const { topicID, postID } = useParams<{ topicID: string; postID: string }>();
-    const postIDNumber = Number(postID);
-    const topicIDNumber = Number(topicID);
+    const { topicID, postID: postIDStr } = useParams<{ topicID: string; postID: string }>();
+    const postID = Number(postIDStr);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -33,36 +32,36 @@ const PostComments: React.FC = () => {
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
         body: "",
         author: user,
-        postID: postIDNumber,
+        postID: postID,
     });
     const {
         isLoading: isCommentsLoading,
         isError: isCommentsError,
         data: commentsData,
     } = useQuery({
-        queryKey: ["postComments", postIDNumber, order, searchTerm],
-        queryFn: () => readPostComments(postIDNumber, order, searchTerm),
-        enabled: !!postID,
+        queryKey: ["postComments", postID, order, searchTerm],
+        queryFn: () => readPostComments(postID, order, searchTerm),
+        enabled: !!postIDStr,
     });
     const {
         isLoading: isPostLoading,
         isError: isPostError,
         data: postData,
     } = useQuery({
-        queryKey: ["post", postIDNumber],
-        queryFn: () => readPost(postIDNumber),
-        enabled: !!postID,
+        queryKey: ["post", postID],
+        queryFn: () => readPost(postID),
+        enabled: !!postIDStr,
     });
 
     const resetForm = () => {
         setNewCommentRequest({
             body: "",
             author: user,
-            postID: postIDNumber,
+            postID: postID,
         });
     };
 
-    const createCommentMutation = useCreateComment(postIDNumber, order);
+    const createCommentMutation = useCreateComment(postID, order);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -118,7 +117,7 @@ const PostComments: React.FC = () => {
             >
                 {!isPostLoading && !isPostError && (
                     <Box sx={{ mb: 1, width: "100%" }}>
-                        <PostItem post={postData} topicID={topicIDNumber} editable={false} />
+                        <PostItem post={postData} editable={false} />
                     </Box>
                 )}
 
@@ -132,7 +131,7 @@ const PostComments: React.FC = () => {
                 )}
 
                 {commentsData?.map((comment: Comment) => (
-                    <CommentItem key={comment.id} postID={postIDNumber} comment={comment} />
+                    <CommentItem key={comment.id} comment={comment} />
                 ))}
 
                 <Fab

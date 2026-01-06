@@ -12,15 +12,14 @@ import { Box, Card, CardActions, CardContent, Snackbar, TextField, Typography } 
 
 type Props = {
     comment: Comment;
-    postID: number;
 };
 
-const CommentItem: React.FC<Props> = ({ comment, postID }) => {
+const CommentItem: React.FC<Props> = ({ comment }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedComment, setEditedComment] = useState<{ body: string }>({ body: "" });
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
-    const updateCommentMutation = useUpdateComment(postID);
-    const deleteCommentMutation = useDeleteComment(postID);
+    const updateCommentMutation = useUpdateComment(comment.postID);
+    const deleteCommentMutation = useDeleteComment(comment.postID);
     const { user } = useUser();
     const isEditable = comment.author == user;
 
@@ -124,7 +123,7 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                         py: 1,
                     }}
                 >
-                    <CommentLikeAction commentID={comment.id} postID={postID} likesCount={comment.likesCount} />
+                    <CommentLikeAction commentID={comment.id} postID={comment.postID} likesCount={comment.likesCount} />
                     {isEditable && (
                         <CardActions sx={{ flexShrink: 0, py: 0 }}>
                             {isEditing ? (

@@ -14,22 +14,21 @@ import CommentIcon from "@mui/icons-material/Comment";
 
 type Props = {
     post: Post;
-    topicID: number;
     editable: boolean;
 };
 
-const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
+const PostItem: React.FC<Props> = ({ post, editable }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedPost, setEditedPost] = useState<{ header: string; body: string }>({ header: "", body: "" });
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const navigate = useNavigate();
-    const updatePostMutation = useUpdatePost(topicID);
-    const deletePostMutation = useDeletePost(topicID);
+    const updatePostMutation = useUpdatePost(post.topicID);
+    const deletePostMutation = useDeletePost(post.topicID);
     const { user } = useUser();
     const isEditable = editable && post.author == user;
 
     const handleNavigate = () => {
-        navigate("/topics/" + topicID + "/posts/" + post.id + "/comments");
+        navigate("/topics/" + post.topicID + "/posts/" + post.id + "/comments");
     };
 
     const handleConfirmEdit = () => {
@@ -142,7 +141,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                     }}
                 >
                     <Box sx={{ display: "flex", flexDirection: "col", gap: 1 }}>
-                        <PostLikeAction postID={post.id} topicID={topicID} likesCount={post.likesCount} />
+                        <PostLikeAction postID={post.id} topicID={post.topicID} likesCount={post.likesCount} />
                         <Box
                             onClick={handleNavigate}
                             sx={{
