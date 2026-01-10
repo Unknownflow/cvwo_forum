@@ -1,7 +1,6 @@
 import { createComment, deleteComment, updateComment } from "../api/comments";
 import { queryClient } from "../App";
-import Comment from "../types/Comment";
-import CommentRequest from "../types/CommentRequest";
+import Comment, { CommentRequest } from "../types/Comment";
 import { useMutation } from "@tanstack/react-query";
 
 const useCreateComment = (postID: number, order: string) => {
@@ -20,8 +19,9 @@ const useCreateComment = (postID: number, order: string) => {
             const optimisticComment = {
                 ...comment,
                 id: -Date.now(),
-                created_at: new Date().toISOString(),
-                likes_count: 0,
+                topicID: -1,
+                createdAt: new Date().toISOString(),
+                likesCount: 0,
             };
 
             queryClient.setQueryData<Comment[]>(queryKey, (old) => [...(old ?? []), optimisticComment]);
@@ -30,7 +30,7 @@ const useCreateComment = (postID: number, order: string) => {
             return { previousComments };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["posts", postID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
         onError: (error, newComment, context) => {
             // Rollback to previous state
@@ -96,7 +96,7 @@ const useDeleteComment = (postID: number) => {
             return { previousComments };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["posts", postID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
         // If mutation fails, rollback to prev value
         onError: (err, commentID, context) => {

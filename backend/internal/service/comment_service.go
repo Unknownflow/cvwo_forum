@@ -8,7 +8,6 @@ import (
 )
 
 type CommentService interface {
-	GetAllComments() ([]models.CommentResponse, error)
 	GetCommentByID(id int) (models.CommentResponse, error)
 	CreateComment(userID int, comment models.CommentRequest) error
 	UpdateComment(comment models.CommentRequest) error
@@ -21,16 +20,6 @@ type commentService struct {
 
 func NewCommentService(commentRepo repository.CommentRepository) CommentService {
 	return &commentService{commentRepo: commentRepo}
-}
-
-func (s *commentService) GetAllComments() ([]models.CommentResponse, error) {
-	comments, err := s.commentRepo.ReadAll()
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve comments: %w", err)
-	}
-
-	return comments, nil
 }
 
 func (s *commentService) GetCommentByID(id int) (models.CommentResponse, error) {

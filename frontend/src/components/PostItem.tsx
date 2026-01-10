@@ -1,6 +1,7 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
 import PostLikeAction from "./PostLikeAction";
+import ErrorDisplay from "./ErrorDisplay";
 import Post from "../types/Post";
 import { useDeletePost, useUpdatePost } from "../hooks/posts";
 import useSnackBar from "../hooks/useSnackBar";
@@ -13,22 +14,21 @@ import CommentIcon from "@mui/icons-material/Comment";
 
 type Props = {
     post: Post;
-    topicID: number;
     editable: boolean;
 };
 
-const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
+const PostItem: React.FC<Props> = ({ post, editable }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedPost, setEditedPost] = useState<{ header: string; body: string }>({ header: "", body: "" });
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const navigate = useNavigate();
-    const updatePostMutation = useUpdatePost(topicID);
-    const deletePostMutation = useDeletePost(topicID);
+    const updatePostMutation = useUpdatePost(post.topicID);
+    const deletePostMutation = useDeletePost(post.topicID);
     const { user } = useUser();
     const isEditable = editable && post.author == user;
 
     const handleNavigate = () => {
-        navigate("/topics/" + topicID + "/posts/" + post.id + "/comments");
+        navigate("/topics/" + post.topicID + "/posts/" + post.id + "/comments");
     };
 
     const handleConfirmEdit = () => {
@@ -76,6 +76,10 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
 
     const isLoading = updatePostMutation.isPending || deletePostMutation.isPending;
 
+    if (!post) {
+        return <ErrorDisplay type="post" />;
+    }
+
     return (
         <Card key={post.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
             <Box
@@ -120,7 +124,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                                 {post.body}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" component="p">
-                                Posted by: {post.author}, {formatDateTime(post.created_at)}
+                                Posted by: {post.author}, {formatDateTime(post.createdAt)}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
@@ -137,7 +141,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                     }}
                 >
                     <Box sx={{ display: "flex", flexDirection: "col", gap: 1 }}>
-                        <PostLikeAction postID={post.id} topicID={topicID} likesCount={post.likes_count} />
+                        <PostLikeAction postID={post.id} topicID={post.topicID} likesCount={post.likesCount} />
                         <Box
                             onClick={handleNavigate}
                             sx={{
@@ -148,7 +152,7 @@ const PostItem: React.FC<Props> = ({ post, topicID, editable }) => {
                                 "&:hover": { bgcolor: "background.default", cursor: "pointer" },
                             }}
                         >
-                            <CommentIcon /> {post.comments_count}
+                            <CommentIcon /> {post.commentsCount}
                         </Box>
                     </Box>
 

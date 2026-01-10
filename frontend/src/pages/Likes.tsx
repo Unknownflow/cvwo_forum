@@ -7,11 +7,12 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import { readCommentsLikes } from "../api/commentLikes";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
-import SortOrder from "../types/SortOrder";
+import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
-import { Box, Typography } from "@mui/material";
+import { Box, Link, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link as RouterLink } from "react-router-dom";
 
 const style = {
     display: "flex",
@@ -25,8 +26,8 @@ const style = {
 
 const Likes: React.FC = () => {
     const { user } = useUser();
-    const [postsOrder, setPostsOrder] = useState<SortOrder>("likes_count, desc");
-    const [commentsOrder, setCommentsOrder] = useState<SortOrder>("likes_count, desc");
+    const [postsOrder, setPostsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
+    const [commentsOrder, setCommentsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
 
     const {
         isLoading: isPostLikesLoading,
@@ -52,7 +53,7 @@ const Likes: React.FC = () => {
                 Liked Posts
             </Typography>
             {isPostLikesLoading && <LoadingDisplay />}
-            {isPostLikesError && <ErrorDisplay type="liked posts" />}
+            {isPostLikesError && <ErrorDisplay type={"liked posts"} />}
             {!postData && <Typography>No liked posts yet.</Typography>}
 
             <Box sx={style}>
@@ -60,7 +61,17 @@ const Likes: React.FC = () => {
                 {!isPostLikesLoading &&
                     !isPostLikesError &&
                     postData?.map((post: Post) => (
-                        <PostItem key={post.id} post={post} topicID={post.topic_id} editable={true} />
+                        <Stack sx={{ width: "100%" }} key={post.id}>
+                            <Link
+                                component={RouterLink}
+                                to={"/topics/" + post.topicID + "/posts"}
+                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
+                                underline="hover"
+                            >
+                                {post.title}
+                            </Link>
+                            <PostItem post={post} editable={true} />
+                        </Stack>
                     ))}
             </Box>
 
@@ -76,7 +87,17 @@ const Likes: React.FC = () => {
                 {!isCommentLikesLoading &&
                     !isCommentLikesError &&
                     commentData?.map((comment: Comment) => (
-                        <CommentItem key={comment.id} comment={comment} postID={comment.post_id} />
+                        <Stack sx={{ width: "100%" }} key={comment.id}>
+                            <Link
+                                component={RouterLink}
+                                to={"/topics/" + comment.topicID + "/posts/" + comment.postID + "/comments"}
+                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
+                                underline="hover"
+                            >
+                                {comment.header}
+                            </Link>
+                            <CommentItem key={comment.id} comment={comment} />
+                        </Stack>
                     ))}
             </Box>
         </Box>

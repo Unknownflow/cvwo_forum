@@ -1,13 +1,7 @@
-import Comment from "../types/Comment";
-import CommentRequest from "../types/CommentRequest";
+import Comment, { CommentRequest } from "../types/Comment";
 import axiosInstance from "../utils/axios";
 
 const route = "/comments/";
-
-const readComments = async () => {
-    const response = await axiosInstance.get(route);
-    return response.data;
-};
 
 const readComment = async (id: number) => {
     const response = await axiosInstance.get(route + id);
@@ -29,4 +23,4 @@ const deleteComment = async (id: number) => {
     return response.data;
 };
 
-export { readComments, readComment, createComment, updateComment, deleteComment };
+export { readComment, createComment, updateComment, deleteComment };

@@ -1,5 +1,5 @@
 import { queryClient } from "../App";
-import CommentLike from "../types/CommentLike";
+import CommentLike, { CommentLikeRequest } from "../types/CommentLike";
 import { createCommentLike, deleteCommentLike } from "../api/commentLikes";
 import { useMutation } from "@tanstack/react-query";
 
@@ -8,12 +8,17 @@ const useCreateCommentLike = (commentID: number, postID: number, username: strin
 
     return useMutation({
         mutationFn: createCommentLike,
-        onMutate: async (newLike: CommentLike) => {
+        onMutate: async (newLikeReq: CommentLikeRequest) => {
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey });
 
-            // Snapshot prevd value
+            // Snapshot prev value
             const previousCommentLike = queryClient.getQueryData<CommentLike>(queryKey);
+
+            const newLike = {
+                ...newLikeReq,
+                id: -Date.now(),
+            };
 
             queryClient.setQueryData<CommentLike>(queryKey, newLike);
 
@@ -49,7 +54,7 @@ const useDeleteCommentLike = (commentID: number, postID: number, username: strin
 
             // Optimistically set to null or default state since like is deleted
             queryClient.setQueryData<CommentLike>(queryKey, (old) =>
-                old ? { ...old, like_type: 0 } : previousCommentLike,
+                old ? { ...old, likeType: 0 } : previousCommentLike,
             );
 
             return { previousCommentLike };

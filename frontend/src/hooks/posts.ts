@@ -1,7 +1,6 @@
 import { createPost, deletePost, updatePost } from "../api/post";
-import PostRequest from "../types/PostRequest";
 import { queryClient } from "../App";
-import Post from "../types/Post";
+import Post, { PostRequest } from "../types/Post";
 import SortOrder from "../types/SortOrder";
 import { useMutation } from "@tanstack/react-query";
 
@@ -21,9 +20,9 @@ const useCreatePost = (topicID: number, order: SortOrder) => {
             const optimisticPost = {
                 ...post,
                 id: -Date.now(),
-                created_at: new Date().toISOString(),
-                likes_count: 0,
-                comments_count: 0,
+                createdAt: new Date().toISOString(),
+                likesCount: 0,
+                commentsCount: 0,
             };
 
             queryClient.setQueryData<Post[]>(queryKey, (old) => [...(old ?? []), optimisticPost]);
@@ -85,7 +84,7 @@ const useDeletePost = (topicID: number) => {
     return useMutation({
         mutationFn: deletePost,
         // Optimistically update UI before server responds
-        onMutate: async (postId: number) => {
+        onMutate: async (postID: number) => {
             // Cancel any outgoing refetches
 
             await queryClient.cancelQueries({ queryKey });
@@ -94,7 +93,7 @@ const useDeletePost = (topicID: number) => {
             const previousPosts = queryClient.getQueryData<Post[]>(queryKey);
 
             // Optimistically update by removing post
-            queryClient.setQueryData<Post[]>(queryKey, (old) => old?.filter((t) => t.id !== postId) ?? []);
+            queryClient.setQueryData<Post[]>(queryKey, (old) => old?.filter((t) => t.id !== postID) ?? []);
 
             // Return context with snapshot
             return { previousPosts };
@@ -103,7 +102,7 @@ const useDeletePost = (topicID: number) => {
             queryClient.invalidateQueries({ queryKey: ["topic", topicID] });
         },
         // If mutation fails, rollback to prev value
-        onError: (err, postId, context) => {
+        onError: (err, postID, context) => {
             queryClient.setQueryData(queryKey, context?.previousPosts);
         },
         // Always refetch after error or success to sync with server

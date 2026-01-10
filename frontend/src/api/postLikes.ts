@@ -1,4 +1,4 @@
-import PostLike from "../types/PostLike";
+import PostLike, { PostLikeRequest } from "../types/PostLike";
 import axiosInstance from "../utils/axios";
 
 const route = "/posts/likes/";
@@ -14,13 +14,13 @@ const readPostLikes = async (id: number) => {
     return response.data;
 };
 
-const createPostLike = async (newPostLike: PostLike) => {
+const createPostLike = async (newPostLike: PostLikeRequest) => {
     const response = await axiosInstance.post(route, newPostLike);
     return response.data;
 };
 
 const deletePostLike = async (postLike: PostLike) => {
-    const response = await axiosInstance.delete(route + postLike.id + "?like_type=" + postLike.like_type);
+    const response = await axiosInstance.delete(route + postLike.id + "?like_type=" + postLike.likeType);
     return response.data;
 };
 

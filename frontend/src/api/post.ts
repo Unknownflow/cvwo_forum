@@ -1,22 +1,18 @@
-import Post from "../types/Post";
-import PostRequest from "../types/PostRequest";
+import Post, { PostRequest } from "../types/Post";
 import axiosInstance from "../utils/axios";
 
 const route = "/posts/";
-
-const readPosts = async () => {
-    const response = await axiosInstance.get(route);
-    return response.data;
-};
 
 const readPost = async (id: number) => {
     const response = await axiosInstance.get(route + id);
     return response.data;
 };
 
-const readPostComments = async (id: number, order: string) => {
+const readPostComments = async (id: number, order: string, searchTerm: string) => {
     const orderArr = order.split(", ");
-    const response = await axiosInstance.get(`${route}${id}/comments?key=${orderArr[0]}&order=${orderArr[1]}`);
+    const response = await axiosInstance.get(
+        `${route}${id}/comments?key=${orderArr[0]}&order=${orderArr[1]}&searchTerm=${searchTerm}`,
+    );
     return response.data;
 };
 
@@ -35,4 +31,4 @@ const deletePost = async (id: number) => {
     return response.data;
 };
 
-export { readPosts, readPost, readPostComments, createPost, updatePost, deletePost };
+export { readPost, readPostComments, createPost, updatePost, deletePost };

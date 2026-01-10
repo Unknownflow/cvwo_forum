@@ -1,8 +1,7 @@
-import CommentRequest from "../types/CommentRequest";
 import { readPost, readPostComments } from "../api/post";
 import { useCreateComment } from "../hooks/comments";
 import CommentItem from "../components/CommentItem";
-import Comment from "../types/Comment";
+import Comment, { CommentRequest } from "../types/Comment";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
 import PostItem from "../components/PostItem";
@@ -10,58 +9,59 @@ import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
-import SortOrder from "../types/SortOrder";
+import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
+import SearchBox from "../components/SearchBox";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
+import { Box, Fab, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import CommentIcon from "@mui/icons-material/Comment";
 import AddIcon from "@mui/icons-material/Add";
 
 const PostComments: React.FC = () => {
-    const { topicID, postID } = useParams<{ topicID: string; postID: string }>();
-    const postIdNumber = Number(postID);
-    const topicIdNumber = Number(topicID);
+    const { topicID, postID: postIDStr } = useParams<{ topicID: string; postID: string }>();
+    const postID = Number(postIDStr);
     const prevPageLink = `/topics/${topicID}/posts`;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [order, setOrder] = useState<SortOrder>("likes_count, desc");
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [order, setOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const { user } = useUser();
     const [newCommentRequest, setNewCommentRequest] = useState<CommentRequest>({
         body: "",
         author: user,
-        post_id: postIdNumber,
+        postID: postID,
     });
     const {
         isLoading: isCommentsLoading,
         isError: isCommentsError,
         data: commentsData,
     } = useQuery({
-        queryKey: ["postComments", postIdNumber, order],
-        queryFn: () => readPostComments(postIdNumber, order),
-        enabled: !!postID,
+        queryKey: ["postComments", postID, order, searchTerm],
+        queryFn: () => readPostComments(postID, order, searchTerm),
+        enabled: !!postIDStr,
     });
     const {
         isLoading: isPostLoading,
         isError: isPostError,
         data: postData,
     } = useQuery({
-        queryKey: ["posts", postIdNumber],
-        queryFn: () => readPost(postIdNumber),
-        enabled: !!postID,
+        queryKey: ["post", postID],
+        queryFn: () => readPost(postID),
+        enabled: !!postIDStr,
     });
 
     const resetForm = () => {
         setNewCommentRequest({
             body: "",
             author: user,
-            post_id: postIdNumber,
+            postID: postID,
         });
     };
 
-    const createCommentMutation = useCreateComment(postIdNumber, order);
+    const createCommentMutation = useCreateComment(postID, order);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -117,18 +117,21 @@ const PostComments: React.FC = () => {
             >
                 {!isPostLoading && !isPostError && (
                     <Box sx={{ mb: 1, width: "100%" }}>
-                        <PostItem post={postData} topicID={topicIdNumber} editable={false} />
+                        <PostItem post={postData} editable={false} />
                     </Box>
                 )}
+
+                <Stack direction="row" spacing={3} sx={{ width: "100%" }}>
+                    <SortButton order={order} setOrder={setOrder} />
+                    <SearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} type="comments" />
+                </Stack>
 
                 {!isCommentsError && !isCommentsLoading && commentsData == null && (
                     <Typography>No comments yet.</Typography>
                 )}
 
-                {commentsData != null && <SortButton order={order} setOrder={setOrder} />}
-
                 {commentsData?.map((comment: Comment) => (
-                    <CommentItem key={comment.id} postID={postIdNumber} comment={comment} />
+                    <CommentItem key={comment.id} comment={comment} />
                 ))}
 
                 <Fab

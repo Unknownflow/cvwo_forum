@@ -13,9 +13,11 @@ const readTopic = async (id: number) => {
     return response.data;
 };
 
-const readTopicPosts = async (id: number, order: string) => {
+const readTopicPosts = async (id: number, order: string, searchTerm: string) => {
     const orderArr = order.split(", ");
-    const response = await axiosInstance.get(`${route}${id}/posts?key=${orderArr[0]}&order=${orderArr[1]}`);
+    const response = await axiosInstance.get(
+        `${route}${id}/posts?key=${orderArr[0]}&order=${orderArr[1]}&searchTerm=${searchTerm}`,
+    );
     return response.data;
 };
 

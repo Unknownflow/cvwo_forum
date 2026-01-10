@@ -17,17 +17,6 @@ type PostHandler struct {
 	Service service.PostService
 }
 
-func (h *PostHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.Service.GetAllPosts()
-
-	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	RespondJSON(w, http.StatusOK, posts)
-}
-
 func (h *PostHandler) ReadPost(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "id")
 	postIDInt, err := strconv.Atoi(postID)
@@ -64,7 +53,8 @@ func (h *PostHandler) ReadPostComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comments, err := h.Service.GetAllCommentsByPostID(postIDInt, key, order)
+	searchTerm := r.URL.Query().Get("searchTerm")
+	comments, err := h.Service.GetAllCommentsByPostID(postIDInt, key, order, searchTerm)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())

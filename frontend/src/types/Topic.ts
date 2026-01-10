@@ -2,9 +2,9 @@ type Topic = {
     id: number;
     title: string;
     author: string;
-    posts_count: number;
+    postsCount: number;
 };
 
-export type TopicRequest = Omit<Topic, "id" | "posts_count">;
+export type TopicRequest = Omit<Topic, "id" | "postsCount">;
 
 export default Topic;

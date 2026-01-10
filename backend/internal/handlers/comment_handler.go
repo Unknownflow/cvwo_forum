@@ -17,17 +17,6 @@ type CommentHandler struct {
 	Service service.CommentService
 }
 
-func (h *CommentHandler) ReadComments(w http.ResponseWriter, r *http.Request) {
-	comments, err := h.Service.GetAllComments()
-
-	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	RespondJSON(w, http.StatusOK, comments)
-}
-
 func (h *CommentHandler) ReadComment(w http.ResponseWriter, r *http.Request) {
 	commentID := chi.URLParam(r, "id")
 	commentIDInt, err := strconv.Atoi(commentID)

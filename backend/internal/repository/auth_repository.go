@@ -17,10 +17,10 @@ type AuthRepository interface {
 	SaveUser(user models.User) (models.UserResponse, error)
 	GetPassword(userReq models.UserRequest) string
 	GetUserID(username string) int
-	SaveRefreshToken(user_id int, token string, expiresAt time.Time) error
-	GetRefreshToken(user_id int) (*models.RefreshToken, error)
+	SaveRefreshToken(userID int, token string, expiresAt time.Time) error
+	GetRefreshToken(userID int) (*models.RefreshToken, error)
 	RevokeRefreshToken(tokenString string) error
-	RevokeAllUserTokens(user_id int) error
+	RevokeAllUserTokens(userID int) error
 	DeleteExpiredTokens() error
 }
 
@@ -96,23 +96,23 @@ func (r *authRepository) GetUserID(username string) int {
 	return userID
 }
 
-func (r *authRepository) SaveRefreshToken(user_id int, token string, expiresAt time.Time) error {
+func (r *authRepository) SaveRefreshToken(userID int, token string, expiresAt time.Time) error {
 	query := `
         INSERT INTO refresh_tokens (user_id, token, expires_at)
         VALUES ($1, $2, $3)
     `
-	_, err := r.db.Exec(query, user_id, token, expiresAt)
+	_, err := r.db.Exec(query, userID, token, expiresAt)
 	return err
 }
 
-func (r *authRepository) GetRefreshToken(user_id int) (*models.RefreshToken, error) {
+func (r *authRepository) GetRefreshToken(userID int) (*models.RefreshToken, error) {
 	query := `
         SELECT *
         FROM refresh_tokens
         WHERE user_id = $1 AND is_revoked = FALSE AND expires_at > NOW()
     `
 	var token models.RefreshToken
-	err := r.db.QueryRowx(query, user_id).StructScan(&token)
+	err := r.db.QueryRowx(query, userID).StructScan(&token)
 
 	if err != nil {
 		return nil, err
@@ -127,14 +127,14 @@ func (r *authRepository) RevokeRefreshToken(tokenString string) error {
 	return err
 }
 
-func (r *authRepository) RevokeAllUserTokens(user_id int) error {
+func (r *authRepository) RevokeAllUserTokens(userID int) error {
 	query := `UPDATE refresh_tokens SET is_revoked = TRUE WHERE user_id = $1`
-	_, err := r.db.Exec(query, user_id)
+	_, err := r.db.Exec(query, userID)
 	return err
 }
 
 func (r *authRepository) DeleteExpiredTokens() error {
-	query := `DELETE FROM refresh_tokens WHERE expires_at < NOW() OR is_revoked = true`
+	query := `DELETE FROM refresh_tokens WHERE expires_at >= NOW() OR is_revoked = true`
 	_, err := r.db.Exec(query)
 	return err
 }

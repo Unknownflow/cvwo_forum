@@ -19,7 +19,7 @@ const useCreateTopic = () => {
             const optimisticTopic = {
                 ...topic,
                 id: -Date.now(),
-                posts_count: 0,
+                postsCount: 0,
             };
 
             queryClient.setQueryData<Topic[]>(queryKey, (old) => [...(old ?? []), optimisticTopic]);
@@ -77,7 +77,7 @@ const useDeleteTopic = () => {
     return useMutation({
         mutationFn: deleteTopic,
         // Optimistically update UI before server responds
-        onMutate: async (topicId: number) => {
+        onMutate: async (topicID: number) => {
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey });
 
@@ -85,13 +85,13 @@ const useDeleteTopic = () => {
             const previousTopics = queryClient.getQueryData<Topic[]>(queryKey);
 
             // Optimistically update by removing topic
-            queryClient.setQueryData<Topic[]>(queryKey, (old) => old?.filter((t) => t.id !== topicId) ?? []);
+            queryClient.setQueryData<Topic[]>(queryKey, (old) => old?.filter((t) => t.id !== topicID) ?? []);
 
             // Return context with snapshot
             return { previousTopics };
         },
         // If mutation fails, rollback to prev value
-        onError: (err, topicId, context) => {
+        onError: (err, topicID, context) => {
             queryClient.setQueryData(queryKey, context?.previousTopics);
         },
         // Always refetch after error or success to sync with server

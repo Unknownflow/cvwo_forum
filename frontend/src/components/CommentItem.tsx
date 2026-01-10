@@ -1,6 +1,7 @@
 import EditModeAction from "./EditModeAction";
 import ViewModeAction from "./ViewModeAction";
 import CommentLikeAction from "./CommentLikeAction";
+import ErrorDisplay from "./ErrorDisplay";
 import Comment from "../types/Comment";
 import { useDeleteComment, useUpdateComment } from "../hooks/comments";
 import useSnackBar from "../hooks/useSnackBar";
@@ -11,15 +12,14 @@ import { Box, Card, CardActions, CardContent, Snackbar, TextField, Typography } 
 
 type Props = {
     comment: Comment;
-    postID: number;
 };
 
-const CommentItem: React.FC<Props> = ({ comment, postID }) => {
+const CommentItem: React.FC<Props> = ({ comment }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedComment, setEditedComment] = useState<{ body: string }>({ body: "" });
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
-    const updateCommentMutation = useUpdateComment(postID);
-    const deleteCommentMutation = useDeleteComment(postID);
+    const updateCommentMutation = useUpdateComment(comment.postID);
+    const deleteCommentMutation = useDeleteComment(comment.postID);
     const { user } = useUser();
     const isEditable = comment.author == user;
 
@@ -67,6 +67,10 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
 
     const isLoading = updateCommentMutation.isPending || deleteCommentMutation.isPending;
 
+    if (!comment) {
+        return <ErrorDisplay type="comment" />;
+    }
+
     return (
         <Card key={comment.id} sx={{ width: "100%", maxWidth: 800, borderRadius: 2 }}>
             <Box
@@ -99,7 +103,7 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                                     {comment.author} ·
                                 </Typography>
                                 <Typography variant="body1" color="text.secondary" component="p">
-                                    &nbsp;{formatDateTime(comment.created_at)}
+                                    &nbsp;{formatDateTime(comment.createdAt)}
                                 </Typography>
                             </Box>
                             <Typography variant="body1" color="textPrimary" component="p">
@@ -119,7 +123,7 @@ const CommentItem: React.FC<Props> = ({ comment, postID }) => {
                         py: 1,
                     }}
                 >
-                    <CommentLikeAction commentID={comment.id} postID={postID} likesCount={comment.likes_count} />
+                    <CommentLikeAction commentID={comment.id} postID={comment.postID} likesCount={comment.likesCount} />
                     {isEditable && (
                         <CardActions sx={{ flexShrink: 0, py: 0 }}>
                             {isEditing ? (

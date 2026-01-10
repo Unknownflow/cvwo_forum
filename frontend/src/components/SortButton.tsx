@@ -13,7 +13,7 @@ const SortButton: React.FC<Props> = ({ order, setOrder }) => {
     };
 
     return (
-        <Box sx={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "left", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", gap: 1 }}>
             Sort by:
             <FormControl>
                 <InputLabel>order</InputLabel>

@@ -67,8 +67,8 @@ func (s *authService) VerifyUser(userReq models.UserRequest) (bool, models.UserR
 
 func (s *authService) GenerateRefreshExpiry(username string, refreshToken string) error {
 	// revoke previous refresh tokens
-	user_id := s.repo.GetUserID(username)
-	err := s.repo.RevokeAllUserTokens(user_id)
+	userID := s.repo.GetUserID(username)
+	err := s.repo.RevokeAllUserTokens(userID)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (s *authService) GenerateRefreshExpiry(username string, refreshToken string
 
 	// refresh token expire in 7 days
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	err = s.repo.SaveRefreshToken(user_id, refreshToken, expiresAt)
+	err = s.repo.SaveRefreshToken(userID, refreshToken, expiresAt)
 	return err
 }
 
@@ -91,9 +91,9 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 		return nil, errors.New("invalid refresh token format")
 	}
 
-	user_id := s.repo.GetUserID(claims.Username)
+	userID := s.repo.GetUserID(claims.Username)
 	// Check that the refresh token is not revoked
-	storedToken, err := s.repo.GetRefreshToken(user_id)
+	storedToken, err := s.repo.GetRefreshToken(userID)
 	if err != nil {
 		return nil, errors.New("user session not found")
 	}
@@ -109,6 +109,12 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 		return nil, errors.New("failed to generate new tokens")
 	}
 
+	// Remove token
+	err = s.EndSession(oldRefreshToken)
+	if err != nil {
+		return nil, errors.New("failed to end sessio")
+	}
+
 	// Replace old refrsh token with a new one
 	err = s.GenerateRefreshExpiry(claims.Username, newTokenPair.RefreshToken)
 	if err != nil {
@@ -119,8 +125,8 @@ func (s *authService) RefreshSession(oldRefreshToken string) (*token.TokenPair, 
 }
 
 func (s *authService) EndPreviousUserSessions(username string) error {
-	user_id := s.repo.GetUserID(username)
-	err := s.repo.RevokeAllUserTokens(user_id)
+	userID := s.repo.GetUserID(username)
+	err := s.repo.RevokeAllUserTokens(userID)
 	return err
 }
 

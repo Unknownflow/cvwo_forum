@@ -1,5 +1,5 @@
 import { queryClient } from "../App";
-import PostLike from "../types/PostLike";
+import PostLike, { PostLikeRequest } from "../types/PostLike";
 import { createPostLike, deletePostLike } from "../api/postLikes";
 import { useMutation } from "@tanstack/react-query";
 
@@ -8,12 +8,17 @@ const useCreatePostLike = (postID: number, topicID: number, username: string) =>
 
     return useMutation({
         mutationFn: createPostLike,
-        onMutate: async (newLike: PostLike) => {
+        onMutate: async (newLikeReq: PostLikeRequest) => {
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey });
 
             // Snapshot prevd value
             const previousPostLike = queryClient.getQueryData<PostLike>(queryKey);
+
+            const newLike = {
+                ...newLikeReq,
+                id: -Date.now(),
+            };
 
             queryClient.setQueryData<PostLike>(queryKey, newLike);
 
@@ -21,9 +26,9 @@ const useCreatePostLike = (postID: number, topicID: number, username: string) =>
             return { previousPostLike };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["postLikesCount", postID] });
             queryClient.invalidateQueries({ queryKey: ["postLikes", username] });
             queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
         onError: (error, newPost, context) => {
             // Rollback to previous state
@@ -48,16 +53,16 @@ const useDeletePostLike = (postID: number, topicID: number, username: string) =>
             const previousPostLike = queryClient.getQueryData<PostLike>(queryKey);
 
             // Optimistically set to null or default state since like is deleted
-            queryClient.setQueryData<PostLike>(queryKey, (old) => (old ? { ...old, like_type: 0 } : previousPostLike));
+            queryClient.setQueryData<PostLike>(queryKey, (old) => (old ? { ...old, likeType: 0 } : previousPostLike));
 
             return { previousPostLike };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["postLikesCount", postID] });
             queryClient.invalidateQueries({ queryKey: ["postLikes", username] });
             queryClient.invalidateQueries({ queryKey: ["topicPosts", topicID] });
+            queryClient.invalidateQueries({ queryKey: ["post", postID] });
         },
-        onError: (err, postId, context) => {
+        onError: (err, postID, context) => {
             queryClient.setQueryData(queryKey, context?.previousPostLike);
         },
         onSettled: () => {

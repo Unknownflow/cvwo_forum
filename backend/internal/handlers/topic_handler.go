@@ -64,7 +64,8 @@ func (h *TopicHandler) ReadTopicPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := h.Service.GetAllPostsByTopicID(topicIDInt, key, order)
+	searchTerm := r.URL.Query().Get("searchTerm")
+	posts, err := h.Service.GetAllPostsByTopicID(topicIDInt, key, order, searchTerm)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())

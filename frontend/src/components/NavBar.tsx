@@ -40,7 +40,7 @@ const NavBar: React.FC = () => {
             <AppBar position="static">
                 <Toolbar>
                     <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "align-left", gap: 2 }}>
-                        <Button color="inherit" onClick={handleHome}>
+                        <Button color="inherit" onClick={user == "" ? handleHome : handleTopics}>
                             <HomeFilled />
                             &nbsp;Home
                         </Button>

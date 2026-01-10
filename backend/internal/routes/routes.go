@@ -51,7 +51,6 @@ func PostsRoutes(conn *sqlx.DB) func(r chi.Router) {
 	return func(r chi.Router) {
 		r.Route("/", func(r chi.Router) {
 			r.Post("/", postHandler.CreatePost)
-			r.Get("/", postHandler.ReadPosts)
 		})
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", postHandler.ReadPost)
@@ -71,7 +70,6 @@ func CommentRoutes(conn *sqlx.DB) func(r chi.Router) {
 
 	return func(r chi.Router) {
 		r.Route("/", func(r chi.Router) {
-			r.Get("/", commentHandler.ReadComments)
 			r.Post("/", commentHandler.CreateComment)
 		})
 		r.Route("/{id}", func(r chi.Router) {

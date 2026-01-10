@@ -1,7 +1,9 @@
 type PostLike = {
     id: number;
-    post_id: number;
-    like_type: number;
+    postID: number;
+    likeType: number;
 };
+
+export type PostLikeRequest = Omit<PostLike, "id">;
 
 export default PostLike;
