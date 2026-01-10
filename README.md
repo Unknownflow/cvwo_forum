@@ -90,19 +90,23 @@ yarn start
 
 ### Root directory
 
-- DB_HOST="postgres" (localhost for local deployment, postgres for docker deployment)
-- DB_USER
-- DB_PASSWORD
-- DB_NAME
-- DB_PORT (Default port: 5432)
-- DB_DEFAULT_ROLE
-- JWT_ACCESS_TOKEN_SECRET
-- JWT_REFRESH_TOKEN_SECRET
-- IS_PRODUCTION (true / false)
+```
+DB_HOST="localhost" // change for production
+DB_USER="user" // change username
+DB_PASSWORD="password" // change password
+DB_NAME="database" // change database name
+DB_PORT=5432
+DB_DEFAULT_ROLE="user"
+JWT_ACCESS_TOKEN_SECRET="secret" // change the secret
+JWT_REFRESH_TOKEN_SECRET="secret" // change the secret
+IS_PRODUCTION="false" // set to true for production
+```
 
 ### Frontend directory
 
-- REACT_APP_API_BASE_URL
+```
+REACT_APP_API_BASE_URL="http://localhost:8000" // change for production
+```
 
 ## AI Use
 
