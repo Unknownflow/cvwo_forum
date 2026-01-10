@@ -20,6 +20,7 @@ type PostRequest struct {
 
 type PostResponse struct {
 	ID            int       `db:"id" json:"id"`
+	Title         string    `db:"title" json:"title"`
 	Header        string    `db:"header" json:"header"`
 	Body          string    `db:"body" json:"body"`
 	Author        string    `json:"author"`

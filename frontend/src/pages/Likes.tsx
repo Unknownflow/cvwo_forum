@@ -9,9 +9,10 @@ import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
 import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
-import { Box, Typography } from "@mui/material";
+import { Box, Link, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link as RouterLink } from "react-router-dom";
 
 const style = {
     display: "flex",
@@ -52,14 +53,26 @@ const Likes: React.FC = () => {
                 Liked Posts
             </Typography>
             {isPostLikesLoading && <LoadingDisplay />}
-            {isPostLikesError && <ErrorDisplay type="liked posts" />}
+            {isPostLikesError && <ErrorDisplay type={"liked posts"} />}
             {!postData && <Typography>No liked posts yet.</Typography>}
 
             <Box sx={style}>
                 {postData != null && <SortButton order={postsOrder} setOrder={setPostsOrder} />}
                 {!isPostLikesLoading &&
                     !isPostLikesError &&
-                    postData?.map((post: Post) => <PostItem key={post.id} post={post} editable={true} />)}
+                    postData?.map((post: Post) => (
+                        <Stack sx={{ width: "100%" }} key={post.id}>
+                            <Link
+                                component={RouterLink}
+                                to={"/topics/" + post.topicID + "/posts"}
+                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
+                                underline="hover"
+                            >
+                                {post.title}
+                            </Link>
+                            <PostItem post={post} editable={true} />
+                        </Stack>
+                    ))}
             </Box>
 
             <Typography variant="h6" component="h1" gutterBottom>
@@ -73,7 +86,19 @@ const Likes: React.FC = () => {
                 {commentData != null && <SortButton order={commentsOrder} setOrder={setCommentsOrder} />}
                 {!isCommentLikesLoading &&
                     !isCommentLikesError &&
-                    commentData?.map((comment: Comment) => <CommentItem key={comment.id} comment={comment} />)}
+                    commentData?.map((comment: Comment) => (
+                        <Stack sx={{ width: "100%" }} key={comment.id}>
+                            <Link
+                                component={RouterLink}
+                                to={"/topics/" + comment.topicID + "/posts/" + comment.postID + "/comments"}
+                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
+                                underline="hover"
+                            >
+                                {comment.header}
+                            </Link>
+                            <CommentItem key={comment.id} comment={comment} />
+                        </Stack>
+                    ))}
             </Box>
         </Box>
     );

@@ -19,6 +19,7 @@ const useCreateComment = (postID: number, order: string) => {
             const optimisticComment = {
                 ...comment,
                 id: -Date.now(),
+                topicID: -1,
                 createdAt: new Date().toISOString(),
                 likesCount: 0,
             };

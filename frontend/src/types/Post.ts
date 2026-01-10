@@ -1,5 +1,6 @@
 type Post = {
     id: number;
+    title?: string;
     header: string;
     body: string;
     author: string;
@@ -9,6 +10,6 @@ type Post = {
     commentsCount: number;
 };
 
-export type PostRequest = Omit<Post, "id" | "createdAt" | "likesCount" | "commentsCount">;
+export type PostRequest = Omit<Post, "id" | "title" | "createdAt" | "likesCount" | "commentsCount">;
 
 export default Post;

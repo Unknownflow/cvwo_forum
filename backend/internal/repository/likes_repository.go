@@ -31,8 +31,9 @@ func NewLikesRepository(db *sqlx.DB) LikesRepository {
 func (r *likesRepository) ReadPostsLikedByUser(userID int, key string, order string) ([]models.PostResponse, error) {
 	// liked posts will exclude user created posts
 	var resp []models.PostResponse
-	query := fmt.Sprintf(`SELECT posts.id, posts.header, posts.body, posts.created_at,
-			  posts.topic_id, posts.likes_count, posts.comments_count,users.username AS "author" FROM posts
+	query := fmt.Sprintf(`SELECT topics.title, posts.id, posts.header, posts.body, posts.created_at,
+			  posts.topic_id, posts.likes_count, posts.comments_count, users.username AS "author" FROM posts
+			  INNER JOIN topics ON posts.topic_id = topics.id
 			  LEFT JOIN likes ON posts.id = likes.post_id
 			  LEFT JOIN users ON posts.user_id = users.id
 			  WHERE likes.user_id = $1 AND likes.like_type = 1 AND posts.user_id <> $2
@@ -50,8 +51,10 @@ func (r *likesRepository) ReadPostsLikedByUser(userID int, key string, order str
 func (r *likesRepository) ReadCommentsLikedByUser(userID int, key string, order string) ([]models.CommentResponse, error) {
 	// liked comments will exclude user craeted comments
 	var resp []models.CommentResponse
-	query := fmt.Sprintf(`SELECT comments.id, comments.body, comments.created_at,
+	query := fmt.Sprintf(`SELECT topics.id AS "topic_id", posts.header, comments.id, comments.body, comments.created_at,
 			  comments.post_id, comments.likes_count, users.username AS "author" FROM comments
+			  INNER JOIN posts ON comments.post_id = posts.id
+			  INNER JOIN topics ON posts.topic_id = topics.id
 			  LEFT JOIN likes ON comments.id = likes.comment_id
 			  LEFT JOIN users ON comments.user_id = users.id
 			  WHERE likes.user_id = $1 AND likes.like_type = 1 AND comments.user_id <> $2
