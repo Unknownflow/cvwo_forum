@@ -2,8 +2,11 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/cvwo_assignment/backend/internal/models"
 	"github.com/cvwo_assignment/backend/internal/repository"
@@ -24,6 +27,9 @@ type authService struct {
 	repo repository.AuthRepository
 }
 
+const MIN_LENGTH = 8
+const MAX_LENGTH = 64
+
 func NewAuthService(repo repository.AuthRepository) AuthService {
 	return &authService{repo: repo}
 }
@@ -33,6 +39,21 @@ func (s *authService) CreateUser(userReq models.UserRequest) (models.UserRespons
 	_, err := s.repo.ValidateUser(userReq)
 	if err != nil {
 		return models.UserResponse{}, err
+	}
+
+	// check that the length of the password is more than min length
+	if utf8.RuneCountInString(userReq.Password) < MIN_LENGTH {
+		return models.UserResponse{}, fmt.Errorf("password length is less than %d", MIN_LENGTH)
+	}
+
+	// check that the length of the password is less than max length
+	if utf8.RuneCountInString(userReq.Password) > MAX_LENGTH {
+		return models.UserResponse{}, fmt.Errorf("password length is more than %d", MAX_LENGTH)
+	}
+
+	// check that the password is alphanumeric
+	if !isAlphanumeric(userReq.Password) {
+		return models.UserResponse{}, fmt.Errorf("password should have upper and lower case letters and numbers")
 	}
 
 	hashedPassword, err := hashPassword(userReq.Password)
@@ -143,4 +164,27 @@ func hashPassword(password string) (string, error) {
 func verifyPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+func isAlphanumeric(text string) bool {
+	// checks if the text contains upper case, lower case letters and numbers
+	hasDigit := false
+	hasUpper := false
+	hasLower := false
+
+	for _, r := range text {
+		if unicode.IsDigit(r) {
+			hasDigit = true
+		}
+
+		if unicode.IsUpper(r) {
+			hasUpper = true
+		}
+
+		if unicode.IsLower(r) {
+			hasLower = true
+		}
+	}
+
+	return hasDigit && hasUpper && hasLower
 }

@@ -14,3 +14,11 @@ export function formatDateTime(isoString: string): string {
         minute: "2-digit",
     });
 }
+
+export function isAlphanumeric(string: string): boolean {
+    const hasUppercase = /[A-Z]/.test(string);
+    const hasLowercase = /[a-z]/.test(string);
+    const hasNumber = /[0-9]/.test(string);
+
+    return hasUppercase && hasLowercase && hasNumber;
+}

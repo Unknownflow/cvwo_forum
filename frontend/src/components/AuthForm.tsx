@@ -1,5 +1,5 @@
 import User from "../types/User";
-import { capitalizeFirstLetter } from "../utils/utils";
+import { capitalizeFirstLetter, isAlphanumeric } from "../utils/utils";
 import useSnackBar from "../hooks/useSnackBar";
 import { useUser } from "../context/userContext";
 import React, { FormEvent, useState } from "react";
@@ -11,6 +11,9 @@ type Props = {
     mutation: UseMutationResult<unknown, Error, User, unknown>;
     label: string;
 };
+
+const MIN_LENGTH = 8;
+const MAX_LENGTH = 64;
 
 const AuthForm: React.FC<Props> = ({ mutation, label }) => {
     const [username, setUsername] = useState<string>("");
@@ -29,6 +32,21 @@ const AuthForm: React.FC<Props> = ({ mutation, label }) => {
 
         if (!username || !password) {
             showSnackBar("Please enter both username and password");
+            return;
+        }
+
+        if (password.length < MIN_LENGTH) {
+            showSnackBar(`Password should have a minimum of ${MIN_LENGTH} characters.`);
+            return;
+        }
+
+        if (password.length > MAX_LENGTH) {
+            showSnackBar(`Password should have a maximum of ${MAX_LENGTH} characters.`);
+            return;
+        }
+
+        if (!isAlphanumeric(password)) {
+            showSnackBar("Password should contain at least 1 uppercase character, 1 lowercase character and 1 number.");
             return;
         }
 
