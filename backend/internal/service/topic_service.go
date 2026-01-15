@@ -45,7 +45,7 @@ func (s *topicService) GetTopicByID(id int) (models.TopicResponse, error) {
 }
 
 func (s *topicService) GetAllPostsByTopicID(id int, key string, order string, searchTerm string) ([]models.PostResponse, error) {
-	searchTerm = searchTerm + "%" // find searchTerm which is similar
+	searchTerm = "%" + searchTerm + "%" // find searchTerm which is similar
 	posts, err := s.topicRepo.ReadPostsByTopicID(id, key, order, searchTerm)
 
 	if err != nil {

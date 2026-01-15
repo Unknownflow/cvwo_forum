@@ -37,7 +37,7 @@ func (s *postService) GetPostByID(id int) (models.PostResponse, error) {
 }
 
 func (s *postService) GetAllCommentsByPostID(id int, key string, order string, searchTerm string) ([]models.CommentResponse, error) {
-	searchTerm = searchTerm + "%" // find searchTerm which is similar
+	searchTerm = "%" + searchTerm + "%" // find searchTerm which is similar
 	comments, err := s.postRepo.ReadCommentsByPostID(id, key, order, searchTerm)
 
 	if err != nil {

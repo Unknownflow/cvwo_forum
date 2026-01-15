@@ -47,7 +47,7 @@ func (r *postRepository) ReadCommentsByPostID(id int, key string, order string, 
 			  comments.post_id, comments.likes_count, username AS "author" FROM comments
 			  INNER JOIN users ON users.id = comments.user_id
 			  LEFT JOIN likes ON likes.comment_id = comments.id
-			  WHERE comments.post_id = $1 AND (comments.body LIKE $2)
+			  WHERE comments.post_id = $1 AND (comments.body ILIKE $2)
 			  GROUP BY comments.id, users.id
 			  ORDER BY %s %s`, key, order)
 	err := r.db.Select(&comments, query, id, searchTerm)
