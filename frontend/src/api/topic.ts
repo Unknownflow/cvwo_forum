@@ -3,8 +3,9 @@ import axiosInstance from "../utils/axios";
 
 const route = "/topics/";
 
-const readTopics = async () => {
-    const response = await axiosInstance.get(route);
+const readTopics = async (order: string) => {
+    const orderArr = order.split(", ");
+    const response = await axiosInstance.get(`${route}?key=${orderArr[0]}&order=${orderArr[1]}`);
     return response.data;
 };
 

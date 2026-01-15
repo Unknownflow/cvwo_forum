@@ -9,7 +9,7 @@ import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
-import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
+import SortOrder, { commentsSortOptions, DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
 import SearchBox from "../components/SearchBox";
 import { useQuery } from "@tanstack/react-query";
@@ -126,7 +126,7 @@ const PostComments: React.FC = () => {
                 )}
 
                 <Stack direction="row" spacing={3} sx={{ width: "100%" }}>
-                    <SortButton order={order} setOrder={setOrder} />
+                    <SortButton order={order} setOrder={setOrder} sortOptions={commentsSortOptions} />
                     <SearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} type="comments" />
                 </Stack>
 

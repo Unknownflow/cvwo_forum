@@ -7,7 +7,7 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import { readCommentsLikes } from "../api/commentLikes";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
-import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
+import SortOrder, { commentsSortOptions, DEFAULT_SORT_ORDER, postsSortOptions } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
@@ -81,7 +81,9 @@ const Likes: React.FC = () => {
                     {!postData && <Typography>No liked posts yet.</Typography>}
 
                     <Box sx={style}>
-                        {postData != null && <SortButton order={postsOrder} setOrder={setPostsOrder} />}
+                        {postData != null && (
+                            <SortButton order={postsOrder} setOrder={setPostsOrder} sortOptions={postsSortOptions} />
+                        )}
                         {!isPostLikesLoading &&
                             !isPostLikesError &&
                             postData?.map((post: Post) => (
@@ -107,7 +109,13 @@ const Likes: React.FC = () => {
                     {!commentData && <Typography>No liked comments yet.</Typography>}
 
                     <Box sx={style}>
-                        {commentData != null && <SortButton order={commentsOrder} setOrder={setCommentsOrder} />}
+                        {commentData != null && (
+                            <SortButton
+                                order={commentsOrder}
+                                setOrder={setCommentsOrder}
+                                sortOptions={commentsSortOptions}
+                            />
+                        )}
                         {!isCommentLikesLoading &&
                             !isCommentLikesError &&
                             commentData?.map((comment: Comment) => (

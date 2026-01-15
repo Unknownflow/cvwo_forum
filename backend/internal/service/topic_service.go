@@ -8,7 +8,7 @@ import (
 )
 
 type TopicService interface {
-	GetAllTopics() ([]models.TopicResponse, error)
+	GetAllTopics(key string, order string) ([]models.TopicResponse, error)
 	GetTopicByID(id int) (models.TopicResponse, error)
 	GetAllPostsByTopicID(id int, key string, order string, searchTerm string) ([]models.PostResponse, error)
 	CreateTopic(userID int, topic models.TopicRequest) error
@@ -24,8 +24,8 @@ func NewTopicService(topicRepo repository.TopicRepository) TopicService {
 	return &topicService{topicRepo: topicRepo}
 }
 
-func (s *topicService) GetAllTopics() ([]models.TopicResponse, error) {
-	topics, err := s.topicRepo.ReadAll()
+func (s *topicService) GetAllTopics(key string, order string) ([]models.TopicResponse, error) {
+	topics, err := s.topicRepo.ReadAll(key, order)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve topics: %w", err)
