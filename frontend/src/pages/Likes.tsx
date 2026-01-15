@@ -9,10 +9,10 @@ import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
 import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
-import { Box, Link, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const style = {
     display: "flex",
@@ -25,6 +25,7 @@ const style = {
 };
 
 const Likes: React.FC = () => {
+    const navigate = useNavigate();
     const { user } = useUser();
     const [postsOrder, setPostsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
     const [commentsOrder, setCommentsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
@@ -62,14 +63,13 @@ const Likes: React.FC = () => {
                     !isPostLikesError &&
                     postData?.map((post: Post) => (
                         <Stack sx={{ width: "100%" }} key={post.id}>
-                            <Link
-                                component={RouterLink}
-                                to={"/topics/" + post.topicID + "/posts"}
-                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
-                                underline="hover"
+                            <Button
+                                variant="contained"
+                                sx={{ width: "fit-content", mb: 1 }}
+                                onClick={() => navigate("/topics/" + post.topicID + "/posts")}
                             >
                                 {post.title}
-                            </Link>
+                            </Button>
                             <PostItem post={post} editable={true} />
                         </Stack>
                     ))}
@@ -88,14 +88,15 @@ const Likes: React.FC = () => {
                     !isCommentLikesError &&
                     commentData?.map((comment: Comment) => (
                         <Stack sx={{ width: "100%" }} key={comment.id}>
-                            <Link
-                                component={RouterLink}
-                                to={"/topics/" + comment.topicID + "/posts/" + comment.postID + "/comments"}
-                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
-                                underline="hover"
+                            <Button
+                                variant="contained"
+                                sx={{ width: "fit-content", mb: 1 }}
+                                onClick={() =>
+                                    navigate("/topics/" + comment.topicID + "/posts/" + comment.postID + "/comments")
+                                }
                             >
                                 {comment.header}
-                            </Link>
+                            </Button>
                             <CommentItem key={comment.id} comment={comment} />
                         </Stack>
                     ))}

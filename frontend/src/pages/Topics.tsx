@@ -10,8 +10,7 @@ import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Box, Fab, Snackbar, TextField, Typography } from "@mui/material";
 import TopicIcon from "@mui/icons-material/Topic";
 import Modal from "@mui/material/Modal";
 import AddIcon from "@mui/icons-material/Add";
@@ -106,9 +105,6 @@ const Topics: React.FC = () => {
                     </Box>
                 </Modal>
 
-                <Link component={RouterLink} to="/" underline="hover">
-                    Back to Home
-                </Link>
                 <Snackbar
                     open={snackBar.open}
                     autoHideDuration={2500}

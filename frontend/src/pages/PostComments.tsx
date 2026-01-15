@@ -14,13 +14,14 @@ import SortButton from "../components/SortButton";
 import SearchBox from "../components/SearchBox";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { useParams, Link as RouterLink } from "react-router-dom";
-import { Box, Fab, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
+import { Box, Button, Fab, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import CommentIcon from "@mui/icons-material/Comment";
 import AddIcon from "@mui/icons-material/Add";
 
 const PostComments: React.FC = () => {
+    const navigate = useNavigate();
     const { topicID, postID: postIDStr } = useParams<{ topicID: string; postID: string }>();
     const postID = Number(postIDStr);
     const prevPageLink = `/topics/${topicID}/posts`;
@@ -91,6 +92,9 @@ const PostComments: React.FC = () => {
         resetForm();
     };
 
+    const handlePosts = () => {
+        navigate(prevPageLink);
+    };
     const isSubmitting = createCommentMutation.isPending;
 
     return (
@@ -166,9 +170,10 @@ const PostComments: React.FC = () => {
                     </Box>
                 </Modal>
 
-                <Link component={RouterLink} to={prevPageLink} underline="hover">
+                <Button variant="contained" onClick={handlePosts}>
                     Back to Posts
-                </Link>
+                </Button>
+
                 <Snackbar
                     open={snackBar.open}
                     autoHideDuration={2500}
