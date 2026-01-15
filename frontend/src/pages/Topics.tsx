@@ -8,10 +8,11 @@ import ModalActions from "../components/ModalActions";
 import modalStyle from "../styles/ModalStyle";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
+import SortOrder, { DEFAULT_TOPIC_SORT_ORDER, topicsSortOptions } from "../types/SortOrder";
+import SortButton from "../components/SortButton";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Fab, Link, Snackbar, TextField, Typography } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Box, Fab, Snackbar, TextField, Typography } from "@mui/material";
 import TopicIcon from "@mui/icons-material/Topic";
 import Modal from "@mui/material/Modal";
 import AddIcon from "@mui/icons-material/Add";
@@ -19,12 +20,13 @@ import AddIcon from "@mui/icons-material/Add";
 const Topics: React.FC = () => {
     const [newTitle, setNewTitle] = useState<string>("");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [order, setOrder] = useState<SortOrder>(DEFAULT_TOPIC_SORT_ORDER);
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const createTopicMutation = useCreateTopic();
     const { user } = useUser();
     const { isLoading, isError, data } = useQuery({
-        queryKey: ["topics"],
-        queryFn: readTopics,
+        queryKey: ["topics", order],
+        queryFn: () => readTopics(order),
     });
 
     const handleModalOpen = () => setIsModalOpen(true);
@@ -72,6 +74,8 @@ const Topics: React.FC = () => {
                     gap: 2,
                 }}
             >
+                <SortButton order={order} setOrder={setOrder} sortOptions={topicsSortOptions} />
+
                 {data == null && <Typography>No topics yet.</Typography>}
 
                 {data?.map((topic: Topic) => (
@@ -106,9 +110,6 @@ const Topics: React.FC = () => {
                     </Box>
                 </Modal>
 
-                <Link component={RouterLink} to="/" underline="hover">
-                    Back to Home
-                </Link>
                 <Snackbar
                     open={snackBar.open}
                     autoHideDuration={2500}

@@ -12,15 +12,15 @@ const theme = createTheme({
     palette: {
         mode: "light",
         primary: {
-            main: "#1890ff",
-            light: "#40a9ff",
-            dark: "#096dd9",
+            main: "#7f7fd5",
+            light: "#7faad5",
+            dark: "#7f7fd5",
             contrastText: "#ffffff",
         },
         secondary: {
             main: "#531dab",
-            light: "#391085",
-            dark: "#722ed1",
+            light: "#722ed1",
+            dark: "#391085",
             contrastText: "#ffffff",
         },
         action: {
@@ -31,8 +31,8 @@ const theme = createTheme({
             paper: "#FFFFFF",
         },
         text: {
-            primary: "#1A1A1B",
-            secondary: "#7C7C7C",
+            primary: "#0000000",
+            secondary: "#1A1A1B",
         },
         success: {
             main: "#389e0d",
@@ -48,6 +48,16 @@ const theme = createTheme({
             main: "#f5222d",
             light: "#cf1322",
             dark: "#ff4d4f",
+        },
+    },
+    components: {
+        MuiCssBaseline: {
+            styleOverrides: {
+                body: {
+                    background: "#74ebd5",
+                    backgroundImage: "linear-gradient(to right, #acb6e5, #74ebd5)",
+                },
+            },
         },
     },
 });

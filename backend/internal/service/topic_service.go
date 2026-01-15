@@ -8,7 +8,7 @@ import (
 )
 
 type TopicService interface {
-	GetAllTopics() ([]models.TopicResponse, error)
+	GetAllTopics(key string, order string) ([]models.TopicResponse, error)
 	GetTopicByID(id int) (models.TopicResponse, error)
 	GetAllPostsByTopicID(id int, key string, order string, searchTerm string) ([]models.PostResponse, error)
 	CreateTopic(userID int, topic models.TopicRequest) error
@@ -24,8 +24,8 @@ func NewTopicService(topicRepo repository.TopicRepository) TopicService {
 	return &topicService{topicRepo: topicRepo}
 }
 
-func (s *topicService) GetAllTopics() ([]models.TopicResponse, error) {
-	topics, err := s.topicRepo.ReadAll()
+func (s *topicService) GetAllTopics(key string, order string) ([]models.TopicResponse, error) {
+	topics, err := s.topicRepo.ReadAll(key, order)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve topics: %w", err)
@@ -45,7 +45,7 @@ func (s *topicService) GetTopicByID(id int) (models.TopicResponse, error) {
 }
 
 func (s *topicService) GetAllPostsByTopicID(id int, key string, order string, searchTerm string) ([]models.PostResponse, error) {
-	searchTerm = searchTerm + "%" // find searchTerm which is similar
+	searchTerm = "%" + searchTerm + "%" // find searchTerm which is similar
 	posts, err := s.topicRepo.ReadPostsByTopicID(id, key, order, searchTerm)
 
 	if err != nil {

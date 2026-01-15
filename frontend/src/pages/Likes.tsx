@@ -7,12 +7,14 @@ import ErrorDisplay from "../components/ErrorDisplay";
 import { readCommentsLikes } from "../api/commentLikes";
 import CommentItem from "../components/CommentItem";
 import Comment from "../types/Comment";
-import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
+import SortOrder, { commentsSortOptions, DEFAULT_SORT_ORDER, postsSortOptions } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
-import { Box, Link, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+type View = "posts" | "comments";
 
 const style = {
     display: "flex",
@@ -25,9 +27,11 @@ const style = {
 };
 
 const Likes: React.FC = () => {
+    const navigate = useNavigate();
     const { user } = useUser();
     const [postsOrder, setPostsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
     const [commentsOrder, setCommentsOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
+    const [currentView, setCurrentView] = useState<View>("posts");
 
     const {
         isLoading: isPostLikesLoading,
@@ -47,59 +51,92 @@ const Likes: React.FC = () => {
         queryFn: () => readCommentsLikes(commentsOrder),
     });
 
+    const handleViewChange = (view: View) => {
+        setCurrentView(view);
+    };
+
     return (
         <Box sx={{ p: 3 }}>
-            <Typography variant="h6" component="h1">
-                Liked Posts
-            </Typography>
-            {isPostLikesLoading && <LoadingDisplay />}
-            {isPostLikesError && <ErrorDisplay type={"liked posts"} />}
-            {!postData && <Typography>No liked posts yet.</Typography>}
+            <Stack direction="row" spacing={2} justifyContent="center">
+                <Button
+                    variant="contained"
+                    onClick={() => handleViewChange("posts")}
+                    sx={{ background: currentView === "posts" ? "#5959c8" : "7f7fd5" }}
+                >
+                    Posts
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={() => handleViewChange("comments")}
+                    sx={{ background: currentView === "comments" ? "#5959c8" : "7f7fd5" }}
+                >
+                    Comments
+                </Button>
+            </Stack>
 
-            <Box sx={style}>
-                {postData != null && <SortButton order={postsOrder} setOrder={setPostsOrder} />}
-                {!isPostLikesLoading &&
-                    !isPostLikesError &&
-                    postData?.map((post: Post) => (
-                        <Stack sx={{ width: "100%" }} key={post.id}>
-                            <Link
-                                component={RouterLink}
-                                to={"/topics/" + post.topicID + "/posts"}
-                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
-                                underline="hover"
-                            >
-                                {post.title}
-                            </Link>
-                            <PostItem post={post} editable={true} />
-                        </Stack>
-                    ))}
-            </Box>
+            {currentView === "posts" && (
+                <>
+                    {isPostLikesLoading && <LoadingDisplay />}
+                    {isPostLikesError && <ErrorDisplay type={"liked posts"} />}
+                    {!postData && <Typography>No liked posts yet.</Typography>}
 
-            <Typography variant="h6" component="h1" gutterBottom>
-                Liked Comments
-            </Typography>
-            {isCommentLikesLoading && <LoadingDisplay />}
-            {isCommentLikesError && <ErrorDisplay type="liked comments" />}
-            {!commentData && <Typography>No liked comments yet.</Typography>}
+                    <Box sx={style}>
+                        {postData != null && (
+                            <SortButton order={postsOrder} setOrder={setPostsOrder} sortOptions={postsSortOptions} />
+                        )}
+                        {!isPostLikesLoading &&
+                            !isPostLikesError &&
+                            postData?.map((post: Post) => (
+                                <Stack sx={{ width: "100%" }} key={post.id}>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: "fit-content", mb: 1 }}
+                                        onClick={() => navigate("/topics/" + post.topicID + "/posts")}
+                                    >
+                                        {post.title}
+                                    </Button>
+                                    <PostItem post={post} editable={true} />
+                                </Stack>
+                            ))}
+                    </Box>
+                </>
+            )}
 
-            <Box sx={style}>
-                {commentData != null && <SortButton order={commentsOrder} setOrder={setCommentsOrder} />}
-                {!isCommentLikesLoading &&
-                    !isCommentLikesError &&
-                    commentData?.map((comment: Comment) => (
-                        <Stack sx={{ width: "100%" }} key={comment.id}>
-                            <Link
-                                component={RouterLink}
-                                to={"/topics/" + comment.topicID + "/posts/" + comment.postID + "/comments"}
-                                sx={{ textAlign: "left", width: "fit-content", mb: 1, ml: 1 }}
-                                underline="hover"
-                            >
-                                {comment.header}
-                            </Link>
-                            <CommentItem key={comment.id} comment={comment} />
-                        </Stack>
-                    ))}
-            </Box>
+            {currentView === "comments" && (
+                <>
+                    {isCommentLikesLoading && <LoadingDisplay />}
+                    {isCommentLikesError && <ErrorDisplay type="liked comments" />}
+                    {!commentData && <Typography>No liked comments yet.</Typography>}
+
+                    <Box sx={style}>
+                        {commentData != null && (
+                            <SortButton
+                                order={commentsOrder}
+                                setOrder={setCommentsOrder}
+                                sortOptions={commentsSortOptions}
+                            />
+                        )}
+                        {!isCommentLikesLoading &&
+                            !isCommentLikesError &&
+                            commentData?.map((comment: Comment) => (
+                                <Stack sx={{ width: "100%" }} key={comment.id}>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: "fit-content", mb: 1 }}
+                                        onClick={() =>
+                                            navigate(
+                                                "/topics/" + comment.topicID + "/posts/" + comment.postID + "/comments",
+                                            )
+                                        }
+                                    >
+                                        {comment.header}
+                                    </Button>
+                                    <CommentItem key={comment.id} comment={comment} />
+                                </Stack>
+                            ))}
+                    </Box>
+                </>
+            )}
         </Box>
     );
 };

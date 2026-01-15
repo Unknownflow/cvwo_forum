@@ -123,8 +123,27 @@ const PostItem: React.FC<Props> = ({ post, editable }) => {
                             <Typography variant="body1" color="textPrimary" component="p">
                                 {post.body}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" component="p">
-                                Posted by: {post.author}, {formatDateTime(post.createdAt)}
+                            <Typography variant="body2" color="text.secondary" component="p" display="inline">
+                                Posted by:{" "}
+                            </Typography>
+                            <Typography
+                                display="inline"
+                                variant="body2"
+                                color="text.secondary"
+                                component="p"
+                                onMouseDown={(event) => event.stopPropagation()}
+                                onTouchStart={(event) => event.stopPropagation()}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    event.preventDefault();
+                                    navigate("/users/" + post.author);
+                                }}
+                                sx={{ "&:hover": { textDecoration: "underline" } }}
+                            >
+                                {post.author}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" component="p" display="inline">
+                                , {formatDateTime(post.createdAt)}
                             </Typography>
                         </CardContent>
                     </CardActionArea>

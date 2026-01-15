@@ -9,18 +9,19 @@ import modalStyle from "../styles/ModalStyle";
 import ModalActions from "../components/ModalActions";
 import LoadingDisplay from "../components/LoadingDisplay";
 import ErrorDisplay from "../components/ErrorDisplay";
-import SortOrder, { DEFAULT_SORT_ORDER } from "../types/SortOrder";
+import SortOrder, { DEFAULT_SORT_ORDER, postsSortOptions } from "../types/SortOrder";
 import SortButton from "../components/SortButton";
 import SearchBox from "../components/SearchBox";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Fab, Link, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Fab, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
-import { useParams, Link as RouterLink } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArticleIcon from "@mui/icons-material/Article";
 import AddIcon from "@mui/icons-material/Add";
 
 const TopicPosts: React.FC = () => {
+    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const topicID = Number(id);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -90,6 +91,10 @@ const TopicPosts: React.FC = () => {
         resetForm();
     };
 
+    const handleTopics = () => {
+        navigate("/topics");
+    };
+
     const isSubmitting = createPostMutation.isPending;
 
     return (
@@ -119,7 +124,7 @@ const TopicPosts: React.FC = () => {
                 )}
 
                 <Stack direction="row" spacing={3} sx={{ width: "100%" }}>
-                    <SortButton order={order} setOrder={setOrder} />
+                    <SortButton order={order} setOrder={setOrder} sortOptions={postsSortOptions} />
                     <SearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} type="posts" />
                 </Stack>
 
@@ -167,9 +172,10 @@ const TopicPosts: React.FC = () => {
                     </Box>
                 </Modal>
 
-                <Link component={RouterLink} to="/topics" underline="hover">
+                <Button variant="contained" onClick={handleTopics}>
                     Back to Topics
-                </Link>
+                </Button>
+
                 <Snackbar
                     open={snackBar.open}
                     autoHideDuration={2500}

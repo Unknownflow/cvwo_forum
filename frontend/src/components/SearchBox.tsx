@@ -13,6 +13,7 @@ const SearchBox: React.FC<Props> = ({ searchTerm, setSearchTerm, type }) => {
     return (
         <TextField
             value={searchTerm}
+            variant="filled"
             label={
                 <Stack direction="row">
                     <SearchIcon /> Search {type}
@@ -20,6 +21,7 @@ const SearchBox: React.FC<Props> = ({ searchTerm, setSearchTerm, type }) => {
             }
             onChange={(event) => setSearchTerm(event.target.value)}
             aria-label={ariaLabel}
+            sx={{ background: "#e6f7ff" }}
         />
     );
 };

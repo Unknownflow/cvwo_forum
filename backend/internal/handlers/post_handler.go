@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -21,6 +22,7 @@ func (h *PostHandler) ReadPost(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "id")
 	postIDInt, err := strconv.Atoi(postID)
 	if err != nil {
+		fmt.Print("posts")
 		RespondError(w, http.StatusBadRequest, "Invalid request param")
 		return
 	}
@@ -31,6 +33,23 @@ func (h *PostHandler) ReadPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	RespondJSON(w, http.StatusOK, post)
+}
+
+func (h *PostHandler) ReadPostsByUser(w http.ResponseWriter, r *http.Request) {
+	user := chi.URLParam(r, "user")
+	fmt.Print("user", user)
+	if user == "" {
+		RespondError(w, http.StatusBadRequest, "Invalid user")
+		return
+	}
+
+	posts, err := h.Service.GetPostsByUser(user)
+
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	RespondJSON(w, http.StatusOK, posts)
 }
 
 func (h *PostHandler) ReadPostComments(w http.ResponseWriter, r *http.Request) {

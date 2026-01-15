@@ -18,7 +18,19 @@ type TopicHandler struct {
 }
 
 func (h *TopicHandler) ReadTopics(w http.ResponseWriter, r *http.Request) {
-	topics, err := h.Service.GetAllTopics()
+	key := r.URL.Query().Get("key")
+	if key != "posts_count" && key != "title" {
+		RespondError(w, http.StatusInternalServerError, "invalid key")
+		return
+	}
+
+	order := r.URL.Query().Get("order")
+	if order != "asc" && order != "desc" {
+		RespondError(w, http.StatusInternalServerError, "invalid order")
+		return
+	}
+
+	topics, err := h.Service.GetAllTopics(key, order)
 
 	if err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
