@@ -15,7 +15,7 @@ const SortButton: React.FC<Props> = ({ order, setOrder }) => {
     return (
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", gap: 1 }}>
             Sort by:
-            <FormControl>
+            <FormControl variant="filled" sx={{ background: "#e6f7ff" }}>
                 <InputLabel>order</InputLabel>
                 <Select value={order} label="Sort by" onChange={handleOrderChange}>
                     <MenuItem value="likes_count, desc">Top</MenuItem>
