@@ -9,6 +9,7 @@ import { useUser } from "../context/userContext";
 import { formatDateTime } from "../utils/utils";
 import React, { useState } from "react";
 import { Box, Card, CardActions, CardContent, Snackbar, TextField, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
     comment: Comment;
@@ -20,6 +21,7 @@ const CommentItem: React.FC<Props> = ({ comment }) => {
     const { snackBar, showSnackBar, handleSnackBarClose } = useSnackBar();
     const updateCommentMutation = useUpdateComment(comment.postID);
     const deleteCommentMutation = useDeleteComment(comment.postID);
+    const navigate = useNavigate();
     const { user } = useUser();
     const isEditable = comment.author == user;
 
@@ -99,11 +101,24 @@ const CommentItem: React.FC<Props> = ({ comment }) => {
                     ) : (
                         <Box sx={{ textAlign: "left", wordBreak: "break-all" }}>
                             <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <Typography variant="h6" color="textPrimary" component="p" fontWeight="bold">
-                                    {comment.author} ·
+                                <Typography
+                                    variant="h6"
+                                    color="textPrimary"
+                                    component="p"
+                                    fontWeight="bold"
+                                    onMouseDown={(event) => event.stopPropagation()}
+                                    onTouchStart={(event) => event.stopPropagation()}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        event.preventDefault();
+                                        navigate("/users/" + comment.author);
+                                    }}
+                                    sx={{ "&:hover": { textDecoration: "underline", cursor: "pointer" } }}
+                                >
+                                    {comment.author}
                                 </Typography>
                                 <Typography variant="body1" color="text.secondary" component="p">
-                                    &nbsp;{formatDateTime(comment.createdAt)}
+                                    &nbsp;· {formatDateTime(comment.createdAt)}
                                 </Typography>
                             </Box>
                             <Typography variant="body1" color="textPrimary" component="p">

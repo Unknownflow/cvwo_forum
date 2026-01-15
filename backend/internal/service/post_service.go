@@ -10,6 +10,7 @@ import (
 
 type PostService interface {
 	GetPostByID(id int) (models.PostResponse, error)
+	GetPostsByUser(user string) ([]models.PostResponse, error)
 	GetAllCommentsByPostID(id int, key string, order string, searchTerm string) ([]models.CommentResponse, error)
 	CreatePost(userID int, post models.PostRequest) error
 	UpdatePost(post models.PostRequest) error
@@ -34,6 +35,16 @@ func (s *postService) GetPostByID(id int) (models.PostResponse, error) {
 	}
 
 	return post, nil
+}
+
+func (s *postService) GetPostsByUser(user string) ([]models.PostResponse, error) {
+	posts, err := s.postRepo.ReadByUser(user)
+
+	if err != nil {
+		return []models.PostResponse{}, fmt.Errorf("failed to retrieve post: %w", err)
+	}
+
+	return posts, nil
 }
 
 func (s *postService) GetAllCommentsByPostID(id int, key string, order string, searchTerm string) ([]models.CommentResponse, error) {

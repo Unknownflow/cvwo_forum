@@ -11,6 +11,7 @@ import (
 
 type PostRepository interface {
 	ReadByID(id int) (models.PostResponse, error)
+	ReadByUser(user string) ([]models.PostResponse, error)
 	ReadCommentsByPostID(id int, key string, order string, searchTerm string) ([]models.CommentResponse, error)
 	Create(post models.Post) error
 	Update(post models.PostRequest) (rowsAffected int64, err error)
@@ -39,6 +40,26 @@ func (r *postRepository) ReadByID(id int) (models.PostResponse, error) {
 		return models.PostResponse{}, fmt.Errorf("failed to execute query: %w", err)
 	}
 	return post, nil
+}
+
+func (r *postRepository) ReadByUser(user string) ([]models.PostResponse, error) {
+	var posts []models.PostResponse
+	query := `SELECT posts.id, posts.header, posts.body, posts.created_at, title,
+			  posts.topic_id, posts.likes_count, posts.comments_count, username AS "author" FROM posts
+			  INNER JOIN users ON users.id = posts.user_id
+			  LEFT JOIN likes ON likes.post_id = posts.id
+			  LEFT JOIN topics ON topics.id = posts.topic_id
+			  WHERE users.username = $1
+			  GROUP BY posts.id, users.id, topics.id
+			  `
+	err := r.db.Select(&posts, query, user)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		}
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	return posts, nil
 }
 
 func (r *postRepository) ReadCommentsByPostID(id int, key string, order string, searchTerm string) ([]models.CommentResponse, error) {

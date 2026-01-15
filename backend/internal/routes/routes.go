@@ -49,6 +49,7 @@ func PostsRoutes(conn *sqlx.DB) func(r chi.Router) {
 	}
 
 	return func(r chi.Router) {
+		r.Get("/user/{user}", postHandler.ReadPostsByUser)
 		r.Route("/", func(r chi.Router) {
 			r.Post("/", postHandler.CreatePost)
 		})

@@ -8,6 +8,11 @@ const readPost = async (id: number) => {
     return response.data;
 };
 
+const readPostsByUser = async (user: string) => {
+    const response = await axiosInstance.get(route + "user/" + user);
+    return response.data;
+};
+
 const readPostComments = async (id: number, order: string, searchTerm: string) => {
     const orderArr = order.split(", ");
     const response = await axiosInstance.get(
@@ -31,4 +36,4 @@ const deletePost = async (id: number) => {
     return response.data;
 };
 
-export { readPost, readPostComments, createPost, updatePost, deletePost };
+export { readPost, readPostsByUser, readPostComments, createPost, updatePost, deletePost };
