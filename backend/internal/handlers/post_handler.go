@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -22,7 +21,6 @@ func (h *PostHandler) ReadPost(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "id")
 	postIDInt, err := strconv.Atoi(postID)
 	if err != nil {
-		fmt.Print("posts")
 		RespondError(w, http.StatusBadRequest, "Invalid request param")
 		return
 	}
@@ -37,7 +35,6 @@ func (h *PostHandler) ReadPost(w http.ResponseWriter, r *http.Request) {
 
 func (h *PostHandler) ReadPostsByUser(w http.ResponseWriter, r *http.Request) {
 	user := chi.URLParam(r, "user")
-	fmt.Print("user", user)
 	if user == "" {
 		RespondError(w, http.StatusBadRequest, "Invalid user")
 		return
