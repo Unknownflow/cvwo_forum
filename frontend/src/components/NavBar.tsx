@@ -58,11 +58,13 @@ const NavBar: React.FC = () => {
                             &nbsp;Likes
                         </Button>
                     </Box>
-                    <Box>
-                        <Button color="inherit" onClick={handleProfile}>
-                            <AccountCircleIcon />
-                            &nbsp;Profile
-                        </Button>
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                        {user != "" && (
+                            <Button color="inherit" onClick={handleProfile}>
+                                <AccountCircleIcon />
+                                &nbsp;Profile
+                            </Button>
+                        )}
                         <Button color="inherit" onClick={() => (user ? handleLogout() : handleLogin())}>
                             {user == "" ? (
                                 <>
