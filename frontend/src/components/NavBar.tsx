@@ -8,6 +8,7 @@ import TopicIcon from "@mui/icons-material/Topic";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const NavBar: React.FC = () => {
     const { user, logout } = useUser();
@@ -28,6 +29,10 @@ const NavBar: React.FC = () => {
 
     const handleLikes = () => {
         navigate("/likes");
+    };
+
+    const handleProfile = () => {
+        navigate("/users/" + user);
     };
 
     const handleLogout = () => {
@@ -54,6 +59,10 @@ const NavBar: React.FC = () => {
                         </Button>
                     </Box>
                     <Box>
+                        <Button color="inherit" onClick={handleProfile}>
+                            <AccountCircleIcon />
+                            &nbsp;Profile
+                        </Button>
                         <Button color="inherit" onClick={() => (user ? handleLogout() : handleLogin())}>
                             {user == "" ? (
                                 <>
