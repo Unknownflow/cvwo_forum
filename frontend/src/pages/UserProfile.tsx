@@ -11,7 +11,6 @@ const UserProfile: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useParams<{ user: string }>();
 
-    console.log("user", user);
     const { isLoading, isError, data } = useQuery({
         queryKey: ["userPosts", user],
         queryFn: () => readPostsByUser(user ? user : ""),

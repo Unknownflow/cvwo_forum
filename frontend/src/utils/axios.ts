@@ -40,7 +40,7 @@ axiosInstance.interceptors.response.use(
 
             // Extract error message from response
             const message = error.response?.data;
-            console.error("API Error:", message);
+            // console.error("API Error:", message);
 
             return Promise.reject(new Error(message));
         }
