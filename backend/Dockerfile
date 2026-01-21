@@ -7,6 +7,9 @@ WORKDIR /app
 # Download Go modules
 COPY go.* ./
 
+# Copy migrations file
+COPY ./migrations /migrations
+
 RUN go mod download
 
 # Copy source code
