@@ -91,21 +91,21 @@ yarn start
 ### Root directory
 
 ```
-DB_HOST="localhost" // change for production
-DB_USER="user" // change username
-DB_PASSWORD="password" // change password
-DB_NAME="database" // change database name
+DB_HOST=localhost // change for production
+DB_USER=user // change username
+DB_PASSWORD=password // change password
+DB_NAME=database // change database name
 DB_PORT=5432
-DB_DEFAULT_ROLE="user"
-JWT_ACCESS_TOKEN_SECRET="secret" // change the secret
-JWT_REFRESH_TOKEN_SECRET="secret" // change the secret
-IS_PRODUCTION="false" // set to true for production
+DB_DEFAULT_ROLE=user
+JWT_ACCESS_TOKEN_SECRET=secret // change the secret
+JWT_REFRESH_TOKEN_SECRET=secret // change the secret
+IS_PRODUCTION=false // set to true for production
 ```
 
 ### Frontend directory
 
 ```
-REACT_APP_API_BASE_URL="http://localhost:8000" // change for production
+REACT_APP_API_BASE_URL=http://localhost:8000 // change for production
 ```
 
 ## AI Use
