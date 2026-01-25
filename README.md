@@ -1,6 +1,6 @@
 # NUS Forum
 
-By: Clarence Lau Cun Guang
+Created by: Clarence Lau Cun Guang
 
 This repository contains the code for a university web forum website made for the CVWO Winter Assignment 2025.
 
@@ -8,36 +8,24 @@ This repository contains the code for a university web forum website made for th
 
 - Frontend Server: https://nus-forum.vercel.app/
 - Backend API Server: https://nus-forum-server.onrender.com
+- PostgresSQL Database: hosted on Render
 
-## API Endpoints
+## 🚀 Core Features
 
-For login, sign up, log out requests
-
-- /auth
-
-Protected routes requiring JSON Web Tokens
-
-- /topics/:id
-- /posts/:id
-- /comments/:id
-
-Perform CRUD operations on topics, posts and comments.
-
-## Core Features
-
-- Topics: create new topics to allow for further post discussions in the comments
+- Topics: allow creation of new topics to generate further discussions on the forum
+- Posts: allow creation of posts related to the topics and users to reply to posts
 - Search: search for favourite topics, posts and comments
 - Sort: sort topics, posts and comments by any order
 - Voting: like or dislike any posts or comments created by other users, and view liked posts and comments
 - Profile: view posts created by other users
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 **Frontend:**
 React, Typescript, Axios, TanStack Query, MUI
 
 **Backend:**
-GoLang, Go-chi
+Golang, Go-chi
 
 **Database:**
 PostgresSQL
@@ -69,7 +57,7 @@ Docker
 │   └── yarn.lock
 ├── backend
 │   ├── cmd/
-│   │   ├── server/      # API routes
+│   │   └── server/      # API routes
 │   ├── internal/
 │   │   ├── api/         # Encapsulates types and utilities related to the API
 │   │   ├── auth/
@@ -90,7 +78,64 @@ Docker
 └── tsconfig.json
 ```
 
-## Installation using Docker (Recommended)
+## API Endpoints
+
+### Authentication endpoints
+
+- Login: POST /auth/login
+- Sign up: POST /auth/signup
+- Log out: POST /auth/logout
+
+All API endpoints below are protected routes and JSON Web Tokens are required to access these endpoints.
+
+### Topics
+
+- Create topic: POST /topics
+- Get all topics: GET /topics
+- Get topic: GET /topics/{id}
+- Update topic: PUT /topics/{id}
+- Delete topic: DELETE /topics/{id}
+
+### Posts
+
+- Create post: POST /posts
+- Get all topic posts: GET /topics/{id}/posts
+- Get post: GET /posts/{id}
+- Get all posts by user: GET /posts/user/{user}
+- Update post: PUT /posts/{id}
+- Delete post: DELETE /posts/{id}
+
+### Comments
+
+- Create comment: POST /comments
+- Get all post comments: GET /posts/{id}/comments
+- Get comment: GET /comments/{id}
+- Update comment: PUT /comments/{id}
+- Delete comment: DELETE /comments/{id}
+
+### Post likes
+
+- Create post like: POST /posts/likes
+- Get post like: GET /posts/likes/{id}
+- Delete post like: DELETE /posts/likes/{id}
+- Get posts liked by user: GET /posts/likes
+
+### Comment likes
+
+- Create comment like: POST /comments/likes
+- Get comment like: GET /comments/likes/{id}
+- Delete comment like: DELETE /comments/likes/{id}
+- Get comments liked by user: GET /comments/likes
+
+## ⚙️ Local development
+
+### Prerequisites
+
+- Go 1.25+
+- NodeJS 22+ and npm
+- Docker (recommended for deployment)
+
+### 🐳 Installation using Docker (Recommended)
 
 1. Clone the repository to your local machine
 
@@ -116,7 +161,7 @@ docker compose up -d
 
 6. Open [http://localhost:3000](http://localhost:3000) to view the frontend in the browser.
 
-## Installation without using Docker
+### Installation without using Docker
 
 1. Clone the repository to your local machine.
 
