@@ -1,6 +1,8 @@
 import PostItem from "../components/PostItem";
 import Post from "../types/Post";
 import { readPostsByUser } from "../api/post";
+import LoadingDisplay from "../components/LoadingDisplay";
+import ErrorDisplay from "../components/ErrorDisplay";
 import { Button, Stack, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
@@ -22,7 +24,10 @@ const UserProfile: React.FC = () => {
                 <AccountCircleIcon /> {user}&apos;s posts
             </Typography>
 
+            {isLoading && <LoadingDisplay />}
+            {isError && <ErrorDisplay type={user + " posts"} />}
             {!isError && !isLoading && data == null && <Typography>No posts found.</Typography>}
+
             {!isLoading &&
                 !isError &&
                 data?.map((post: Post) => (

@@ -63,9 +63,6 @@ const Topics: React.FC = () => {
                 Topics <TopicIcon />
             </Typography>
 
-            {isLoading && <LoadingDisplay />}
-            {isError && <ErrorDisplay type="topics" />}
-
             <Box
                 sx={{
                     display: "flex",
@@ -76,12 +73,13 @@ const Topics: React.FC = () => {
             >
                 <SortButton order={order} setOrder={setOrder} sortOptions={topicsSortOptions} />
 
-                {data == null && <Typography>No topics yet.</Typography>}
+                {isLoading && <LoadingDisplay />}
+                {isError && <ErrorDisplay type="topics" />}
+                {!isLoading && !isError && data == null && <Typography>No topics yet.</Typography>}
 
                 {data?.map((topic: Topic) => (
                     <TopicItem key={topic.id} topic={topic} editable={true} />
                 ))}
-
                 <Fab
                     color="primary"
                     aria-label="create-topic"
@@ -90,7 +88,6 @@ const Topics: React.FC = () => {
                 >
                     <AddIcon />
                 </Fab>
-
                 <Modal open={isModalOpen} onClose={handleModalClose}>
                     <Box sx={modalStyle}>
                         <Typography fontWeight="bold">New topic name</Typography>
@@ -109,7 +106,6 @@ const Topics: React.FC = () => {
                         />
                     </Box>
                 </Modal>
-
                 <Snackbar
                     open={snackBar.open}
                     autoHideDuration={2500}

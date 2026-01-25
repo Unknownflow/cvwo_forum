@@ -76,11 +76,13 @@ const Likes: React.FC = () => {
 
             {currentView === "posts" && (
                 <>
-                    {isPostLikesLoading && <LoadingDisplay />}
-                    {isPostLikesError && <ErrorDisplay type={"liked posts"} />}
-                    {!postData && <Typography>No liked posts yet.</Typography>}
-
                     <Box sx={style}>
+                        {isPostLikesLoading && <LoadingDisplay />}
+                        {isPostLikesError && <ErrorDisplay type="liked posts" />}
+                        {!isPostLikesLoading && !isPostLikesError && postData == null && (
+                            <Typography>No liked posts yet.</Typography>
+                        )}
+
                         {postData != null && (
                             <SortButton order={postsOrder} setOrder={setPostsOrder} sortOptions={postsSortOptions} />
                         )}
@@ -104,11 +106,13 @@ const Likes: React.FC = () => {
 
             {currentView === "comments" && (
                 <>
-                    {isCommentLikesLoading && <LoadingDisplay />}
-                    {isCommentLikesError && <ErrorDisplay type="liked comments" />}
-                    {!commentData && <Typography>No liked comments yet.</Typography>}
-
                     <Box sx={style}>
+                        {isCommentLikesLoading && <LoadingDisplay />}
+                        {isCommentLikesError && <ErrorDisplay type="liked comments" />}
+                        {!isCommentLikesLoading && !isCommentLikesError && commentData == null && (
+                            <Typography>No liked comments yet.</Typography>
+                        )}
+
                         {commentData != null && (
                             <SortButton
                                 order={commentsOrder}
