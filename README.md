@@ -1,13 +1,11 @@
 # NUS Forum
 
-Created by: Clarence Lau Cun Guang
-
 This repository contains the code for a university web forum website made for the CVWO Winter Assignment 2025.
 
 ## Deployment
 
-- Frontend Server: https://nus-forum.vercel.app/
-- Backend API Server: https://nus-forum-server.onrender.com
+- Frontend Server: <https://nus-forum.vercel.app/>
+- Backend API Server: <https://nus-forum-server.onrender.com>
 - PostgresSQL Database: hosted on Render
 
 ## 🚀 Core Features
@@ -35,7 +33,7 @@ Docker
 
 ## Project structure
 
-```
+```text
 .
 ├── frontend/
 │   ├── public/
@@ -143,23 +141,23 @@ All API endpoints below are protected routes and JSON Web Tokens are required to
 git clone https://github.com/Unknownflow/cvwo_assignment.git
 ```
 
-2. Open your terminal and navigate to the directory containing your cloned project
+1. Open your terminal and navigate to the directory containing your cloned project
 
-3. Create an .env file with all the environment variables listed below.
+2. Create an .env file with all the environment variables listed below.
 
-4. Run the following docker command to build the docker containers with all of its images.
+3. Run the following docker command to build the docker containers with all of its images.
 
 ```sh
 docker compose build
 ```
 
-5. Run the following docker command to start up the docker container.
+1. Run the following docker command to start up the docker container.
 
 ```sh
 docker compose up -d
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) to view the frontend in the browser.
+1. Open [http://localhost:3000](http://localhost:3000) to view the frontend in the browser.
 
 ### Installation without using Docker
 
@@ -169,49 +167,49 @@ docker compose up -d
 git clone https://github.com/Unknownflow/cvwo_assignment.git
 ```
 
-2. Set up your local PostgresSQL Database
+1. Set up your local PostgresSQL Database
 
-3. Create an .env file with all the environment variables listed below.
+2. Create an .env file with all the environment variables listed below.
 
-4. Navigate to the directory containing the backend code.
+3. Navigate to the directory containing the backend code.
 
 ```sh
 cd backend
 ```
 
-5. Download and install Go by following the instructions [here](https://go.dev/doc/install).
+1. Download and install Go by following the instructions [here](https://go.dev/doc/install).
 
-6. Run the go server by entering this command:
+2. Run the go server by entering this command:
 
 ```sh
 go run ./cmd/server/main.go
 ```
 
-7. Open your terminal and navigate to the directory containing the frontend code.
+1. Open your terminal and navigate to the directory containing the frontend code.
 
 ```sh
 cd ../frontend
 ```
 
-8. Install dependencies for the project by entering this command:
+1. Install dependencies for the project by entering this command:
 
 ```sh
 yarn install
 ```
 
-9. Run the app in development mode by entering this command:
+1. Run the app in development mode by entering this command:
 
 ```sh
 yarn start
 ```
 
-10. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+ 1. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 ## Setting up of environment variables
 
 ### Root directory
 
-```
+```text
 DB_HOST=postgres                // postgres for docker, localhost for localhost
 DB_USER=user                    // change username
 DB_PASSWORD=password            // change password
@@ -225,12 +223,6 @@ IS_PRODUCTION=false             // set to true for production
 
 ### Frontend directory
 
-```
+```text
 REACT_APP_API_BASE_URL=http://localhost:8000 // change for production
 ```
-
-## AI Use
-
-- Used Claude Sonnet 4.5 to evaluate my user authentication components
-- Used Claude Sonnet 4.5 to suggest a recommended structure for Go backend to improve the maintainability and scalability of the backend
-- Used Claude Sonnet 4.5 to suggest a template README.md for a project which uses React for frontend and Golang for backend.
